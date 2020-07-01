@@ -3,8 +3,12 @@ import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mydeca_web/pages/auth/login_page.dart';
+import 'package:mydeca_web/pages/auth/register_advisor_page.dart';
 import 'package:mydeca_web/pages/auth/register_page.dart';
-import 'package:mydeca_web/pages/home_page.dart';
+import 'package:mydeca_web/pages/conference/conference_details_page.dart';
+import 'package:mydeca_web/pages/conference/conference_page.dart';
+import 'package:mydeca_web/pages/event/events_page.dart';
+import 'package:mydeca_web/pages/home/home_page.dart';
 import 'package:mydeca_web/pages/onboarding_page.dart';
 import 'package:mydeca_web/utils/service_account.dart';
 import 'package:mydeca_web/utils/theme.dart';
@@ -26,6 +30,9 @@ void main() {
   router.define('/register', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
     return new RegisterPage();
   }));
+  router.define('/register/advisor', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
+    return new RegisterAdvisorPage();
+  }));
 
   // HOME ROUTES
   router.define('/', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
@@ -33,6 +40,19 @@ void main() {
   }));
   router.define('/home', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
     return new HomePage();
+  }));
+
+  // CONFERENCES ROUTES
+  router.define('/conferences', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
+    return new ConferencesPage();
+  }));
+  router.define('/conferences/details', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
+    return new ConferenceDetailsPage();
+  }));
+
+  // EVENTS ROUTES
+  router.define('/events', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
+    return new EventsPage();
   }));
 
   runApp(new MaterialApp(

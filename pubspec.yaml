@@ -34,7 +34,9 @@ dependencies:
   progress_indicators: ^0.1.4
   url_launcher: ^5.4.1
   intl: ^0.16.1
+  cached_network_image: ^2.2.0+1
   http: ^0.12.0+2
+  path_provider: ^1.6.10
   flutter_circular_chart: ^0.1.0
   charts_flutter: ^0.8.1
   flutter_sparkline: ^0.1.0
@@ -105,6 +107,16 @@ flutter:
       fonts:
         - asset: fonts/Gotham Bold.otf
           weight: 700
+    - family: Montserrat
+      fonts:
+        - asset: fonts/Montserrat-Regular.ttf
+        - asset: fonts/Montserrat-Italic.ttf
+          style: italic
+        - asset: fonts/Montserrat-Bold.ttf
+          weight: 700
+        - asset: fonts/Montserrat-BoldItalic.ttf
+          weight: 700
+          style: italic
     - family: Source Sans Pro
       fonts:
         - asset: fonts/SourceSansPro-Regular.ttf
