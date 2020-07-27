@@ -2,10 +2,21 @@ import 'package:flutter/material.dart';
 
 bool darkMode = false;
 bool darkAppBar = false;
+
 // Main DECA Color
 Color mainColor = const Color(0xFF0073CE);
 // Color for Selected Event
 Color eventColor = const Color(0xFF0073CE);
+
+// Role Colors
+Map<String, Color> roleColors = {
+  "Member": Color(0xFFfcc415),
+  "Officer": Color(0xFFeb5757),
+  "President": Color(0xFFA786DD),
+  "Advisor": Color(0xFFfcc415),
+  "Bot": Color(0xFF0073CE),
+  "Developer": Color(0xFF0073CE),
+};
 
 // LIGHT THEME
 const lightTextColor = Colors.black;
