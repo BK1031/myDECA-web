@@ -55,9 +55,22 @@ class _ConferenceDetailsPageState extends State<ConferenceDetailsPage> {
                   imageUrl: conference.imageUrl,
                   width: double.infinity,
                   fit: BoxFit.fitWidth,
-
                 ),
                 new Padding(padding: EdgeInsets.only(bottom: 8.0)),
+                new Container(
+                  width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                  child: new Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      new FlatButton(
+                        child: new Text("Back to Conferences", style: TextStyle(color: mainColor, fontSize: 15),),
+                        onPressed: () {
+                          router.navigateTo(context, '/conferences', transition: TransitionType.fadeIn);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
                 Container(
                   padding: EdgeInsets.only(top: 8),
                   width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,

@@ -90,14 +90,13 @@ class _ConferenceOverviewPageState extends State<ConferenceOverviewPage> {
               }
             },
             child: new ListTile(
-              title: new Text("Hotel Map", style: TextStyle(color: currTextColor, fontSize: 17),),
+              title: new Text("Hotel Map", style: TextStyle(color: currTextColor, fontSize: 18),),
               trailing: new Icon(
                 Icons.arrow_forward_ios,
                 color: mainColor,
               ),
             ),
           ),
-          new Divider(height: 0.0, color: mainColor),
           new InkWell(
             onTap: () {
               print(conference.alertsUrl);
@@ -109,7 +108,7 @@ class _ConferenceOverviewPageState extends State<ConferenceOverviewPage> {
               }
             },
             child: new ListTile(
-              title: new Text("Announcements", style: TextStyle(color: currTextColor),),
+              title: new Text("Announcements", style: TextStyle(color: currTextColor, fontSize: 18),),
               trailing: new Icon(
                 Icons.arrow_forward_ios,
                 color: mainColor,
@@ -127,7 +126,7 @@ class _ConferenceOverviewPageState extends State<ConferenceOverviewPage> {
               }
             },
             child: new ListTile(
-              title: new Text("Competitive Event Schedule", style: TextStyle(color: currTextColor),),
+              title: new Text("Competitive Event Schedule", style: TextStyle(color: currTextColor, fontSize: 18),),
               trailing: new Icon(
                 Icons.arrow_forward_ios,
                 color: mainColor,

@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase/firebase.dart' as fb;
+import 'package:mydeca_web/models/announcement.dart';
 import 'package:mydeca_web/models/user.dart';
 import 'package:mydeca_web/navbars/home_navbar.dart';
 import 'package:mydeca_web/pages/auth/login_page.dart';
@@ -19,7 +20,9 @@ class _HomePageState extends State<HomePage> {
 
   final Storage _localStorage = html.window.localStorage;
 
-  List<String> announcementList = new List();
+  List<Announcement> announcementList = new List();
+  int unreadAnnounce = 0;
+
   List<Widget> roleWidgetList = new List();
 
   User currUser = User.plain();
@@ -43,8 +46,35 @@ class _HomePageState extends State<HomePage> {
             ));
           }
         });
+        getAnnouncements();
       });
     }
+  }
+
+  void getAnnouncements() {
+    print(DateTime.now());
+    // Get Chapter announcements
+    fb.database().ref("chapters").child(currUser.chapter.chapterID).child("announcements").onChildAdded.listen((event) {
+      fb.database().ref("users").child(currUser.userID).child("announcements").child(event.snapshot.key).once("value").then((value) {
+        setState(() {
+          announcementList.add(new Announcement.fromSnapshot(event.snapshot));
+        });
+        if (value.snapshot.val() == null) {
+          unreadAnnounce++;
+        }
+      });
+    });
+    // Get official announcements
+    fb.database().ref("announcements").onChildAdded.listen((event) {
+      fb.database().ref("users").child(currUser.userID).child("announcements").child(event.snapshot.key).once("value").then((value) {
+        setState(() {
+          announcementList.add(new Announcement.fromSnapshot(event.snapshot));
+        });
+        if (value.snapshot.val() == null) {
+          unreadAnnounce++;
+        }
+      });
+    });
   }
 
   @override
@@ -124,18 +154,18 @@ class _HomePageState extends State<HomePage> {
                                                   color: currCardColor,
                                                   child: new InkWell(
                                                     onTap: () {
-                                                      router.navigateTo(context, '/home/announcements', transition: TransitionType.native);
+                                                      router.navigateTo(context, '/home/announcements', transition: TransitionType.fadeIn);
                                                     },
                                                     child: new Column(
                                                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                                       children: <Widget>[
                                                         new Text(
-                                                          announcementList.length.toString(),
-                                                          style: TextStyle(fontSize: 35.0, color: darkMode ? Colors.grey : Colors.black54),
+                                                          unreadAnnounce > 0 ? unreadAnnounce.toString() : announcementList.length.toString(),
+                                                          style: TextStyle(fontSize: 35.0, color: unreadAnnounce > 0 ? mainColor : Colors.grey),
                                                         ),
                                                         new Text(
-                                                          "Announcements",
-                                                          style: TextStyle(fontSize: 13.0, color: currTextColor),
+                                                          unreadAnnounce > 0 ? "New Announcements" : "Announcements",
+                                                          style: TextStyle(fontSize: 13.0, color: unreadAnnounce > 0 ? mainColor : currTextColor),
                                                         )
                                                       ],
                                                     ),
