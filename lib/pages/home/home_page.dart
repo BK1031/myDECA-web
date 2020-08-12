@@ -7,6 +7,7 @@ import 'package:mydeca_web/models/announcement.dart';
 import 'package:mydeca_web/models/user.dart';
 import 'package:mydeca_web/navbars/home_navbar.dart';
 import 'package:mydeca_web/pages/auth/login_page.dart';
+import 'package:mydeca_web/pages/home/advisor/advisor_conference_select.dart';
 import 'package:mydeca_web/utils/config.dart';
 import 'package:mydeca_web/utils/theme.dart';
 import 'dart:html' as html;
@@ -24,6 +25,7 @@ class _HomePageState extends State<HomePage> {
   int unreadAnnounce = 0;
 
   List<Widget> roleWidgetList = new List();
+  List<Widget> conferenceWidgetList = new List();
 
   User currUser = User.plain();
 
@@ -47,6 +49,7 @@ class _HomePageState extends State<HomePage> {
           }
         });
         getAnnouncements();
+        getAdvisorInfo();
       });
     }
   }
@@ -75,6 +78,66 @@ class _HomePageState extends State<HomePage> {
         }
       });
     });
+  }
+
+  void getAdvisorInfo() {
+    if (currUser.roles.contains("Developer") || currUser.roles.contains("Advisor")) {
+      fb.database().ref("chapters").child(currUser.chapter.chapterID).child("conferences").onValue.listen((event) {
+        print("value");
+        updateSelectedConferences();
+      });
+    }
+    else {
+      print("Not authorized");
+    }
+  }
+
+  void updateSelectedConferences() {
+    setState(() {
+      conferenceWidgetList.clear();
+    });
+    fb.database().ref("chapters").child(currUser.chapter.chapterID).child("conferences").onChildAdded.listen((event) {
+      print("${event.snapshot.key} – ${event.snapshot.val()["enabled"]}");
+      if (event.snapshot.val()["enabled"]) {
+        fb.database().ref("conferences").child(event.snapshot.key).child("past").once("value").then((value) {
+          if (value.snapshot.val()) {
+            print("Event has already past");
+          }
+          else {
+            setState(() {
+              conferenceWidgetList.add(new Card(
+                color: mainColor,
+                child: new Container(
+                  padding: EdgeInsets.only(top: 4, bottom: 4, left: 8, right: 8),
+                  child: new Text(event.snapshot.key, style: TextStyle(color: Colors.white),),
+                ),
+              ));
+            });
+          }
+        });
+      }
+    });
+  }
+
+  void selectConferenceDialog(User user) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: new Text("Select Conferences", style: TextStyle(color: currTextColor),),
+            backgroundColor: currCardColor,
+            content: new AdvisorConferenceSelect(user),
+            actions: [
+              new FlatButton(
+                child: new Text("DONE"),
+                onPressed: () {
+                  router.pop(context);
+                },
+              )
+            ],
+          );
+        }
+    );
   }
 
   @override
@@ -177,7 +240,7 @@ class _HomePageState extends State<HomePage> {
                                         ),
                                         new Padding(padding: EdgeInsets.all(4.0)),
                                         new Visibility(
-                                          visible: currUser.roles.contains("Developer") || currUser.roles.contains("Officer") || currUser.roles.contains("Advisor"),
+                                          visible: currUser.roles.contains("Developer") || currUser.roles.contains("Officer"),
                                           child: new Container(
                                             width: double.infinity,
                                             height: 100.0,
@@ -213,7 +276,7 @@ class _HomePageState extends State<HomePage> {
                                                     color: currCardColor,
                                                     child: new InkWell(
                                                       onTap: () {
-                                                        // TODO: Implement role management
+                                                        router.navigateTo(context, "/home/manage-users", transition: TransitionType.fadeIn);
                                                       },
                                                       child: new Column(
                                                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -233,6 +296,161 @@ class _HomePageState extends State<HomePage> {
                                           ),
                                         ),
                                       ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              new Padding(padding: EdgeInsets.all(8)),
+                              new Visibility(
+                                visible: currUser.roles.contains("Developer") || currUser.roles.contains("Advisor"),
+                                child: new Container(
+                                  padding: new EdgeInsets.only(left: 16),
+                                  child: new Card(
+                                    elevation: 2.0,
+                                    child: new Container(
+                                      color: currCardColor,
+                                      padding: new EdgeInsets.all(16),
+                                      child: new Column(
+                                        children: [
+                                          new Row(
+                                            children: [
+                                              new Icon(Icons.event),
+                                              new Padding(padding: EdgeInsets.all(4)),
+                                              new Text("ADVISOR PANEL", style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor),)
+                                            ],
+                                          ),
+                                          new Padding(padding: EdgeInsets.only(top: 8, bottom: 16), child: new Divider(color: currDividerColor, height: 8)),
+                                          new Container(
+                                            width: double.infinity,
+                                            height: 100.0,
+                                            child: new Row(
+                                              children: <Widget>[
+                                                new Expanded(
+                                                  flex: 5,
+                                                  child: new Card(
+                                                    elevation: 2.0,
+                                                    color: currCardColor,
+                                                    child: new InkWell(
+                                                      onTap: () {
+                                                        selectConferenceDialog(currUser);
+                                                      },
+                                                      child: Row(
+                                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                        children: [
+                                                          Container(
+                                                            child: new Column(
+                                                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                              children: <Widget>[
+                                                                new Icon(Icons.event, size: 35.0, color: darkMode ? Colors.grey : Colors.black54),
+                                                                new Text(
+                                                                  "My Conferences",
+                                                                  style: TextStyle(fontSize: 13.0, color: currTextColor),
+                                                                )
+                                                              ],
+                                                            ),
+                                                          ),
+                                                          Container(
+                                                            child: new Wrap(
+                                                              direction: Axis.horizontal,
+                                                              children: conferenceWidgetList,
+                                                            ),
+                                                          ),
+                                                          new Visibility(
+                                                            visible: conferenceWidgetList.isEmpty,
+                                                            child: Container(
+                                                              child: new Text(
+                                                                "No conferences selected for this chapter.\nClick on this card to add a conference.",
+                                                                style: TextStyle(color: currTextColor),
+                                                              ),
+                                                            ),
+                                                          )
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                new Padding(padding: EdgeInsets.all(4.0)),
+                                                new Expanded(
+                                                  flex: 3,
+                                                  child: new Card(
+                                                    elevation: 2.0,
+                                                    color: currCardColor,
+                                                    child: new InkWell(
+                                                      onTap: () {
+                                                        router.navigateTo(context, "/home/manage-users", transition: TransitionType.fadeIn);
+                                                      },
+                                                      child: new Column(
+                                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                        children: <Widget>[
+                                                          new Icon(Icons.supervised_user_circle, size: 35.0, color: darkMode ? Colors.grey : Colors.black54),
+                                                          new Text(
+                                                            "Manage Users",
+                                                            style: TextStyle(fontSize: 13.0, color: currTextColor),
+                                                          )
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                          new Padding(padding: EdgeInsets.all(4.0)),
+                                          new Container(
+                                            width: double.infinity,
+                                            height: 100.0,
+                                            child: new Row(
+                                              children: <Widget>[
+                                                new Expanded(
+                                                  flex: 3,
+                                                  child: new Card(
+                                                    color: currCardColor,
+                                                    elevation: 2.0,
+                                                    child: new InkWell(
+                                                      onTap: () {
+                                                        router.navigateTo(context, '/home/notification-manager', transition: TransitionType.native);
+                                                      },
+                                                      child: new Column(
+                                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                        children: <Widget>[
+                                                          new Icon(Icons.notifications_active, size: 35.0, color: darkMode ? Colors.grey : Colors.black54,),
+                                                          new Text(
+                                                            "Send Notification",
+                                                            style: TextStyle(fontSize: 13.0, color: currTextColor),
+                                                          )
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                new Padding(padding: EdgeInsets.all(4.0)),
+                                                new Expanded(
+                                                  flex: 5,
+                                                  child: new Card(
+                                                    elevation: 2.0,
+                                                    color: currCardColor,
+                                                    child: new InkWell(
+                                                      onTap: () {
+                                                        router.navigateTo(context, "/home/manage", transition: TransitionType.fadeIn);
+                                                      },
+                                                      child: new Column(
+                                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                        children: <Widget>[
+                                                          new Icon(Icons.library_books, size: 35.0, color: darkMode ? Colors.grey : Colors.black54),
+                                                          new Text(
+                                                            "Manage Handbooks",
+                                                            style: TextStyle(fontSize: 13.0, color: currTextColor),
+                                                          )
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -263,7 +481,7 @@ class _HomePageState extends State<HomePage> {
                                             new Text("PROFILE", style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor),)
                                           ],
                                         ),
-                                        new Padding(padding: EdgeInsets.only(top: 8, bottom: 16), child: new Divider(color: currDividerColor, height: 8)),
+                                        new Container(padding: EdgeInsets.only(top: 8, bottom: 16), child: new Divider(color: currDividerColor, height: 8)),
                                         new ClipRRect(
                                           borderRadius: BorderRadius.all(Radius.circular(100)),
                                           child: new CachedNetworkImage(
@@ -309,7 +527,7 @@ class _HomePageState extends State<HomePage> {
                                             new Text("UPCOMING EVENTS", style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor),)
                                           ],
                                         ),
-                                        new Padding(padding: EdgeInsets.only(top: 8, bottom: 16), child: new Divider(color: currDividerColor, height: 8, )),
+                                        new Container(padding: EdgeInsets.only(top: 8, bottom: 16), child: new Divider(color: currDividerColor, height: 8, )),
                                         new Text("There are no upcoming events.")
                                       ],
                                     ),
@@ -340,233 +558,6 @@ class _HomePageState extends State<HomePage> {
                     padding: new EdgeInsets.all(4.0),
                     child: new Text("Welcome back, ${currUser.firstName}.", style: TextStyle(fontFamily: "Montserrat", color: currTextColor, fontSize: 35), textAlign: TextAlign.start,),
                   ),
-                  new Container(
-                    padding: new EdgeInsets.only(top: 4.0, bottom: 4.0),
-                    width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
-                    child: new Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        new Expanded(
-                          flex: 2,
-                          child: new Column(
-                            children: [
-                              new Container(
-                                padding: new EdgeInsets.only(left: 16),
-                                child: new Card(
-                                  elevation: 2.0,
-                                  child: new Container(
-                                    color: currCardColor,
-                                    padding: new EdgeInsets.all(16),
-                                    child: new Column(
-                                      children: [
-                                        new Row(
-                                          children: [
-                                            new Icon(Icons.event),
-                                            new Padding(padding: EdgeInsets.all(4)),
-                                            new Text("DASHBOARD", style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor),)
-                                          ],
-                                        ),
-                                        new Padding(padding: EdgeInsets.only(top: 8, bottom: 16), child: new Divider(color: currDividerColor, height: 8)),
-                                        new Container(
-                                          width: double.infinity,
-                                          height: 100.0,
-                                          child: new Row(
-                                            children: <Widget>[
-                                              new Expanded(
-                                                flex: 5,
-                                                child: new Card(
-                                                  elevation: 2.0,
-                                                  color: currCardColor,
-                                                  child: new InkWell(
-                                                    onTap: () {
-                                                    },
-                                                    child: new Column(
-                                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                                      children: <Widget>[
-                                                        new Icon(Icons.event, size: 35.0, color: darkMode ? Colors.grey : Colors.black54),
-                                                        new Text(
-                                                          "My Events",
-                                                          style: TextStyle(fontSize: 13.0, color: currTextColor),
-                                                        )
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                              new Padding(padding: EdgeInsets.all(4.0)),
-                                              new Expanded(
-                                                flex: 3,
-                                                child: new Card(
-                                                  elevation: 2.0,
-                                                  color: currCardColor,
-                                                  child: new InkWell(
-                                                    onTap: () {
-                                                      router.navigateTo(context, '/home/announcements', transition: TransitionType.native);
-                                                    },
-                                                    child: new Column(
-                                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                                      children: <Widget>[
-                                                        new Text(
-                                                          announcementList.length.toString(),
-                                                          style: TextStyle(fontSize: 35.0, color: darkMode ? Colors.grey : Colors.black54),
-                                                        ),
-                                                        new Text(
-                                                          "Announcements",
-                                                          style: TextStyle(fontSize: 13.0, color: currTextColor),
-                                                        )
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                              )
-                                            ],
-                                          ),
-                                        ),
-                                        new Padding(padding: EdgeInsets.all(4.0)),
-                                        new Container(
-                                          width: double.infinity,
-                                          height: 100.0,
-                                          child: new Row(
-                                            children: <Widget>[
-                                              new Expanded(
-                                                flex: 3,
-                                                child: new Visibility(
-                                                  visible: true,
-                                                  child: new Card(
-                                                    color: currCardColor,
-                                                    elevation: 2.0,
-                                                    child: new InkWell(
-                                                      onTap: () {
-                                                        router.navigateTo(context, '/home/notification-manager', transition: TransitionType.native);
-                                                      },
-                                                      child: new Column(
-                                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                                        children: <Widget>[
-                                                          new Icon(Icons.notifications_active, size: 35.0, color: darkMode ? Colors.grey : Colors.black54,),
-                                                          new Text(
-                                                            "Send Notification",
-                                                            style: TextStyle(fontSize: 13.0, color: currTextColor),
-                                                          )
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                              new Padding(padding: EdgeInsets.all(4.0)),
-                                              new Expanded(
-                                                flex: 5,
-                                                child: new Visibility(
-                                                  visible: true,
-                                                  child: new Card(
-                                                    elevation: 2.0,
-                                                    color: currCardColor,
-                                                    child: new InkWell(
-                                                      onTap: () {
-                                                        // TODO: Implement role management
-                                                      },
-                                                      child: new Column(
-                                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                                        children: <Widget>[
-                                                          new Icon(Icons.supervised_user_circle, size: 35.0, color: darkMode ? Colors.grey : Colors.black54),
-                                                          new Text(
-                                                            "Manage Users",
-                                                            style: TextStyle(fontSize: 13.0, color: currTextColor),
-                                                          )
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              )
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                        new Padding(padding: EdgeInsets.all(8)),
-                        new Expanded(
-                          flex: 1,
-                          child: new Column(
-                            children: [
-                              new Container(
-                                padding: new EdgeInsets.only(right: 16),
-                                child: new Card(
-                                  elevation: 2.0,
-                                  child: new Container(
-                                    color: currCardColor,
-                                    padding: new EdgeInsets.all(16),
-                                    child: new Column(
-                                      children: [
-                                        new Row(
-                                          mainAxisAlignment: MainAxisAlignment.start,
-                                          crossAxisAlignment: CrossAxisAlignment.center,
-                                          children: [
-                                            new Icon(Icons.person),
-                                            new Padding(padding: EdgeInsets.all(4)),
-                                            new Text("PROFILE", style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor),)
-                                          ],
-                                        ),
-                                        new Padding(padding: EdgeInsets.only(top: 8, bottom: 16), child: new Divider(color: currDividerColor, height: 8)),
-                                        new ClipRRect(
-                                          borderRadius: BorderRadius.all(Radius.circular(100)),
-                                          child: new CachedNetworkImage(
-                                            imageUrl: currUser.profileUrl,
-                                            height: 100,
-                                          ),
-                                        ),
-                                        new Padding(padding: EdgeInsets.all(8)),
-                                        new Text(
-                                          currUser.firstName + " " + currUser.lastName,
-                                          style: TextStyle(fontSize: 25),
-                                        ),
-                                        new ListTile(
-                                          leading: new Icon(Icons.mail),
-                                          title: new Text(currUser.email),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              new Padding(padding: EdgeInsets.all(8)),
-                              new Container(
-                                padding: new EdgeInsets.only(right: 16),
-                                child: new Card(
-                                  elevation: 2.0,
-                                  child: new Container(
-                                    color: currCardColor,
-                                    padding: new EdgeInsets.all(16),
-                                    child: new Column(
-                                      children: [
-                                        new Row(
-                                          mainAxisAlignment: MainAxisAlignment.start,
-                                          crossAxisAlignment: CrossAxisAlignment.center,
-                                          children: [
-                                            new Icon(Icons.event),
-                                            new Padding(padding: EdgeInsets.all(4)),
-                                            new Text("UPCOMING EVENTS", style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor),)
-                                          ],
-                                        ),
-                                        new Padding(padding: EdgeInsets.only(top: 8, bottom: 16), child: new Divider(color: currDividerColor, height: 8, )),
-                                        new Text("There are no upcoming events.")
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              )
-                            ],
-                          ),
-                        )
-                      ],
-                    ),
-                  )
                 ],
               ),
             ),

@@ -266,15 +266,30 @@ class _AnnouncementsPageState extends State<AnnouncementsPage> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 HomeNavbar(),
-                new Padding(padding: EdgeInsets.only(bottom: 8.0)),
+                new Padding(padding: EdgeInsets.only(bottom: 16.0)),
+                new Container(
+                  width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                  child: new Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      new FlatButton(
+                        child: new Text("Back to Home", style: TextStyle(color: mainColor, fontSize: 15),),
+                        onPressed: () {
+                          router.navigateTo(context, '/home', transition: TransitionType.fadeIn);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
                 Container(
-                    padding: new EdgeInsets.only(top: 4.0, bottom: 4.0),
+                    padding: new EdgeInsets.all(4.0),
                     width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
                     child: new Text(
                         "ANNOUNCEMENTS ($unreadAnnounce)",
                         style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor)
                     )
                 ),
+                new Padding(padding: EdgeInsets.only(bottom: 16.0)),
                 new Visibility(
                     visible: (announcementWidgetList.length == 0),
                     child: new Text("Nothing to see here!\nCheck back later for more announcements.", textAlign: TextAlign.center, style: TextStyle(fontSize: 17, color: currTextColor),)

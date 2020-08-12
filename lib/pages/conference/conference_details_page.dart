@@ -201,7 +201,7 @@ class _ConferenceDetailsPageState extends State<ConferenceDetailsPage> {
                     ],
                   )
                 ),
-                new Container(height: 1000)
+                new Container(height: 300)
               ],
             ),
           ),

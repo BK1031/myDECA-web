@@ -8,6 +8,7 @@ import 'package:mydeca_web/pages/auth/register_page.dart';
 import 'package:mydeca_web/pages/conference/conference_details_page.dart';
 import 'package:mydeca_web/pages/conference/conference_page.dart';
 import 'package:mydeca_web/pages/event/events_page.dart';
+import 'package:mydeca_web/pages/home/advisor/manage_user_page.dart';
 import 'package:mydeca_web/pages/home/announcement/announcement_details_page.dart';
 import 'package:mydeca_web/pages/home/announcement/announcements_page.dart';
 import 'package:mydeca_web/pages/home/announcement/new_announcement_page.dart';
@@ -43,6 +44,9 @@ void main() {
   }));
   router.define('/home', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
     return new HomePage();
+  }));
+  router.define('/home/manage-users', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
+    return new ManageUserPage() ;
   }));
 
   // ANNOUNCEMENT ROUTES

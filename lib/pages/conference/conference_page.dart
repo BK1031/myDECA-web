@@ -10,7 +10,6 @@ import 'package:mydeca_web/pages/auth/login_page.dart';
 import 'package:mydeca_web/utils/config.dart';
 import 'package:mydeca_web/utils/theme.dart';
 import 'dart:html' as html;
-
 import 'package:progress_indicators/progress_indicators.dart';
 
 class ConferencesPage extends StatefulWidget {
