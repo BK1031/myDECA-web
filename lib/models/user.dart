@@ -10,6 +10,7 @@ class User {
   String profileUrl = "";
   String gender = "Male";
   List<String> roles = new List();
+  List<String> groups = new List();
   int grade = 9;
   int yearsMember = 0;
   String shirtSize = "M";
@@ -31,6 +32,11 @@ class User {
     chapter.chapterID = snapshot.val()["chapterID"];
     for (int i = 0; i < snapshot.val()["roles"].length; i++) {
       roles.add(snapshot.val()["roles"][i]);
+    }
+    if (snapshot.val()["groups"] != null) {
+      for (int i = 0; i < snapshot.val()["groups"].length; i++) {
+        groups.add(snapshot.val()["groups"][i]);
+      }
     }
   }
 

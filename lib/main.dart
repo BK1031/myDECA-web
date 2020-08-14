@@ -12,6 +12,8 @@ import 'package:mydeca_web/pages/home/advisor/manage_user_page.dart';
 import 'package:mydeca_web/pages/home/announcement/announcement_details_page.dart';
 import 'package:mydeca_web/pages/home/announcement/announcements_page.dart';
 import 'package:mydeca_web/pages/home/announcement/new_announcement_page.dart';
+import 'package:mydeca_web/pages/home/handbook/handbook_page.dart';
+import 'package:mydeca_web/pages/home/handbook/manage_handbook_page.dart';
 import 'package:mydeca_web/pages/home/home_page.dart';
 import 'package:mydeca_web/pages/onboarding_page.dart';
 import 'package:mydeca_web/utils/service_account.dart';
@@ -47,6 +49,14 @@ void main() {
   }));
   router.define('/home/manage-users', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
     return new ManageUserPage() ;
+  }));
+
+  // HANDBOOK ROUTES
+  router.define('/home/handbook', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
+    return new HandbookPage();
+  }));
+  router.define('/home/handbook/manage', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
+    return new ManageHandbookPage();
   }));
 
   // ANNOUNCEMENT ROUTES

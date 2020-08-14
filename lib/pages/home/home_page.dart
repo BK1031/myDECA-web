@@ -239,6 +239,55 @@ class _HomePageState extends State<HomePage> {
                                           ),
                                         ),
                                         new Padding(padding: EdgeInsets.all(4.0)),
+                                        new Container(
+                                          width: double.infinity,
+                                          height: 100.0,
+                                          child: new Row(
+                                            children: <Widget>[
+                                              new Expanded(
+                                                flex: 3,
+                                                child: new Card(
+                                                  elevation: 2.0,
+                                                  color: currCardColor,
+                                                  child: new InkWell(
+                                                    onTap: () {
+                                                      router.navigateTo(context, '/home/handbook', transition: TransitionType.fadeIn);
+                                                    },
+                                                    child: new Column(
+                                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                      children: <Widget>[
+                                                        new Icon(Icons.library_books, size: 35.0, color: darkMode ? Colors.grey : Colors.black54),
+                                                        new Text(
+                                                          "My Handbook",
+                                                          style: TextStyle(fontSize: 13.0, color: currTextColor),
+                                                        )
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                              new Padding(padding: EdgeInsets.all(4.0)),
+                                              new Expanded(
+                                                flex: 5,
+                                                child: new Card(
+                                                  elevation: 2.0,
+                                                  color: currCardColor,
+                                                  child: new InkWell(
+                                                    onTap: () {
+//                                                      router.navigateTo(context, '/home/announcements', transition: TransitionType.fadeIn);
+                                                    },
+                                                    child: new Column(
+                                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                      children: <Widget>[
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                        new Padding(padding: EdgeInsets.all(4.0)),
                                         new Visibility(
                                           visible: currUser.roles.contains("Developer") || currUser.roles.contains("Officer"),
                                           child: new Container(
@@ -247,7 +296,7 @@ class _HomePageState extends State<HomePage> {
                                             child: new Row(
                                               children: <Widget>[
                                                 new Expanded(
-                                                  flex: 3,
+                                                  flex: 5,
                                                   child: new Card(
                                                     color: currCardColor,
                                                     elevation: 2.0,
@@ -270,7 +319,7 @@ class _HomePageState extends State<HomePage> {
                                                 ),
                                                 new Padding(padding: EdgeInsets.all(4.0)),
                                                 new Expanded(
-                                                  flex: 5,
+                                                  flex: 3,
                                                   child: new Card(
                                                     elevation: 2.0,
                                                     color: currCardColor,
@@ -431,7 +480,7 @@ class _HomePageState extends State<HomePage> {
                                                     color: currCardColor,
                                                     child: new InkWell(
                                                       onTap: () {
-                                                        router.navigateTo(context, "/home/manage", transition: TransitionType.fadeIn);
+                                                        router.navigateTo(context, '/home/handbook/manage', transition: TransitionType.fadeIn);
                                                       },
                                                       child: new Column(
                                                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,

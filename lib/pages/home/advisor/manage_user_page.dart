@@ -46,7 +46,6 @@ class _ManageUserPageState extends State<ManageUserPage> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: new Text("Update Group", style: TextStyle(color: currTextColor),),
             backgroundColor: currCardColor,
             content: new ManageGroupDialog(id, currUser),
           );
@@ -257,7 +256,7 @@ class _ManageUserPageState extends State<ManageUserPage> {
                                         children: [
                                           new Icon(Icons.group),
                                           new Padding(padding: EdgeInsets.all(4)),
-                                          new Text("MENTOR GROUPS", style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor),)
+                                          new Text("GROUPS", style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor),)
                                         ],
                                       ),
                                       new Container(padding: EdgeInsets.only(top: 8, bottom: 16), child: new Divider(color: currDividerColor, height: 8)),
