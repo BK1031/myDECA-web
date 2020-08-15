@@ -91,7 +91,9 @@ class _NewGroupDialogState extends State<NewGroupDialog> {
                     child: new Text("CREATE", style: TextStyle(color: mainColor),),
                     onPressed: () {
                       if (valid && name != "") {
-                        fb.database().ref("chapters").child(currUser.chapter.chapterID).child("groups").child(id.toUpperCase()).set(name);
+                        fb.database().ref("chapters").child(currUser.chapter.chapterID).child("groups").child(id.toUpperCase()).set({
+                          "name": name
+                        });
                         router.pop(context);
                       }
                     },

@@ -165,8 +165,9 @@ class _ManageUserPageState extends State<ManageUserPage> {
             onTap: () {
               manageGroupDialog(currUser, event.snapshot.key);
             },
-            title: new Text(event.snapshot.val(), style: TextStyle(color: currTextColor),),
+            title: new Text(event.snapshot.val()["name"], style: TextStyle(color: currTextColor),),
             subtitle: new Text(event.snapshot.key),
+            trailing: event.snapshot.val()["handbook"] != null ? Icon(Icons.library_books) : Icon(Icons.crop_square),
           ),
         ));
       });

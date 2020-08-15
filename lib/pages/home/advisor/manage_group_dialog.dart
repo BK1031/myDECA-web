@@ -17,18 +17,53 @@ class _ManageGroupDialogState extends State<ManageGroupDialog> {
 
   String id;
   String name = "";
+  String handbook = "";
   User currUser;
   List<Widget> usersWidgetList = new List();
+  List<Widget> handbookWidgetList = new List();
+
+  double height = 0;
 
   _ManageGroupDialogState(this.id, this.currUser);
+
+  void getHandbooks() {
+    setState(() {
+      handbookWidgetList.clear();
+      handbookWidgetList.add(Container(padding: EdgeInsets.all(8), child: new Text("Select a Handbook")));
+    });
+    fb.database().ref("chapters").child(currUser.chapter.chapterID).child("handbooks").onChildAdded.listen((event) {
+      setState(() {
+        handbookWidgetList.add(
+          new ListTile(
+            leading: (event.snapshot.val()["name"] == handbook) ? Icon(Icons.radio_button_checked, color: mainColor,) : Icon(Icons.radio_button_unchecked, color: mainColor,),
+            title: new Text(event.snapshot.val()["name"]),
+            onTap: () {
+              setState(() {
+                fb.database().ref("chapters").child(currUser.chapter.chapterID).child("groups").child(id).child("handbook").set(event.snapshot.key);
+                height = 0;
+              });
+            },
+          )
+        );
+      });
+    });
+  }
 
   @override
   void initState() {
     super.initState();
-    fb.database().ref("chapters").child(currUser.chapter.chapterID).child("groups").child(id).once("value").then((value) {
+    fb.database().ref("chapters").child(currUser.chapter.chapterID).child("groups").child(id).onValue.listen((value) {
       setState(() {
-        name = value.snapshot.val().toString();
+        name = value.snapshot.val()["name"];
       });
+      if (value.snapshot.val()["handbook"] != null) {
+        String handbookID = value.snapshot.val()["handbook"];
+        fb.database().ref("chapters").child(currUser.chapter.chapterID).child("handbooks").child(handbookID).child("name").once("value").then((value) {
+          setState(() {
+            handbook = value.snapshot.val();
+          });
+        });
+      }
     });
     fb.database().ref("users").onChildAdded.listen((value) {
       User user = new User.fromSnapshot(value.snapshot);
@@ -84,13 +119,58 @@ class _ManageGroupDialogState extends State<ManageGroupDialog> {
         child: new Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              new Text(
-                name,
-                style: TextStyle(fontFamily: "Montserrat", fontSize: 22, color: currTextColor),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      new Text(
+                        name,
+                        style: TextStyle(fontFamily: "Montserrat", fontSize: 22, color: currTextColor),
+                      ),
+                      new Text(
+                        id,
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                  new InkWell(
+                    onTap: () {
+                      if (height == 0) {
+                        getHandbooks();
+                        setState(() {
+                          height = 250;
+                        });
+                      }
+                      else {
+                        setState(() {
+                          height = 0;
+                        });
+                      }
+                    },
+                    child: new Card(
+                      elevation: handbook == "" ? 0 : 1,
+                      color: handbook == "" ? currCardColor : mainColor,
+                      child: new Container(
+                        padding: EdgeInsets.only(top: 4, bottom: 4, left: 8, right: 8),
+                        child: new Text(handbook == "" ? "Select Handbook" : handbook, style: TextStyle(color: handbook == "" ? mainColor : Colors.white),),
+                      ),
+                    ),
+                  )
+                ],
               ),
-              new Text(
-                id,
-                style: TextStyle(color: Colors.grey),
+              new AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                height: height,
+                child: new Column(
+                  children: handbookWidgetList,
+                ),
+              ),
+              new Padding(padding: EdgeInsets.all(8)),
+              new Visibility(
+                visible: usersWidgetList.isEmpty,
+                child: Center(child: new Text("No users have joined this group.\nPlease check again later.", textAlign: TextAlign.center,)),
               ),
               new Column(
                 children: usersWidgetList,

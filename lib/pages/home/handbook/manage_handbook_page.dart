@@ -41,9 +41,9 @@ class _ManageHandbookPageState extends State<ManageHandbookPage> {
           currUser = User.fromSnapshot(value.snapshot);
           print(currUser);
         });
-      });
-      fb.database().ref("chapters").child(currUser.chapter.chapterID).child("handbooks").onValue.listen((event) {
-        updateHandbooks();
+        fb.database().ref("chapters").child(currUser.chapter.chapterID).child("handbooks").onValue.listen((event) {
+          updateHandbooks();
+        });
       });
     }
   }
@@ -100,14 +100,18 @@ class _ManageHandbookPageState extends State<ManageHandbookPage> {
                         handbook.name,
                         style: TextStyle(fontSize: 18),
                       ),
-                      new RaisedButton(
-                        color: Colors.red,
-                        child: Text("DELETE"),
-                        onPressed: () {
-                          if (currUser.roles.contains("Developer") || currUser.roles.contains("Advisor") || currUser.roles.contains("President")) {
-                            fb.database().ref("chapters").child(currUser.chapter.chapterID).child("handbooks").child(handbook.handbookID).remove();
-                          }
-                        },
+                      new Visibility(
+                        visible: currUser.roles.contains("Developer") || currUser.roles.contains("Advisor") || currUser.roles.contains("President"),
+                        child: new RaisedButton(
+                          color: Colors.red,
+                          child: Text("DELETE"),
+                          textColor: Colors.white,
+                          onPressed: () {
+                            if (currUser.roles.contains("Developer") || currUser.roles.contains("Advisor") || currUser.roles.contains("President")) {
+                              fb.database().ref("chapters").child(currUser.chapter.chapterID).child("handbooks").child(handbook.handbookID).remove();
+                            }
+                          },
+                        ),
                       )
                     ],
                   ),
@@ -202,7 +206,6 @@ class _ManageHandbookPageState extends State<ManageHandbookPage> {
                                         autofocus: true,
                                         onChanged: (input) {
                                           tempTask = input;
-                                          print(tempTask);
                                         },
                                       ),
                                     ),
@@ -264,11 +267,12 @@ class _ManageHandbookPageState extends State<ManageHandbookPage> {
                                         "tasks": newHandbook.tasks
                                       });
                                       // Reset new handbook
+                                      newHandbook = new Handbook.plain();
+                                      updateNewHandbook();
                                       setState(() {
                                         editingTask = false;
                                         editing = false;
                                       });
-                                      newHandbook = new Handbook.plain();
                                     }
                                   },
                                 ),
@@ -293,7 +297,7 @@ class _ManageHandbookPageState extends State<ManageHandbookPage> {
                 ),
                 new Padding(padding: EdgeInsets.only(bottom: 16.0)),
                 new Visibility(
-                  visible: !editing,
+                  visible: !editing && (currUser.roles.contains("Developer") || currUser.roles.contains("Advisor") || currUser.roles.contains("President")),
                   child: Container(
                     width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
                     child: new Card(

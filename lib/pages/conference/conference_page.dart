@@ -31,67 +31,78 @@ class _ConferencesPageState extends State<ConferencesPage> {
   void initState() {
     super.initState();
     if (_localStorage["userID"] != null) {
-      fb.database().ref("conferences").onChildAdded.listen((event) {
+      fb.database().ref("users").child(_localStorage["userID"]).once("value").then((value) {
         setState(() {
+          currUser = User.fromSnapshot(value.snapshot);
+          print(currUser);
+        });
+        fb.database().ref("conferences").onChildAdded.listen((event) {
           Conference conference = new Conference.fromSnapshot(event.snapshot);
           print(conference.conferenceID);
-          Widget conferenceCard = new Padding(
-            padding: new EdgeInsets.only(bottom: 4.0),
-            child: new Card(
-              color: Colors.white,
-              elevation: 2.0,
-              child: Container(
-                width: 400,
-                child: new InkWell(
-                  onTap: () {
-                    router.navigateTo(context, 'conferences/details?id=${conference.conferenceID}', transition: TransitionType.fadeIn);
-                  },
-                  child: new Stack(
-                    fit: StackFit.passthrough,
-                    children: <Widget>[
-                      new ClipRRect(
-                        child: new CachedNetworkImage(
-                          placeholder: (context, url) => new Container(
-                            child: new GlowingProgressIndicator(
-                              child: new Image.asset('images/deca-diamond.png', height: 75.0,),
-                            ),
-                          ),
-                          imageUrl: conference.imageUrl,
-                          height: 150.0,
-                          width: double.infinity,
-                          fit: BoxFit.fitWidth,
-                        ),
-                      ),
-                      new Container(
-                        height: 150.0,
-                        child: new Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
+          fb.database().ref("chapters").child(currUser.chapter.chapterID).child("conferences").child(conference.conferenceID).child("enabled").once("value").then((value) {
+            if (value.snapshot.val() != null && value.snapshot.val()) {
+              // Conference is enabled for chapter
+              setState(() {
+                Widget conferenceCard = new Padding(
+                  padding: new EdgeInsets.only(bottom: 4.0),
+                  child: new Card(
+                    color: Colors.white,
+                    elevation: 2.0,
+                    child: Container(
+                      width: 400,
+                      child: new InkWell(
+                        onTap: () {
+                          router.navigateTo(context, 'conferences/details?id=${conference.conferenceID}', transition: TransitionType.fadeIn);
+                        },
+                        child: new Stack(
+                          fit: StackFit.passthrough,
                           children: <Widget>[
-                            new Text(
-                              conference.conferenceID.split("-")[1],
-                              style: TextStyle(fontFamily: "Gotham", fontSize: 35.0, fontWeight: FontWeight.bold, color: Colors.white),
+                            new ClipRRect(
+                              child: new CachedNetworkImage(
+                                placeholder: (context, url) => new Container(
+                                  child: new GlowingProgressIndicator(
+                                    child: new Image.asset('images/deca-diamond.png', height: 75.0,),
+                                  ),
+                                ),
+                                imageUrl: conference.imageUrl,
+                                height: 150.0,
+                                width: double.infinity,
+                                fit: BoxFit.fitWidth,
+                              ),
                             ),
-                            new Text(
-                              conference.conferenceID.split("-")[0],
-                              style: TextStyle(fontSize: 20.0, color: Colors.white, decoration: TextDecoration.overline),
+                            new Container(
+                              height: 150.0,
+                              child: new Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  new Text(
+                                    conference.conferenceID.split("-")[1],
+                                    style: TextStyle(fontFamily: "Gotham", fontSize: 35.0, fontWeight: FontWeight.bold, color: Colors.white),
+                                  ),
+                                  new Text(
+                                    conference.conferenceID.split("-")[0],
+                                    style: TextStyle(fontSize: 20.0, color: Colors.white, decoration: TextDecoration.overline),
+                                  )
+                                ],
+                              ),
                             )
                           ],
                         ),
-                      )
-                    ],
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            ),
-          );
-          if (conference.past) {
-            pastConferenceList.add(conference);
-            pastWidgetList.add(conferenceCard);
-          }
-          else {
-            conferenceList.add(conference);
-            widgetList.add(conferenceCard);
-          }
+                );
+                if (conference.past) {
+                  pastConferenceList.add(conference);
+                  pastWidgetList.add(conferenceCard);
+                }
+                else {
+                  conferenceList.add(conference);
+                  widgetList.add(conferenceCard);
+                }
+              });
+            }
+          });
         });
       });
     }
