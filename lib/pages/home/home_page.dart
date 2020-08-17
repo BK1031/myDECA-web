@@ -8,6 +8,8 @@ import 'package:mydeca_web/models/user.dart';
 import 'package:mydeca_web/navbars/home_navbar.dart';
 import 'package:mydeca_web/pages/auth/login_page.dart';
 import 'package:mydeca_web/pages/home/advisor/advisor_conference_select.dart';
+import 'package:mydeca_web/pages/home/join_group_dialog.dart';
+import 'package:mydeca_web/pages/home/welcome_dialog.dart';
 import 'package:mydeca_web/utils/config.dart';
 import 'package:mydeca_web/utils/theme.dart';
 import 'dart:html' as html;
@@ -26,6 +28,7 @@ class _HomePageState extends State<HomePage> {
 
   List<Widget> roleWidgetList = new List();
   List<Widget> conferenceWidgetList = new List();
+  List<Widget> groupsWidgetList = new List();
 
   User currUser = User.plain();
 
@@ -37,6 +40,9 @@ class _HomePageState extends State<HomePage> {
         setState(() {
           currUser = User.fromSnapshot(value.snapshot);
           print(currUser);
+          if (!currUser.emailVerified) {
+            welcomeDialog();
+          }
           for (int i = 0; i < currUser.roles.length; i++) {
             print(currUser.roles[i]);
             roleWidgetList.add(new Card(
@@ -50,6 +56,7 @@ class _HomePageState extends State<HomePage> {
         });
         getAnnouncements();
         getAdvisorInfo();
+        updateUserGroups();
       });
     }
   }
@@ -119,6 +126,20 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  void welcomeDialog() {
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: new Text("Welcome to myDECA!", style: TextStyle(color: currTextColor),),
+            backgroundColor: currCardColor,
+            content: new WelcomeDialog(),
+          );
+        }
+    );
+  }
+
   void selectConferenceDialog(User user) {
     showDialog(
         context: context,
@@ -127,6 +148,52 @@ class _HomePageState extends State<HomePage> {
             title: new Text("Select Conferences", style: TextStyle(color: currTextColor),),
             backgroundColor: currCardColor,
             content: new AdvisorConferenceSelect(user),
+            actions: [
+              new FlatButton(
+                child: new Text("DONE"),
+                onPressed: () {
+                  router.pop(context);
+                },
+              )
+            ],
+          );
+        }
+    );
+  }
+
+  void updateUserGroups() {
+    fb.database().ref("users").child(_localStorage["userID"]).onValue.listen((value) {
+      setState(() {
+        groupsWidgetList.clear();
+        currUser = User.fromSnapshot(value.snapshot);
+      });
+      for (int i = 0; i < currUser.groups.length; i++) {
+        print(currUser.groups[i]);
+        fb.database().ref("chapters").child(currUser.chapter.chapterID).child("groups").child(currUser.groups[i]).child("name").once("value").then((value) {
+          if (value.snapshot.val() != null) {
+            setState(() {
+              groupsWidgetList.add(new Card(
+                color: mainColor,
+                child: new Container(
+                  padding: EdgeInsets.only(top: 4, bottom: 4, left: 8, right: 8),
+                  child: new Text(value.snapshot.val(), style: TextStyle(color: Colors.white),),
+                ),
+              ));
+            });
+          }
+        });
+      }
+    });
+  }
+
+  void selectGroupDialog(User user) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: new Text("My Groups", style: TextStyle(color: currTextColor),),
+            backgroundColor: currCardColor,
+            content: new JoinGroupDialog(user),
             actions: [
               new FlatButton(
                 child: new Text("DONE"),
@@ -251,7 +318,12 @@ class _HomePageState extends State<HomePage> {
                                                   color: currCardColor,
                                                   child: new InkWell(
                                                     onTap: () {
-                                                      router.navigateTo(context, '/home/handbook', transition: TransitionType.fadeIn);
+                                                      if (currUser.groups.isNotEmpty) {
+                                                        router.navigateTo(context, '/home/handbook', transition: TransitionType.fadeIn);
+                                                      }
+                                                      else {
+                                                        html.window.alert("You are not a part of any groups. Please join a group to get access to your handbook.");
+                                                      }
                                                     },
                                                     child: new Column(
                                                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -274,11 +346,38 @@ class _HomePageState extends State<HomePage> {
                                                   color: currCardColor,
                                                   child: new InkWell(
                                                     onTap: () {
-//                                                      router.navigateTo(context, '/home/announcements', transition: TransitionType.fadeIn);
+                                                      selectGroupDialog(currUser);
                                                     },
-                                                    child: new Column(
+                                                    child: Row(
                                                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                                      children: <Widget>[
+                                                      children: [
+                                                        Container(
+                                                          child: new Column(
+                                                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                            children: <Widget>[
+                                                              new Icon(Icons.group, size: 35.0, color: darkMode ? Colors.grey : Colors.black54),
+                                                              new Text(
+                                                                "My Groups",
+                                                                style: TextStyle(fontSize: 13.0, color: currTextColor),
+                                                              )
+                                                            ],
+                                                          ),
+                                                        ),
+                                                        Container(
+                                                          child: new Wrap(
+                                                            direction: Axis.horizontal,
+                                                            children: groupsWidgetList,
+                                                          ),
+                                                        ),
+                                                        new Visibility(
+                                                          visible: groupsWidgetList.isEmpty,
+                                                          child: Container(
+                                                            child: new Text(
+                                                              "It looks like you are not part of any groups.\nClick on this card to join a group.",
+                                                              style: TextStyle(color: currTextColor),
+                                                            ),
+                                                          ),
+                                                        )
                                                       ],
                                                     ),
                                                   ),
@@ -549,7 +648,7 @@ class _HomePageState extends State<HomePage> {
                                             children: roleWidgetList
                                         ),
                                         new ListTile(
-                                          leading: new Icon(Icons.mail),
+                                          leading: new Icon(currUser.emailVerified ? Icons.verified_user : Icons.mail),
                                           title: new Text(currUser.email),
                                         ),
                                       ],
