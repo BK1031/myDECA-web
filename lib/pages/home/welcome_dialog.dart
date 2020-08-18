@@ -31,6 +31,7 @@ class _WelcomeDialogState extends State<WelcomeDialog> {
       setState(() {
         status = "Email Verified!";
       });
+      fb.database().ref("users").child(fb.auth().currentUser.uid).child("emailVerified").set(true);
       window.location.reload();
     }
     else {

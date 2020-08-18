@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase/firebase.dart' as fb;
 import 'package:mydeca_web/models/user.dart';
 import 'package:mydeca_web/navbars/home_navbar.dart';
+import 'package:mydeca_web/navbars/mobile_sidebar.dart';
 import 'package:mydeca_web/pages/auth/login_page.dart';
 import 'package:mydeca_web/utils/config.dart';
 import 'package:mydeca_web/utils/theme.dart';
@@ -24,18 +25,38 @@ class _EventsPageState extends State<EventsPage> {
   @override
   Widget build(BuildContext context) {
     if (_localStorage["userID"] != null) {
-      return new Scaffold(
-        body: Container(
-          child: new SingleChildScrollView(
-            child: new Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                HomeNavbar(),
-              ],
+      if (MediaQuery.of(context).size.width > 600) {
+        return new Scaffold(
+          body: Container(
+            child: new SingleChildScrollView(
+              child: new Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  HomeNavbar(),
+                ],
+              ),
             ),
           ),
-        ),
-      );
+        );
+      }
+      else {
+        return new Scaffold(
+          appBar: new AppBar(
+            title: new Text("Events", style: TextStyle(color: Colors.white, fontFamily: "Montserrat"),),
+          ),
+          drawer: new Drawer(child: new MobileSidebar(),),
+          body: Container(
+            child: new SingleChildScrollView(
+              child: new Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+
+                ],
+              ),
+            ),
+          ),
+        );
+      }
     }
     else {
       return LoginPage();

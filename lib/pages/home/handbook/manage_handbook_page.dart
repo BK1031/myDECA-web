@@ -10,6 +10,7 @@ import 'package:mydeca_web/models/conference.dart';
 import 'package:mydeca_web/models/handbook.dart';
 import 'package:mydeca_web/models/user.dart';
 import 'package:mydeca_web/navbars/home_navbar.dart';
+import 'package:mydeca_web/navbars/mobile_sidebar.dart';
 import 'package:mydeca_web/pages/auth/login_page.dart';
 import 'package:mydeca_web/utils/config.dart';
 import 'package:mydeca_web/utils/theme.dart';
@@ -130,194 +131,371 @@ class _ManageHandbookPageState extends State<ManageHandbookPage> {
   @override
   Widget build(BuildContext context) {
     if (_localStorage["userID"] != null) {
-      return new Scaffold(
-        floatingActionButton: new Visibility(
-          visible: currUser.roles.contains("Developer") || currUser.roles.contains("Advisor") || currUser.roles.contains("Officer"),
-          child: new FloatingActionButton(
-            child: new Icon(Icons.add),
-            onPressed: () {
-              router.navigateTo(context, "/home/announcements/new", transition: TransitionType.fadeIn);
-            },
-          ),
-        ),
-        body: Container(
-          child: new SingleChildScrollView(
-            child: new Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                HomeNavbar(),
-                new Padding(padding: EdgeInsets.only(bottom: 16.0)),
-                new Container(
-                  width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
-                  child: new Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      new FlatButton(
-                        child: new Text("Back to Home", style: TextStyle(color: mainColor, fontSize: 15),),
-                        onPressed: () {
-                          router.navigateTo(context, '/home', transition: TransitionType.fadeIn);
-                        },
-                      ),
-                    ],
+      if (MediaQuery.of(context).size.width > 600) {
+        return new Scaffold(
+          body: Container(
+            child: new SingleChildScrollView(
+              child: new Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  HomeNavbar(),
+                  new Padding(padding: EdgeInsets.only(bottom: 16.0)),
+                  new Container(
+                    width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                    child: new Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        new FlatButton(
+                          child: new Text("Back to Home", style: TextStyle(color: mainColor, fontSize: 15),),
+                          onPressed: () {
+                            router.navigateTo(context, '/home', transition: TransitionType.fadeIn);
+                          },
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                Container(
-                    padding: new EdgeInsets.all(4.0),
-                    width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
-                    child: new Text(
-                        "HANDBOOKS",
-                        style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor)
-                    )
-                ),
-                new Padding(padding: EdgeInsets.only(bottom: 16.0)),
-                new Visibility(
-                  visible: editing,
-                  child: Container(
-                    width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
-                    child: new Card(
-                      child: Container(
-                        padding: EdgeInsets.all(16),
-                        child: new Column(
-                          children: [
-                            new TextField(
-                              decoration: InputDecoration(
-                                  labelText: "Handbook Name"
+                  Container(
+                      padding: new EdgeInsets.all(4.0),
+                      width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                      child: new Text(
+                          "HANDBOOKS",
+                          style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor)
+                      )
+                  ),
+                  new Padding(padding: EdgeInsets.only(bottom: 16.0)),
+                  new Visibility(
+                    visible: editing,
+                    child: Container(
+                      width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                      child: new Card(
+                        child: Container(
+                          padding: EdgeInsets.all(16),
+                          child: new Column(
+                            children: [
+                              new TextField(
+                                decoration: InputDecoration(
+                                    labelText: "Handbook Name"
+                                ),
+                                style: TextStyle(fontSize: 18),
+                                onChanged: (input) {
+                                  newHandbook.name = input;
+                                },
                               ),
-                              style: TextStyle(fontSize: 18),
-                              onChanged: (input) {
-                                newHandbook.name = input;
-                              },
-                            ),
-                            Column(
-                              children: taskWidgetList,
-                            ),
-                            new Visibility(
-                              visible: editingTask,
-                              child: Container(
-                                height: 75,
-                                child: new Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    new Expanded(
-                                      child: new TextField(
-                                        decoration: InputDecoration(
-                                            labelText: "Task Name"
+                              Column(
+                                children: taskWidgetList,
+                              ),
+                              new Visibility(
+                                visible: editingTask,
+                                child: Container(
+                                  height: 75,
+                                  child: new Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      new Expanded(
+                                        child: new TextField(
+                                          decoration: InputDecoration(
+                                              labelText: "Task Name"
+                                          ),
+                                          autofocus: true,
+                                          onChanged: (input) {
+                                            tempTask = input;
+                                          },
                                         ),
-                                        autofocus: true,
-                                        onChanged: (input) {
-                                          tempTask = input;
-                                        },
                                       ),
-                                    ),
-                                    Container(
-                                      child: new RaisedButton(
-                                        color: mainColor,
-                                        child: new Text("ADD"),
-                                        textColor: Colors.white,
+                                      Container(
+                                        child: new RaisedButton(
+                                          color: mainColor,
+                                          child: new Text("ADD"),
+                                          textColor: Colors.white,
+                                          onPressed: () {
+                                            setState(() {
+                                              newHandbook.tasks.add(tempTask);
+                                              editingTask = false;
+                                            });
+                                            updateNewHandbook();
+                                          },
+                                        ),
+                                      ),
+                                      new IconButton(
+                                        icon: new Icon(Icons.clear, color: Colors.grey,),
                                         onPressed: () {
                                           setState(() {
-                                            newHandbook.tasks.add(tempTask);
                                             editingTask = false;
                                           });
-                                          updateNewHandbook();
                                         },
-                                      ),
-                                    ),
-                                    new IconButton(
-                                      icon: new Icon(Icons.clear, color: Colors.grey,),
-                                      onPressed: () {
-                                        setState(() {
-                                          editingTask = false;
-                                        });
-                                      },
-                                    )
-                                  ],
+                                      )
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
-                            new Visibility(
-                              visible: !editingTask,
-                              child: new ListTile(
-                                onTap: () {
-                                  setState(() {
-                                    editingTask = true;
-                                  });
-                                },
-                                leading: new Icon(Icons.add, color: mainColor,),
-                                title: new Text("New Item", style: TextStyle(color: mainColor),),
-                              ),
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                new FlatButton(
-                                  child: new Text("CANCEL", style: TextStyle(color: mainColor),),
-                                  onPressed: () {
+                              new Visibility(
+                                visible: !editingTask,
+                                child: new ListTile(
+                                  onTap: () {
                                     setState(() {
-                                      editing = false;
+                                      editingTask = true;
                                     });
                                   },
+                                  leading: new Icon(Icons.add, color: mainColor,),
+                                  title: new Text("New Item", style: TextStyle(color: mainColor),),
                                 ),
-                                new FlatButton(
-                                  child: new Text("CREATE", style: TextStyle(color: mainColor),),
-                                  onPressed: () {
-                                    if (currUser.roles.contains("Developer") || currUser.roles.contains("Advisor") || currUser.roles.contains("President")) {
-                                      fb.database().ref("chapters").child(currUser.chapter.chapterID).child("handbooks").push().set({
-                                        "name": newHandbook.name,
-                                        "tasks": newHandbook.tasks
-                                      });
-                                      // Reset new handbook
-                                      newHandbook = new Handbook.plain();
-                                      updateNewHandbook();
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  new FlatButton(
+                                    child: new Text("CANCEL", style: TextStyle(color: mainColor),),
+                                    onPressed: () {
                                       setState(() {
-                                        editingTask = false;
                                         editing = false;
                                       });
-                                    }
-                                  },
-                                ),
-                              ],
-                            ),
-                          ],
+                                    },
+                                  ),
+                                  new FlatButton(
+                                    child: new Text("CREATE", style: TextStyle(color: mainColor),),
+                                    onPressed: () {
+                                      if (currUser.roles.contains("Developer") || currUser.roles.contains("Advisor") || currUser.roles.contains("President")) {
+                                        fb.database().ref("chapters").child(currUser.chapter.chapterID).child("handbooks").push().set({
+                                          "name": newHandbook.name,
+                                          "tasks": newHandbook.tasks
+                                        });
+                                        // Reset new handbook
+                                        newHandbook = new Handbook.plain();
+                                        updateNewHandbook();
+                                        setState(() {
+                                          editingTask = false;
+                                          editing = false;
+                                        });
+                                      }
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-                new Visibility(
-                    visible: (handbookWidgetList.length == 0 && !editing),
-                    child: new Text("Nothing to see here!\nCreate a new handbook below.", textAlign: TextAlign.center, style: TextStyle(fontSize: 17, color: currTextColor),)
-                ),
-                Container(
-                  width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
-                  child: new Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: handbookWidgetList,
+                  new Visibility(
+                      visible: (handbookWidgetList.length == 0 && !editing),
+                      child: new Text("Nothing to see here!\nCreate a new handbook below.", textAlign: TextAlign.center, style: TextStyle(fontSize: 17, color: currTextColor),)
                   ),
-                ),
-                new Padding(padding: EdgeInsets.only(bottom: 16.0)),
-                new Visibility(
-                  visible: !editing && (currUser.roles.contains("Developer") || currUser.roles.contains("Advisor") || currUser.roles.contains("President")),
-                  child: Container(
+                  Container(
                     width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
-                    child: new Card(
-                      child: new ListTile(
-                        onTap: () {
-                          setState(() {
-                            editing = true;
-                          });
-                        },
-                        leading: new Icon(Icons.add, color: mainColor,),
-                        title: new Text("New Handbook", style: TextStyle(color: mainColor),),
+                    child: new Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: handbookWidgetList,
+                    ),
+                  ),
+                  new Padding(padding: EdgeInsets.only(bottom: 16.0)),
+                  new Visibility(
+                    visible: !editing && (currUser.roles.contains("Developer") || currUser.roles.contains("Advisor") || currUser.roles.contains("President")),
+                    child: Container(
+                      width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                      child: new Card(
+                        child: new ListTile(
+                          onTap: () {
+                            setState(() {
+                              editing = true;
+                            });
+                          },
+                          leading: new Icon(Icons.add, color: mainColor,),
+                          title: new Text("New Handbook", style: TextStyle(color: mainColor),),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
-      );
+        );
+      }
+      else {
+        return new Scaffold(
+          appBar: new AppBar(
+            title: new Text("Manage Handbooks", style: TextStyle(color: Colors.white, fontFamily: "Montserrat"),),
+          ),
+          drawer: new Drawer(child: new MobileSidebar(),),
+          body: Container(
+            child: new SingleChildScrollView(
+              child: new Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  new Padding(padding: EdgeInsets.only(bottom: 16.0)),
+                  new Container(
+                    width: MediaQuery.of(context).size.width - 16,
+                    child: new Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        new FlatButton(
+                          child: new Text("Back to Home", style: TextStyle(color: mainColor, fontSize: 15),),
+                          onPressed: () {
+                            router.navigateTo(context, '/home', transition: TransitionType.fadeIn);
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                      padding: new EdgeInsets.all(4.0),
+                      width: MediaQuery.of(context).size.width - 16,
+                      child: new Text(
+                          "HANDBOOKS",
+                          style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor)
+                      )
+                  ),
+                  new Padding(padding: EdgeInsets.only(bottom: 16.0)),
+                  new Visibility(
+                    visible: editing,
+                    child: Container(
+                      width: MediaQuery.of(context).size.width - 16,
+                      child: new Card(
+                        child: Container(
+                          padding: EdgeInsets.all(16),
+                          child: new Column(
+                            children: [
+                              new TextField(
+                                decoration: InputDecoration(
+                                    labelText: "Handbook Name"
+                                ),
+                                style: TextStyle(fontSize: 18),
+                                onChanged: (input) {
+                                  newHandbook.name = input;
+                                },
+                              ),
+                              Column(
+                                children: taskWidgetList,
+                              ),
+                              new Visibility(
+                                visible: editingTask,
+                                child: Container(
+                                  height: 75,
+                                  child: new Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      new Expanded(
+                                        child: new TextField(
+                                          decoration: InputDecoration(
+                                              labelText: "Task Name"
+                                          ),
+                                          autofocus: true,
+                                          onChanged: (input) {
+                                            tempTask = input;
+                                          },
+                                        ),
+                                      ),
+                                      Container(
+                                        child: new RaisedButton(
+                                          color: mainColor,
+                                          child: new Text("ADD"),
+                                          textColor: Colors.white,
+                                          onPressed: () {
+                                            setState(() {
+                                              newHandbook.tasks.add(tempTask);
+                                              editingTask = false;
+                                            });
+                                            updateNewHandbook();
+                                          },
+                                        ),
+                                      ),
+                                      new IconButton(
+                                        icon: new Icon(Icons.clear, color: Colors.grey,),
+                                        onPressed: () {
+                                          setState(() {
+                                            editingTask = false;
+                                          });
+                                        },
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              new Visibility(
+                                visible: !editingTask,
+                                child: new ListTile(
+                                  onTap: () {
+                                    setState(() {
+                                      editingTask = true;
+                                    });
+                                  },
+                                  leading: new Icon(Icons.add, color: mainColor,),
+                                  title: new Text("New Item", style: TextStyle(color: mainColor),),
+                                ),
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  new FlatButton(
+                                    child: new Text("CANCEL", style: TextStyle(color: mainColor),),
+                                    onPressed: () {
+                                      setState(() {
+                                        editing = false;
+                                      });
+                                    },
+                                  ),
+                                  new FlatButton(
+                                    child: new Text("CREATE", style: TextStyle(color: mainColor),),
+                                    onPressed: () {
+                                      if (currUser.roles.contains("Developer") || currUser.roles.contains("Advisor") || currUser.roles.contains("President")) {
+                                        fb.database().ref("chapters").child(currUser.chapter.chapterID).child("handbooks").push().set({
+                                          "name": newHandbook.name,
+                                          "tasks": newHandbook.tasks
+                                        });
+                                        // Reset new handbook
+                                        newHandbook = new Handbook.plain();
+                                        updateNewHandbook();
+                                        setState(() {
+                                          editingTask = false;
+                                          editing = false;
+                                        });
+                                      }
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  new Visibility(
+                      visible: (handbookWidgetList.length == 0 && !editing),
+                      child: new Text("Nothing to see here!\nCreate a new handbook below.", textAlign: TextAlign.center, style: TextStyle(fontSize: 17, color: currTextColor),)
+                  ),
+                  Container(
+                    width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                    child: new Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: handbookWidgetList,
+                    ),
+                  ),
+                  new Padding(padding: EdgeInsets.only(bottom: 16.0)),
+                  new Visibility(
+                    visible: !editing && (currUser.roles.contains("Developer") || currUser.roles.contains("Advisor") || currUser.roles.contains("President")),
+                    child: Container(
+                      width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                      child: new Card(
+                        child: new ListTile(
+                          onTap: () {
+                            setState(() {
+                              editing = true;
+                            });
+                          },
+                          leading: new Icon(Icons.add, color: mainColor,),
+                          title: new Text("New Handbook", style: TextStyle(color: mainColor),),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      }
     }
     else {
       return LoginPage();

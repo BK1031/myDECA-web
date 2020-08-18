@@ -8,6 +8,7 @@ import 'package:mydeca_web/models/announcement.dart';
 import 'package:mydeca_web/models/conference.dart';
 import 'package:mydeca_web/models/user.dart';
 import 'package:mydeca_web/navbars/home_navbar.dart';
+import 'package:mydeca_web/navbars/mobile_sidebar.dart';
 import 'package:mydeca_web/pages/auth/login_page.dart';
 import 'package:mydeca_web/utils/config.dart';
 import 'package:mydeca_web/utils/theme.dart';
@@ -250,62 +251,125 @@ class _AnnouncementsPageState extends State<AnnouncementsPage> {
   @override
   Widget build(BuildContext context) {
     if (_localStorage["userID"] != null) {
-      return new Scaffold(
-        floatingActionButton: new Visibility(
-          visible: currUser.roles.contains("Developer") || currUser.roles.contains("Advisor") || currUser.roles.contains("Officer"),
-          child: new FloatingActionButton(
-            child: new Icon(Icons.add),
-            onPressed: () {
-              router.navigateTo(context, "/home/announcements/new", transition: TransitionType.fadeIn);
-            },
-          ),
-        ),
-        body: Container(
-          child: new SingleChildScrollView(
-            child: new Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                HomeNavbar(),
-                new Padding(padding: EdgeInsets.only(bottom: 16.0)),
-                new Container(
-                  width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
-                  child: new Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      new FlatButton(
-                        child: new Text("Back to Home", style: TextStyle(color: mainColor, fontSize: 15),),
-                        onPressed: () {
-                          router.navigateTo(context, '/home', transition: TransitionType.fadeIn);
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                    padding: new EdgeInsets.all(4.0),
-                    width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
-                    child: new Text(
-                        "ANNOUNCEMENTS ($unreadAnnounce)",
-                        style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor)
-                    )
-                ),
-                new Padding(padding: EdgeInsets.only(bottom: 16.0)),
-                new Visibility(
-                    visible: (announcementWidgetList.length == 0),
-                    child: new Text("Nothing to see here!\nCheck back later for more announcements.", textAlign: TextAlign.center, style: TextStyle(fontSize: 17, color: currTextColor),)
-                ),
-                Container(
-                  width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
-                  child: new Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: announcementWidgetList,
-                  ),
-                ),
-              ],
+      if (MediaQuery.of(context).size.width > 600) {
+        return new Scaffold(
+          floatingActionButton: new Visibility(
+            visible: currUser.roles.contains("Developer") || currUser.roles.contains("Advisor") || currUser.roles.contains("Officer"),
+            child: new FloatingActionButton(
+              child: new Icon(Icons.add),
+              onPressed: () {
+                router.navigateTo(context, "/home/announcements/new", transition: TransitionType.fadeIn);
+              },
             ),
           ),
-        ),
-      );
+          body: Container(
+            child: new SingleChildScrollView(
+              child: new Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  HomeNavbar(),
+                  new Padding(padding: EdgeInsets.only(bottom: 16.0)),
+                  new Container(
+                    width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                    child: new Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        new FlatButton(
+                          child: new Text("Back to Home", style: TextStyle(color: mainColor, fontSize: 15),),
+                          onPressed: () {
+                            router.navigateTo(context, '/home', transition: TransitionType.fadeIn);
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                      padding: new EdgeInsets.all(4.0),
+                      width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                      child: new Text(
+                          "ANNOUNCEMENTS ($unreadAnnounce)",
+                          style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor)
+                      )
+                  ),
+                  new Padding(padding: EdgeInsets.only(bottom: 16.0)),
+                  new Visibility(
+                      visible: (announcementWidgetList.length == 0),
+                      child: new Text("Nothing to see here!\nCheck back later for more announcements.", textAlign: TextAlign.center, style: TextStyle(fontSize: 17, color: currTextColor),)
+                  ),
+                  Container(
+                    width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                    child: new Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: announcementWidgetList,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      }
+      else {
+        return new Scaffold(
+          appBar: new AppBar(
+            title: new Text("Announcements", style: TextStyle(color: Colors.white, fontFamily: "Montserrat"),),
+          ),
+          floatingActionButton: new Visibility(
+            visible: currUser.roles.contains("Developer") || currUser.roles.contains("Advisor") || currUser.roles.contains("Officer"),
+            child: new FloatingActionButton(
+              child: new Icon(Icons.add),
+              onPressed: () {
+                router.navigateTo(context, "/home/announcements/new", transition: TransitionType.fadeIn);
+              },
+            ),
+          ),
+          drawer: new Drawer(child: new MobileSidebar(),),
+          body: Container(
+            child: new SingleChildScrollView(
+              child: new Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  new Padding(padding: EdgeInsets.only(bottom: 16.0)),
+                  new Container(
+                    width: MediaQuery.of(context).size.width - 16,
+                    child: new Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        new FlatButton(
+                          child: new Text("Back to Home", style: TextStyle(color: mainColor, fontSize: 15),),
+                          onPressed: () {
+                            router.navigateTo(context, '/home', transition: TransitionType.fadeIn);
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                      padding: new EdgeInsets.all(4.0),
+                      width: MediaQuery.of(context).size.width - 16,
+                      child: new Text(
+                          "ANNOUNCEMENTS ($unreadAnnounce)",
+                          style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor)
+                      )
+                  ),
+                  new Padding(padding: EdgeInsets.only(bottom: 16.0)),
+                  new Visibility(
+                      visible: (announcementWidgetList.length == 0),
+                      child: new Text("Nothing to see here!\nCheck back later for more announcements.", textAlign: TextAlign.center, style: TextStyle(fontSize: 17, color: currTextColor),)
+                  ),
+                  Container(
+                    width: MediaQuery.of(context).size.width - 16,
+                    child: new Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: announcementWidgetList,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      }
     }
     else {
       return LoginPage();
