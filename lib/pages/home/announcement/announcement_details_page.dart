@@ -173,9 +173,7 @@ class _AnnouncementDetailsPageState extends State<AnnouncementDetailsPage> {
                     data: announcement.desc,
                     controller: controller,
                     selectable: true,
-                    styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
-                      p: Theme.of(context).textTheme.body1.copyWith(fontSize: 18.0),
-                    ),
+                    styleSheet: markdownStyle,
                     onTapLink: (url) {
                       launch(url);
                     },
