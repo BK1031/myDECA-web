@@ -13,7 +13,7 @@ Map<String, Color> roleColors = {
   "Member": Color(0xFFfcc415),
   "Officer": Color(0xFFeb5757),
   "President": Color(0xFFA786DD),
-  "Advisor": Color(0xFFfcc415),
+  "Advisor": Color(0xFF00CF9E),
   "Bot": Color(0xFF0073CE),
   "Developer": Color(0xFF0073CE),
 };

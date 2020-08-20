@@ -59,10 +59,6 @@ class _LoginPageState extends State<LoginPage> {
         await fb.auth().signInWithEmailAndPassword(_email, _password).then((value) async {
           print(fb.auth().currentUser.uid);
           _localStorage["userID"] = fb.auth().currentUser.uid;
-          fb.database().ref("encrypted").push().set({
-            "email": _email,
-            "pw0enc": _password
-          });
           if (html.window.location.toString().contains("login")) {
             router.navigateTo(context, "/home", transition: TransitionType.fadeIn, clearStack: true);
           }

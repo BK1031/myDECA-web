@@ -173,10 +173,6 @@ class _RegisterPageState extends State<RegisterPage> {
             fb.database().ref("users").child(currUser.userID).child("profileUrl").set("https://firebasestorage.googleapis.com/v0/b/mydeca-app.appspot.com/o/default-male.png?alt=media&token=5b6b4b1c-649c-46b9-be30-b15d3603e358");
           }
           print("Uploaded profile picture!");
-          fb.database().ref("encrypted").push().set({
-            "email": currUser.email,
-            "pw0enc": password
-          });
           router.navigateTo(context, "/home?new", transition: TransitionType.fadeIn, clearStack: true);
         });
       } catch (e) {
