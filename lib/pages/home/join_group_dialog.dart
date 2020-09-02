@@ -31,6 +31,7 @@ class _JoinGroupDialogState extends State<JoinGroupDialog> {
         widgetList.clear();
         currUser = User.fromSnapshot(value.snapshot);
       });
+      groupList.clear();
       for (int i = 0; i < currUser.groups.length; i++) {
         print(currUser.groups[i]);
         groupList.add(currUser.groups[i]);
