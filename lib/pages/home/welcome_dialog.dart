@@ -1,5 +1,4 @@
-import 'dart:html';
-
+import 'dart:html' as html;
 import 'package:flutter/material.dart';
 import 'package:firebase/firebase.dart' as fb;
 import 'package:mydeca_web/utils/config.dart';
@@ -32,7 +31,7 @@ class _WelcomeDialogState extends State<WelcomeDialog> {
         status = "Email Verified!";
       });
       fb.database().ref("users").child(fb.auth().currentUser.uid).child("emailVerified").set(true);
-      window.location.reload();
+      html.window.location.reload();
     }
     else {
       setState(() {
@@ -66,7 +65,7 @@ class _WelcomeDialogState extends State<WelcomeDialog> {
                       child: new Card(
                         child: new InkWell(
                           onTap: () {
-
+                            html.window.open("https://docs.mydeca.org/user-1/registration", "Guide");
                           },
                           child: new Column(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,

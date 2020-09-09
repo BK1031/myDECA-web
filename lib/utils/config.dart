@@ -1,5 +1,4 @@
 import 'package:fluro/fluro.dart';
-import 'package:flutter/material.dart';
 import 'package:firebase/firebase.dart' as fb;
 
 import '../models/version.dart';

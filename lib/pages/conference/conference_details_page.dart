@@ -16,6 +16,8 @@ import 'package:mydeca_web/utils/config.dart';
 import 'package:mydeca_web/utils/theme.dart';
 import 'dart:html' as html;
 
+import 'package:progress_indicators/progress_indicators.dart';
+
 class ConferenceDetailsPage extends StatefulWidget {
   @override
   _ConferenceDetailsPageState createState() => _ConferenceDetailsPageState();
@@ -53,34 +55,59 @@ class _ConferenceDetailsPageState extends State<ConferenceDetailsPage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   HomeNavbar(),
-                  new CachedNetworkImage(
-                    imageUrl: conference.imageUrl,
-                    width: double.infinity,
-                    fit: BoxFit.fitWidth,
-                  ),
-                  new Padding(padding: EdgeInsets.only(bottom: 8.0)),
-                  new Container(
-                    width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
-                    child: new Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        new FlatButton(
-                          child: new Text("Back to Conferences", style: TextStyle(color: mainColor, fontSize: 15),),
-                          onPressed: () {
-                            router.navigateTo(context, '/conferences', transition: TransitionType.fadeIn);
-                          },
+                  new Stack(
+                    fit: StackFit.passthrough,
+                    alignment: Alignment.center,
+                    children: <Widget>[
+                      new ClipRRect(
+                        child: new CachedNetworkImage(
+                          placeholder: (context, url) => new Container(
+                            child: new GlowingProgressIndicator(
+                              child: new Image.asset('images/deca-diamond.png', height: 75.0,),
+                            ),
+                          ),
+                          imageUrl: conference.imageUrl,
+                          height: 400,
+                          width: double.infinity,
+                          fit: BoxFit.fitWidth,
                         ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                      padding: EdgeInsets.only(top: 8),
-                      width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
-                      child: new Text(
-                        "${conference.fullName.toUpperCase()}",
-                        style: TextStyle(fontFamily: "Montserrat", fontSize: 40, color: currTextColor),
+                      ),
+                      new Container(
+                        height: 350,
+                        width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                        child: new Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: <Widget>[
+                            new Container(
+                              child: new Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: <Widget>[
+                                  new FlatButton(
+                                    color: Colors.black.withOpacity(0.7),
+                                    child: new Text("Back to Conferences", style: TextStyle(color: Colors.white, fontSize: 15),),
+                                    onPressed: () {
+                                      router.navigateTo(context, '/conferences', transition: TransitionType.fadeIn);
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Container(
+                                padding: EdgeInsets.all(16),
+                                color: Colors.black.withOpacity(0.7),
+                                width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                                child: new Text(
+                                  "${conference.fullName.toUpperCase()}",
+                                  style: TextStyle(fontFamily: "Montserrat", fontSize: 40, color: Colors.white),
+                                )
+                            ),
+                          ],
+                        ),
                       )
+                    ],
                   ),
+                  new Padding(padding: EdgeInsets.all(8.0)),
                   Container(
                       padding: EdgeInsets.only(top: 8),
                       width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
