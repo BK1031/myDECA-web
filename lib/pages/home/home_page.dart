@@ -66,25 +66,37 @@ class _HomePageState extends State<HomePage> {
     print(DateTime.now());
     // Get Chapter announcements
     fb.database().ref("chapters").child(currUser.chapter.chapterID).child("announcements").onChildAdded.listen((event) {
-      fb.database().ref("users").child(currUser.userID).child("announcements").child(event.snapshot.key).once("value").then((value) {
-        setState(() {
-          announcementList.add(new Announcement.fromSnapshot(event.snapshot));
-        });
-        if (value.snapshot.val() == null) {
-          unreadAnnounce++;
+      Announcement announcement = new Announcement.fromSnapshot(event.snapshot);
+      for (int i = 0; i < currUser.roles.length; i++) {
+        if (announcement.topics.contains(currUser.roles[i])) {
+          fb.database().ref("users").child(currUser.userID).child("announcements").child(event.snapshot.key).once("value").then((value) {
+            setState(() {
+              announcementList.add(announcement);
+            });
+            if (value.snapshot.val() == null) {
+              unreadAnnounce++;
+            }
+          });
+          break;
         }
-      });
+      }
     });
     // Get official announcements
     fb.database().ref("announcements").onChildAdded.listen((event) {
-      fb.database().ref("users").child(currUser.userID).child("announcements").child(event.snapshot.key).once("value").then((value) {
-        setState(() {
-          announcementList.add(new Announcement.fromSnapshot(event.snapshot));
-        });
-        if (value.snapshot.val() == null) {
-          unreadAnnounce++;
+      Announcement announcement = new Announcement.fromSnapshot(event.snapshot);
+      for (int i = 0; i < currUser.roles.length; i++) {
+        if (announcement.topics.contains(currUser.roles[i])) {
+          fb.database().ref("users").child(currUser.userID).child("announcements").child(event.snapshot.key).once("value").then((value) {
+            setState(() {
+              announcementList.add(announcement);
+            });
+            if (value.snapshot.val() == null) {
+              unreadAnnounce++;
+            }
+          });
+          break;
         }
-      });
+      }
     });
   }
 
