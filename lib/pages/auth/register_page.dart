@@ -57,6 +57,26 @@ class _RegisterPageState extends State<RegisterPage> {
       chapterList.add(chapter);
     });
   }
+
+  void alert(String alert) {
+    showDialog(
+        context: context,
+        child: new AlertDialog(
+          backgroundColor: currCardColor,
+          title: new Text("Alert", style: TextStyle(color: currTextColor),),
+          content: new Text(alert, style: TextStyle(color: currTextColor)),
+          actions: [
+            new FlatButton(
+                child: new Text("GOT IT"),
+                textColor: mainColor,
+                onPressed: () {
+                  router.pop(context);
+                }
+            )
+          ],
+        )
+    );
+  }
   
   Future<void> testFileUpload() async {
     File file = new File("images/default-male.png");
@@ -127,13 +147,13 @@ class _RegisterPageState extends State<RegisterPage> {
   Future<void> register() async {
     fb.auth().setPersistence("local");
     if (currUser.firstName == "" || currUser.lastName == "") {
-      html.window.alert("Name cannot be empty!");
+      alert("Name cannot be empty!");
     }
     else if (currUser.email == "") {
-      html.window.alert("Email cannot be empty!");
+      alert("Email cannot be empty!");
     }
     else if (password != confirmPassword) {
-      html.window.alert("Passwords must match!");
+      alert("Passwords must match!");
     }
     else {
       // All good to create account!
@@ -177,7 +197,7 @@ class _RegisterPageState extends State<RegisterPage> {
         });
       } catch (e) {
         print(e);
-        html.window.alert("An error occured while creating your account: ${e.message}");
+        alert("An error occured while creating your account: ${e.message}");
       }
     }
     setState(() {
@@ -195,296 +215,300 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      backgroundColor: currBackgroundColor,
-      body: new Center(
-        child: new Card(
-          color: currCardColor,
-          child: new AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            padding: EdgeInsets.all(32.0),
-            width: (MediaQuery.of(context).size.width > 500) ? 500.0 : MediaQuery.of(context).size.width - 25,
-            height: cardHeight,
-            child: new SingleChildScrollView(
-              child: new Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  new Text("REGISTER", style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold, fontFamily: "Gotham"), textAlign: TextAlign.center),
-                  new Padding(padding: EdgeInsets.all(8.0),),
-                  new Visibility(
-                    visible: chapterExists,
-                    child: new Card(
-                      child: new Container(
-                        padding: EdgeInsets.all(8),
-                        child: new Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            new Padding(padding: EdgeInsets.all(4.0),),
-                            new Image.asset("images/deca-diamond.png", height: 50,),
-                            new Padding(padding: EdgeInsets.all(8.0),),
-                            new Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                new Text(selectedChapter.name + " DECA", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
-                                new Text(selectedChapter.city, style: TextStyle(fontSize: 17, fontWeight: FontWeight.w300)),
-                                new Text("Advisor: " + (selectedChapter.advisorName == null ? "Not Set" : selectedChapter.advisorName), style: TextStyle(fontWeight: FontWeight.w300))
-                              ],
-                            )
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  new Row(
-                    children: [
-                      new Text(chapterExists ? "Valid Chapter Code!" : "Enter your chapter code below", textAlign: TextAlign.center, style: TextStyle(fontSize: 17, color: chapterExists ? Colors.green : currTextColor)),
-                      new IconButton(icon: Icon(Icons.help), tooltip: "Use the chapter code you recieved from your advisor here.\nIf you do not have a code, contact your advisor.",)
-                    ],
-                  ),
-                  new TextField(
-                    decoration: InputDecoration(
-                      labelText: "Chapter Code",
-                      hintText: "CC-######",
-                    ),
-                    autocorrect: false,
-                    textCapitalization: TextCapitalization.characters,
-                    onChanged: checkChapterCode,
-                  ),
-                  new Visibility(visible: chapterExists, child: new Padding(padding: EdgeInsets.all(8.0))),
-                  new Visibility(
-                    visible: chapterExists && !advisorExists,
-                    child: Row(
-                      children: [
-                        new Text(advisorCodeExists ? "Valid Advisor Code!" : "Enter your advisor code below", textAlign: TextAlign.center, style: TextStyle(fontSize: 17, color: advisorCodeExists ? Colors.green : currTextColor),),
-                        new IconButton(icon: Icon(Icons.help), tooltip: "An advisor has not been set for this chapter yet. Please ask your advisor to create their\naccount first. If you are an advisor and have not recieved a code, please reach out to us.",)
-                      ],
-                    )
-                  ),
-                  new Visibility(
-                    visible: chapterExists && !advisorExists,
-                    child: new TextField(
-                      decoration: InputDecoration(
-                        labelText: "Advisor Code",
-                        hintText: "AC-######",
-                      ),
-                      autocorrect: false,
-                      textCapitalization: TextCapitalization.characters,
-                      onChanged: checkAdvisorCode,
-                    ),
-                  ),
-                  new Visibility(
-                    visible: chapterExists && advisorExists,
-                    child: Column(
-                      children: [
-                        new TextField(
-                          decoration: InputDecoration(
-                            icon: new Icon(Icons.person),
-                            labelText: "First Name",
-                            hintText: "Enter your first name",
-                          ),
-                          autocorrect: false,
-                          textCapitalization: TextCapitalization.words,
-                          onChanged: (value) {
-                            currUser.firstName = value;
-                          },
-                        ),
-                        new TextField(
-                          decoration: InputDecoration(
-                            icon: new Icon(Icons.person),
-                            labelText: "Last Name",
-                            hintText: "Enter your last name",
-                          ),
-                          autocorrect: false,
-                          textCapitalization: TextCapitalization.words,
-                          onChanged: (value) {
-                            currUser.lastName = value;
-                          },
-                        ),
-                        new TextField(
-                          decoration: InputDecoration(
-                            icon: new Icon(Icons.email),
-                            labelText: "Email",
-                            hintText: "Enter your email",
-                          ),
-                          autocorrect: false,
-                          keyboardType: TextInputType.emailAddress,
-                          textCapitalization: TextCapitalization.none,
-                          onChanged: (value) {
-                            currUser.email = value;
-                          },
-                        ),
-                        new Row(
-                          children: <Widget>[
-                            new Expanded(
-                              flex: 2,
-                              child: new Text(
-                                "Grade",
-                                style: TextStyle(fontWeight: FontWeight.normal, fontSize: 16.0),
-                              ),
-                            ),
-                            new Expanded(
-                              flex: 1,
-                              child: new DropdownButton(
-                                value: currUser.grade,
-                                items: [
-                                  DropdownMenuItem(child: new Text("9"), value: 9),
-                                  DropdownMenuItem(child: new Text("10"), value: 10),
-                                  DropdownMenuItem(child: new Text("11"), value: 11),
-                                  DropdownMenuItem(child: new Text("12"), value: 12),
-                                ],
-                                onChanged: (value) {
-                                  setState(() {
-                                    currUser.grade = value;
-                                  });
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                        new Row(
-                          children: <Widget>[
-                            new Expanded(
-                              flex: 2,
-                              child: new Text(
-                                "Gender",
-                                style: TextStyle(fontWeight: FontWeight.normal, fontSize: 16.0),
-                              ),
-                            ),
-                            new Expanded(
-                              flex: 1,
-                              child: new DropdownButton(
-                                value: currUser.gender,
-                                items: [
-                                  DropdownMenuItem(child: new Text("Male"), value: "Male"),
-                                  DropdownMenuItem(child: new Text("Female"), value: "Female"),
-                                  DropdownMenuItem(child: new Text("Other"), value: "Other"),
-                                  DropdownMenuItem(child: new Text("Prefer not to say"), value: "Opt-Out"),
-                                ],
-                                onChanged: (value) {
-                                  setState(() {
-                                    currUser.gender = value;
-                                  });
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                        new Row(
-                          children: <Widget>[
-                            new Expanded(
-                              flex: 2,
-                              child: new Text(
-                                "Shirt Size",
-                                style: TextStyle(fontWeight: FontWeight.normal, fontSize: 16.0),
-                              ),
-                            ),
-                            new Expanded(
-                              flex: 1,
-                              child: new DropdownButton(
-                                value: currUser.shirtSize,
-                                items: [
-                                  DropdownMenuItem(child: new Text("S"), value: "S"),
-                                  DropdownMenuItem(child: new Text("M"), value: "M"),
-                                  DropdownMenuItem(child: new Text("L"), value: "L"),
-                                  DropdownMenuItem(child: new Text("XL"), value: "XL"),
-                                ],
-                                onChanged: (value) {
-                                  setState(() {
-                                    currUser.shirtSize = value;
-                                  });
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                        new Row(
-                          children: <Widget>[
-                            new Expanded(
-                              flex: 2,
-                              child: new Text(
-                                "Years in DECA",
-                                style: TextStyle(fontWeight: FontWeight.normal, fontSize: 16.0),
-                              ),
-                            ),
-                            new Expanded(
-                              flex: 1,
-                              child: new DropdownButton(
-                                value: currUser.yearsMember,
-                                items: [
-                                  DropdownMenuItem(child: new Text("First Year"), value: 0),
-                                  DropdownMenuItem(child: new Text("Second Year"), value: 1),
-                                  DropdownMenuItem(child: new Text("Third Year"), value: 2),
-                                  DropdownMenuItem(child: new Text("Fourth Year"), value: 3),
-                                  DropdownMenuItem(child: new Text("Fifth Year"), value: 4),
-                                ],
-                                onChanged: (value) {
-                                  setState(() {
-                                    currUser.yearsMember = value;
-                                  });
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                        new TextField(
-                          decoration: InputDecoration(
-                            icon: new Icon(Icons.lock),
-                            labelText: "Password",
-                            hintText: "Enter a password",
-                          ),
-                          autocorrect: false,
-                          obscureText: true,
-                          onChanged: (value) {
-                            password = value;
-                          },
-                        ),
-                        new TextField(
-                          decoration: InputDecoration(
-                            icon: new Icon(Icons.lock),
-                            labelText: "Confirm Password",
-                            hintText: "Confirm your password",
-                          ),
-                          autocorrect: false,
-                          obscureText: true,
-                          onChanged: (value) {
-                            confirmPassword = value;
-                          },
-                        ),
-                        new Padding(padding: EdgeInsets.all(8.0)),
-                        new RichText(
-                          text: new TextSpan(
+    return new Title(
+      title: "myDECA",
+      color: mainColor,
+      child: new Scaffold(
+        backgroundColor: currBackgroundColor,
+        body: new Center(
+          child: new Card(
+            color: currCardColor,
+            child: new AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              padding: EdgeInsets.all(32.0),
+              width: (MediaQuery.of(context).size.width > 500) ? 500.0 : MediaQuery.of(context).size.width - 25,
+              height: cardHeight,
+              child: new SingleChildScrollView(
+                child: new Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    new Text("REGISTER", style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold, fontFamily: "Gotham"), textAlign: TextAlign.center),
+                    new Padding(padding: EdgeInsets.all(8.0),),
+                    new Visibility(
+                      visible: chapterExists,
+                      child: new Card(
+                        child: new Container(
+                          padding: EdgeInsets.all(8),
+                          child: new Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              new TextSpan(
-                                text: "By creating a myDECA account, you agree to our ",
-                                style: new TextStyle(color: Colors.black),
-                              ),
-                              new TextSpan(
-                                text: 'Terms of Service',
-                                style: new TextStyle(color: Colors.blue),
-                                recognizer: new TapGestureRecognizer()
-                                  ..onTap = () {
-                                    launch("https://deca.bk1031.dev/terms");
-                                  },
-                              ),
+                              new Padding(padding: EdgeInsets.all(4.0),),
+                              new Image.asset("images/deca-diamond.png", height: 50,),
+                              new Padding(padding: EdgeInsets.all(8.0),),
+                              new Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  new Text(selectedChapter.name + " DECA", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
+                                  new Text(selectedChapter.city, style: TextStyle(fontSize: 17, fontWeight: FontWeight.w300)),
+                                  new Text("Advisor: " + (selectedChapter.advisorName == null ? "Not Set" : selectedChapter.advisorName), style: TextStyle(fontWeight: FontWeight.w300))
+                                ],
+                              )
                             ],
                           ),
                         ),
+                      ),
+                    ),
+                    new Row(
+                      children: [
+                        new Text(chapterExists ? "Valid Chapter Code!" : "Enter your chapter code below", textAlign: TextAlign.center, style: TextStyle(fontSize: 17, color: chapterExists ? Colors.green : currTextColor)),
+                        new IconButton(icon: Icon(Icons.help), tooltip: "Use the chapter code you recieved from your advisor here.\nIf you do not have a code, contact your advisor.",)
                       ],
                     ),
-                  ),
-                  new Padding(padding: EdgeInsets.all(16.0)),
-                  registerWidget,
-                  new Visibility(
-                    visible: !chapterExists,
-                    child: new FlatButton(
-                      child: new Text("Already have an account?", style: TextStyle(fontSize: 17),),
-                      textColor: mainColor,
-                      onPressed: () {
-                        router.navigateTo(context, "/login", transition: TransitionType.fadeIn);
-                      },
+                    new TextField(
+                      decoration: InputDecoration(
+                        labelText: "Chapter Code",
+                        hintText: "CC-######",
+                      ),
+                      autocorrect: false,
+                      textCapitalization: TextCapitalization.characters,
+                      onChanged: checkChapterCode,
                     ),
-                  )
-                ],
+                    new Visibility(visible: chapterExists, child: new Padding(padding: EdgeInsets.all(8.0))),
+                    new Visibility(
+                      visible: chapterExists && !advisorExists,
+                      child: Row(
+                        children: [
+                          new Text(advisorCodeExists ? "Valid Advisor Code!" : "Enter your advisor code below", textAlign: TextAlign.center, style: TextStyle(fontSize: 17, color: advisorCodeExists ? Colors.green : currTextColor),),
+                          new IconButton(icon: Icon(Icons.help), tooltip: "An advisor has not been set for this chapter yet. Please ask your advisor to create their\naccount first. If you are an advisor and have not recieved a code, please reach out to us.",)
+                        ],
+                      )
+                    ),
+                    new Visibility(
+                      visible: chapterExists && !advisorExists,
+                      child: new TextField(
+                        decoration: InputDecoration(
+                          labelText: "Advisor Code",
+                          hintText: "AC-######",
+                        ),
+                        autocorrect: false,
+                        textCapitalization: TextCapitalization.characters,
+                        onChanged: checkAdvisorCode,
+                      ),
+                    ),
+                    new Visibility(
+                      visible: chapterExists && advisorExists,
+                      child: Column(
+                        children: [
+                          new TextField(
+                            decoration: InputDecoration(
+                              icon: new Icon(Icons.person),
+                              labelText: "First Name",
+                              hintText: "Enter your first name",
+                            ),
+                            autocorrect: false,
+                            textCapitalization: TextCapitalization.words,
+                            onChanged: (value) {
+                              currUser.firstName = value;
+                            },
+                          ),
+                          new TextField(
+                            decoration: InputDecoration(
+                              icon: new Icon(Icons.person),
+                              labelText: "Last Name",
+                              hintText: "Enter your last name",
+                            ),
+                            autocorrect: false,
+                            textCapitalization: TextCapitalization.words,
+                            onChanged: (value) {
+                              currUser.lastName = value;
+                            },
+                          ),
+                          new TextField(
+                            decoration: InputDecoration(
+                              icon: new Icon(Icons.email),
+                              labelText: "Email",
+                              hintText: "Enter your email",
+                            ),
+                            autocorrect: false,
+                            keyboardType: TextInputType.emailAddress,
+                            textCapitalization: TextCapitalization.none,
+                            onChanged: (value) {
+                              currUser.email = value;
+                            },
+                          ),
+                          new Row(
+                            children: <Widget>[
+                              new Expanded(
+                                flex: 2,
+                                child: new Text(
+                                  "Grade",
+                                  style: TextStyle(fontWeight: FontWeight.normal, fontSize: 16.0),
+                                ),
+                              ),
+                              new Expanded(
+                                flex: 1,
+                                child: new DropdownButton(
+                                  value: currUser.grade,
+                                  items: [
+                                    DropdownMenuItem(child: new Text("9"), value: 9),
+                                    DropdownMenuItem(child: new Text("10"), value: 10),
+                                    DropdownMenuItem(child: new Text("11"), value: 11),
+                                    DropdownMenuItem(child: new Text("12"), value: 12),
+                                  ],
+                                  onChanged: (value) {
+                                    setState(() {
+                                      currUser.grade = value;
+                                    });
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                          new Row(
+                            children: <Widget>[
+                              new Expanded(
+                                flex: 2,
+                                child: new Text(
+                                  "Gender",
+                                  style: TextStyle(fontWeight: FontWeight.normal, fontSize: 16.0),
+                                ),
+                              ),
+                              new Expanded(
+                                flex: 1,
+                                child: new DropdownButton(
+                                  value: currUser.gender,
+                                  items: [
+                                    DropdownMenuItem(child: new Text("Male"), value: "Male"),
+                                    DropdownMenuItem(child: new Text("Female"), value: "Female"),
+                                    DropdownMenuItem(child: new Text("Other"), value: "Other"),
+                                    DropdownMenuItem(child: new Text("Prefer not to say"), value: "Opt-Out"),
+                                  ],
+                                  onChanged: (value) {
+                                    setState(() {
+                                      currUser.gender = value;
+                                    });
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                          new Row(
+                            children: <Widget>[
+                              new Expanded(
+                                flex: 2,
+                                child: new Text(
+                                  "Shirt Size",
+                                  style: TextStyle(fontWeight: FontWeight.normal, fontSize: 16.0),
+                                ),
+                              ),
+                              new Expanded(
+                                flex: 1,
+                                child: new DropdownButton(
+                                  value: currUser.shirtSize,
+                                  items: [
+                                    DropdownMenuItem(child: new Text("S"), value: "S"),
+                                    DropdownMenuItem(child: new Text("M"), value: "M"),
+                                    DropdownMenuItem(child: new Text("L"), value: "L"),
+                                    DropdownMenuItem(child: new Text("XL"), value: "XL"),
+                                  ],
+                                  onChanged: (value) {
+                                    setState(() {
+                                      currUser.shirtSize = value;
+                                    });
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                          new Row(
+                            children: <Widget>[
+                              new Expanded(
+                                flex: 2,
+                                child: new Text(
+                                  "Years in DECA",
+                                  style: TextStyle(fontWeight: FontWeight.normal, fontSize: 16.0),
+                                ),
+                              ),
+                              new Expanded(
+                                flex: 1,
+                                child: new DropdownButton(
+                                  value: currUser.yearsMember,
+                                  items: [
+                                    DropdownMenuItem(child: new Text("First Year"), value: 0),
+                                    DropdownMenuItem(child: new Text("Second Year"), value: 1),
+                                    DropdownMenuItem(child: new Text("Third Year"), value: 2),
+                                    DropdownMenuItem(child: new Text("Fourth Year"), value: 3),
+                                    DropdownMenuItem(child: new Text("Fifth Year"), value: 4),
+                                  ],
+                                  onChanged: (value) {
+                                    setState(() {
+                                      currUser.yearsMember = value;
+                                    });
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                          new TextField(
+                            decoration: InputDecoration(
+                              icon: new Icon(Icons.lock),
+                              labelText: "Password",
+                              hintText: "Enter a password",
+                            ),
+                            autocorrect: false,
+                            obscureText: true,
+                            onChanged: (value) {
+                              password = value;
+                            },
+                          ),
+                          new TextField(
+                            decoration: InputDecoration(
+                              icon: new Icon(Icons.lock),
+                              labelText: "Confirm Password",
+                              hintText: "Confirm your password",
+                            ),
+                            autocorrect: false,
+                            obscureText: true,
+                            onChanged: (value) {
+                              confirmPassword = value;
+                            },
+                          ),
+                          new Padding(padding: EdgeInsets.all(8.0)),
+                          new RichText(
+                            text: new TextSpan(
+                              children: [
+                                new TextSpan(
+                                  text: "By creating a myDECA account, you agree to our ",
+                                  style: new TextStyle(color: Colors.black),
+                                ),
+                                new TextSpan(
+                                  text: 'Terms of Service',
+                                  style: new TextStyle(color: Colors.blue),
+                                  recognizer: new TapGestureRecognizer()
+                                    ..onTap = () {
+                                      launch("https://deca.bk1031.dev/terms");
+                                    },
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    new Padding(padding: EdgeInsets.all(16.0)),
+                    registerWidget,
+                    new Visibility(
+                      visible: !chapterExists,
+                      child: new FlatButton(
+                        child: new Text("Already have an account?", style: TextStyle(fontSize: 17),),
+                        textColor: mainColor,
+                        onPressed: () {
+                          router.navigateTo(context, "/login", transition: TransitionType.fadeIn);
+                        },
+                      ),
+                    )
+                  ],
+                ),
               ),
             ),
           ),

@@ -7,6 +7,7 @@ import 'package:mydeca_web/pages/auth/register_advisor_page.dart';
 import 'package:mydeca_web/pages/auth/register_page.dart';
 import 'package:mydeca_web/pages/conference/conference_details_page.dart';
 import 'package:mydeca_web/pages/conference/conference_page.dart';
+import 'package:mydeca_web/pages/event/event_details_page.dart';
 import 'package:mydeca_web/pages/event/events_page.dart';
 import 'package:mydeca_web/pages/home/advisor/manage_user_page.dart';
 import 'package:mydeca_web/pages/home/announcement/announcement_details_page.dart';
@@ -83,8 +84,12 @@ void main() {
   router.define('/events', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
     return new EventsPage();
   }));
+  router.define('/events/details', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
+    return new EventDetailsPage();
+  }));
 
   runApp(new MaterialApp(
+    title: "myDECA",
     debugShowCheckedModeBanner: false,
     theme: mainTheme,
     initialRoute: '/',

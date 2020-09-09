@@ -1,13 +1,19 @@
 {
-    "name": "mydeca_web",
-    "short_name": "mydeca_web",
-    "start_url": ".",
+    "name": "myDECA",
+    "short_name": "myDECA",
+    "start_url": "/#/home",
     "display": "standalone",
     "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "theme_color": "#0072ce",
+    "description": "A brand new way to manage your DECA chapter brought to you by Equinox Initiative.",
     "orientation": "portrait-primary",
-    "prefer_related_applications": false,
+    "prefer_related_applications": true,
+    "related_applications": [
+        {
+            "platform": "play",
+            "id": "com.bk1031.mydeca_flutter"
+        }
+    ],
     "icons": [
         {
             "src": "icons/Icon-192.png",

@@ -45,6 +45,26 @@ class _LoginPageState extends State<LoginPage> {
     super.initState();
   }
 
+  void alert(String alert) {
+    showDialog(
+        context: context,
+        child: new AlertDialog(
+          backgroundColor: currCardColor,
+          title: new Text("Alert", style: TextStyle(color: currTextColor),),
+          content: new Text(alert, style: TextStyle(color: currTextColor)),
+          actions: [
+            new FlatButton(
+                child: new Text("GOT IT"),
+                textColor: mainColor,
+                onPressed: () {
+                  router.pop(context);
+                }
+            )
+          ],
+        )
+    );
+  }
+
   Future<void> login() async {
     fb.auth().setPersistence("local");
     if (_email != "" && _password != "") {
@@ -68,7 +88,7 @@ class _LoginPageState extends State<LoginPage> {
         });
       } catch (e) {
         print(e);
-        html.window.alert("An error occured while creating your account: ${e.message}");
+        alert("An error occured while creating your account: ${e.message}");
       }
     }
     setState(() {
@@ -86,56 +106,60 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      backgroundColor: currBackgroundColor,
-      body: new Center(
-        child: new Card(
-          color: currCardColor,
-          child: new AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            padding: EdgeInsets.all(32.0),
-            width: (MediaQuery.of(context).size.width > 500) ? 500.0 : MediaQuery.of(context).size.width - 25,
-            child: new SingleChildScrollView(
-              child: new Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  new Text("LOGIN", style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold, fontFamily: "Gotham"), textAlign: TextAlign.center),
-                  new Padding(padding: EdgeInsets.all(8.0),),
-                  new TextField(
-                    decoration: InputDecoration(
-                      icon: new Icon(Icons.email),
-                      labelText: "Email",
-                      hintText: "Enter your email",
+    return new Title(
+      title: "myDECA",
+      color: mainColor,
+      child: new Scaffold(
+        backgroundColor: currBackgroundColor,
+        body: new Center(
+          child: new Card(
+            color: currCardColor,
+            child: new AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              padding: EdgeInsets.all(32.0),
+              width: (MediaQuery.of(context).size.width > 500) ? 500.0 : MediaQuery.of(context).size.width - 25,
+              child: new SingleChildScrollView(
+                child: new Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    new Text("LOGIN", style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold, fontFamily: "Gotham"), textAlign: TextAlign.center),
+                    new Padding(padding: EdgeInsets.all(8.0),),
+                    new TextField(
+                      decoration: InputDecoration(
+                        icon: new Icon(Icons.email),
+                        labelText: "Email",
+                        hintText: "Enter your email",
+                      ),
+                      autocorrect: false,
+                      keyboardType: TextInputType.emailAddress,
+                      textCapitalization: TextCapitalization.none,
+                      onChanged: (value) {
+                        _email = value;
+                      },
                     ),
-                    autocorrect: false,
-                    keyboardType: TextInputType.emailAddress,
-                    textCapitalization: TextCapitalization.none,
-                    onChanged: (value) {
-                      _email = value;
-                    },
-                  ),
-                  new TextField(
-                    decoration: InputDecoration(
-                      icon: new Icon(Icons.lock),
-                      labelText: "Password",
-                      hintText: "Enter a password",
+                    new TextField(
+                      decoration: InputDecoration(
+                        icon: new Icon(Icons.lock),
+                        labelText: "Password",
+                        hintText: "Enter a password",
+                      ),
+                      autocorrect: false,
+                      obscureText: true,
+                      onChanged: (value) {
+                        _password = value;
+                      },
                     ),
-                    autocorrect: false,
-                    obscureText: true,
-                    onChanged: (value) {
-                      _password = value;
-                    },
-                  ),
-                  new Padding(padding: EdgeInsets.all(16.0)),
-                  loginWidget,
-                  new FlatButton(
-                    child: new Text("Don't have an account?", style: TextStyle(fontSize: 17),),
-                    textColor: mainColor,
-                    onPressed: () {
-                      router.navigateTo(context, "/register", transition: TransitionType.fadeIn);
-                    },
-                  )
-                ],
+                    new Padding(padding: EdgeInsets.all(16.0)),
+                    loginWidget,
+                    new FlatButton(
+                      child: new Text("Don't have an account?", style: TextStyle(fontSize: 17),),
+                      textColor: mainColor,
+                      onPressed: () {
+                        router.navigateTo(context, "/register", transition: TransitionType.fadeIn);
+                      },
+                    )
+                  ],
+                ),
               ),
             ),
           ),

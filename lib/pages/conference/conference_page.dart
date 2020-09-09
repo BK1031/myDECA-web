@@ -113,61 +113,65 @@ class _ConferencesPageState extends State<ConferencesPage> {
   Widget build(BuildContext context) {
     if (_localStorage["userID"] != null) {
       if (MediaQuery.of(context).size.width > 600) {
-        return new Scaffold(
-          body: Container(
-            child: new SingleChildScrollView(
-              child: new Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  HomeNavbar(),
-                  new Padding(padding: EdgeInsets.only(bottom: 8.0)),
-                  Container(
-                      padding: new EdgeInsets.only(top: 4.0, bottom: 4.0),
-                      width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
-                      child: new Text(
-                          "MY CONFERENCES",
-                          style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor)
-                      )
-                  ),
-                  new Visibility(
-                      visible: (conferenceList.length == 0),
-                      child: new Text("Nothing to see here!\nCheck back later for conferences.", textAlign: TextAlign.center, style: TextStyle(fontSize: 17, color: currTextColor),)
-                  ),
-                  Container(
-                    width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
-                    child: new Wrap(
-                      direction: Axis.horizontal,
-                      spacing: 8,
-                      runSpacing: 4,
-                      alignment: WrapAlignment.center,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: widgetList,
+        return new Title(
+          title: "myDECA",
+          color: mainColor,
+          child: new Scaffold(
+            body: Container(
+              child: new SingleChildScrollView(
+                child: new Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    HomeNavbar(),
+                    new Padding(padding: EdgeInsets.only(bottom: 8.0)),
+                    Container(
+                        padding: new EdgeInsets.only(top: 4.0, bottom: 4.0),
+                        width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                        child: new Text(
+                            "MY CONFERENCES",
+                            style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor)
+                        )
                     ),
-                  ),
-                  Container(
-                      padding: new EdgeInsets.only(top: 4.0, bottom: 4.0),
-                      width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
-                      child: new Text(
-                          "PAST CONFERENCES",
-                          style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor)
-                      )
-                  ),
-                  new Visibility(
-                      visible: (pastConferenceList.length == 0),
-                      child: new Text("Nothing to see here!\nCheck back later for conferences.", textAlign: TextAlign.center, style: TextStyle(fontSize: 17, color: currTextColor),)
-                  ),
-                  Container(
-                    width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
-                    child: new Wrap(
-                      direction: Axis.horizontal,
-                      spacing: 8,
-                      runSpacing: 4,
-                      alignment: WrapAlignment.center,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: pastWidgetList,
+                    new Visibility(
+                        visible: (conferenceList.length == 0),
+                        child: new Text("Nothing to see here!\nCheck back later for conferences.", textAlign: TextAlign.center, style: TextStyle(fontSize: 17, color: currTextColor),)
                     ),
-                  )
-                ],
+                    Container(
+                      width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                      child: new Wrap(
+                        direction: Axis.horizontal,
+                        spacing: 8,
+                        runSpacing: 4,
+                        alignment: WrapAlignment.center,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: widgetList,
+                      ),
+                    ),
+                    Container(
+                        padding: new EdgeInsets.only(top: 4.0, bottom: 4.0),
+                        width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                        child: new Text(
+                            "PAST CONFERENCES",
+                            style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor)
+                        )
+                    ),
+                    new Visibility(
+                        visible: (pastConferenceList.length == 0),
+                        child: new Text("Nothing to see here!\nCheck back later for conferences.", textAlign: TextAlign.center, style: TextStyle(fontSize: 17, color: currTextColor),)
+                    ),
+                    Container(
+                      width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                      child: new Wrap(
+                        direction: Axis.horizontal,
+                        spacing: 8,
+                        runSpacing: 4,
+                        alignment: WrapAlignment.center,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: pastWidgetList,
+                      ),
+                    )
+                  ],
+                ),
               ),
             ),
           ),

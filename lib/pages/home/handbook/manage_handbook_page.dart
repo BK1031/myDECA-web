@@ -255,17 +255,19 @@ class _ManageHandbookPageState extends State<ManageHandbookPage> {
                                     child: new Text("CREATE", style: TextStyle(color: mainColor),),
                                     onPressed: () {
                                       if (currUser.roles.contains("Developer") || currUser.roles.contains("Advisor") || currUser.roles.contains("President")) {
-                                        fb.database().ref("chapters").child(currUser.chapter.chapterID).child("handbooks").push().set({
-                                          "name": newHandbook.name,
-                                          "tasks": newHandbook.tasks
-                                        });
-                                        // Reset new handbook
-                                        newHandbook = new Handbook.plain();
-                                        updateNewHandbook();
-                                        setState(() {
-                                          editingTask = false;
-                                          editing = false;
-                                        });
+                                        if (newHandbook.name != "" && newHandbook.tasks.isNotEmpty) {
+                                          fb.database().ref("chapters").child(currUser.chapter.chapterID).child("handbooks").push().set({
+                                            "name": newHandbook.name,
+                                            "tasks": newHandbook.tasks
+                                          });
+                                          // Reset new handbook
+                                          newHandbook = new Handbook.plain();
+                                          updateNewHandbook();
+                                          setState(() {
+                                            editingTask = false;
+                                            editing = false;
+                                          });
+                                        }
                                       }
                                     },
                                   ),

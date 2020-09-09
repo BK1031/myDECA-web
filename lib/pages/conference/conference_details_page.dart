@@ -48,190 +48,194 @@ class _ConferenceDetailsPageState extends State<ConferenceDetailsPage> {
   Widget build(BuildContext context) {
     if (_localStorage["userID"] != null) {
       if (MediaQuery.of(context).size.width > 600) {
-        return new Scaffold(
-          body: Container(
-            child: new SingleChildScrollView(
-              child: new Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  HomeNavbar(),
-                  new Stack(
-                    fit: StackFit.passthrough,
-                    alignment: Alignment.center,
-                    children: <Widget>[
-                      new ClipRRect(
-                        child: new CachedNetworkImage(
-                          placeholder: (context, url) => new Container(
-                            child: new GlowingProgressIndicator(
-                              child: new Image.asset('images/deca-diamond.png', height: 75.0,),
-                            ),
-                          ),
-                          imageUrl: conference.imageUrl,
-                          height: 400,
-                          width: double.infinity,
-                          fit: BoxFit.fitWidth,
-                        ),
-                      ),
-                      new Container(
-                        height: 350,
-                        width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
-                        child: new Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: <Widget>[
-                            new Container(
-                              child: new Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  new FlatButton(
-                                    color: Colors.black.withOpacity(0.7),
-                                    child: new Text("Back to Conferences", style: TextStyle(color: Colors.white, fontSize: 15),),
-                                    onPressed: () {
-                                      router.navigateTo(context, '/conferences', transition: TransitionType.fadeIn);
-                                    },
-                                  ),
-                                ],
+        return new Title(
+          title: "myDECA",
+          color: mainColor,
+          child: new Scaffold(
+            body: Container(
+              child: new SingleChildScrollView(
+                child: new Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    HomeNavbar(),
+                    new Stack(
+                      fit: StackFit.passthrough,
+                      alignment: Alignment.center,
+                      children: <Widget>[
+                        new ClipRRect(
+                          child: new CachedNetworkImage(
+                            placeholder: (context, url) => new Container(
+                              child: new GlowingProgressIndicator(
+                                child: new Image.asset('images/deca-diamond.png', height: 75.0,),
                               ),
                             ),
-                            Container(
-                                padding: EdgeInsets.all(16),
-                                color: Colors.black.withOpacity(0.7),
-                                width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
-                                child: new Text(
-                                  "${conference.fullName.toUpperCase()}",
-                                  style: TextStyle(fontFamily: "Montserrat", fontSize: 40, color: Colors.white),
-                                )
-                            ),
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
-                  new Padding(padding: EdgeInsets.all(8.0)),
-                  Container(
-                      padding: EdgeInsets.only(top: 8),
-                      width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
-                      child: new Text(
-                        "${conference.desc}",
-                        style: TextStyle(fontSize: 17, color: currTextColor),
-                      )
-                  ),
-                  Container(
-                      width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
-                      child: Wrap(
-                        direction: Axis.horizontal,
-                        spacing: 8,
-                        runSpacing: 4,
-                        alignment: WrapAlignment.spaceEvenly,
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: [
-                          Container(
-                            padding: EdgeInsets.all(16),
-                            child: Column(
-                              children: [
-                                new Icon(Icons.event, size: 80, color: mainColor,),
-                                new Text(
-                                  "${conference.date}",
-                                  style: TextStyle(fontFamily: "Montserrat",fontSize: 25, color: currTextColor),
-                                ),
-                              ],
-                            ),
+                            imageUrl: conference.imageUrl,
+                            height: 400,
+                            width: double.infinity,
+                            fit: BoxFit.fitWidth,
                           ),
-                          new InkWell(
-                            onTap: () {
-                              html.window.open(conference.mapUrl, "Map");
-                            },
-                            child: Container(
+                        ),
+                        new Container(
+                          height: 350,
+                          width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                          child: new Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: <Widget>[
+                              new Container(
+                                child: new Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: <Widget>[
+                                    new FlatButton(
+                                      color: Colors.black.withOpacity(0.7),
+                                      child: new Text("Back to Conferences", style: TextStyle(color: Colors.white, fontSize: 15),),
+                                      onPressed: () {
+                                        router.navigateTo(context, '/conferences', transition: TransitionType.fadeIn);
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Container(
+                                  padding: EdgeInsets.all(16),
+                                  color: Colors.black.withOpacity(0.7),
+                                  width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                                  child: new Text(
+                                    "${conference.fullName.toUpperCase()}",
+                                    style: TextStyle(fontFamily: "Montserrat", fontSize: 40, color: Colors.white),
+                                  )
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                    new Padding(padding: EdgeInsets.all(8.0)),
+                    Container(
+                        padding: EdgeInsets.only(top: 8),
+                        width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                        child: new Text(
+                          "${conference.desc}",
+                          style: TextStyle(fontSize: 17, color: currTextColor),
+                        )
+                    ),
+                    Container(
+                        width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                        child: Wrap(
+                          direction: Axis.horizontal,
+                          spacing: 8,
+                          runSpacing: 4,
+                          alignment: WrapAlignment.spaceEvenly,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            Container(
                               padding: EdgeInsets.all(16),
                               child: Column(
                                 children: [
-                                  new Icon(Icons.location_on, size: 80, color: mainColor,),
+                                  new Icon(Icons.event, size: 80, color: mainColor,),
                                   new Text(
-                                    "${conference.location.toUpperCase()}",
+                                    "${conference.date}",
                                     style: TextStyle(fontFamily: "Montserrat",fontSize: 25, color: currTextColor),
                                   ),
                                 ],
                               ),
                             ),
-                          ),
-                        ],
-                      )
-                  ),
-                  new Padding(padding: EdgeInsets.only(bottom: 8.0)),
-                  Container(
-                      padding: EdgeInsets.only(top: 8),
-                      width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
-                      child: new Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Expanded(
-                            child: new FlatButton(
-                              child: new Text("OVERVIEW", style: TextStyle(fontFamily: "Montserrat", color: currPage == 0 ? Colors.white : currTextColor)),
-                              color: currPage == 0 ? mainColor : null,
-                              onPressed: () {
-                                setState(() {
-                                  currPage = 0;
-                                  _controller.animateToPage(0, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
-                                });
+                            new InkWell(
+                              onTap: () {
+                                html.window.open(conference.mapUrl, "Map");
                               },
+                              child: Container(
+                                padding: EdgeInsets.all(16),
+                                child: Column(
+                                  children: [
+                                    new Icon(Icons.location_on, size: 80, color: mainColor,),
+                                    new Text(
+                                      "${conference.location.toUpperCase()}",
+                                      style: TextStyle(fontFamily: "Montserrat",fontSize: 25, color: currTextColor),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
-                          ),
-                          Expanded(
-                            child: new FlatButton(
-                              child: new Text("SCHEDULE", style: TextStyle(fontFamily: "Montserrat", color: currPage == 1 ? Colors.white : currTextColor)),
-                              color: currPage == 1 ? mainColor : null,
-                              onPressed: () {
-                                setState(() {
-                                  currPage = 1;
-                                  _controller.animateToPage(1, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
-                                });
-                              },
+                          ],
+                        )
+                    ),
+                    new Padding(padding: EdgeInsets.only(bottom: 8.0)),
+                    Container(
+                        padding: EdgeInsets.only(top: 8),
+                        width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                        child: new Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Expanded(
+                              child: new FlatButton(
+                                child: new Text("OVERVIEW", style: TextStyle(fontFamily: "Montserrat", color: currPage == 0 ? Colors.white : currTextColor)),
+                                color: currPage == 0 ? mainColor : null,
+                                onPressed: () {
+                                  setState(() {
+                                    currPage = 0;
+                                    _controller.animateToPage(0, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+                                  });
+                                },
+                              ),
                             ),
-                          ),
-                          Expanded(
-                            child: new FlatButton(
-                              child: new Text("WINNERS", style: TextStyle(fontFamily: "Montserrat", color: currPage == 2 ? Colors.white : currTextColor)),
-                              color: currPage == 2 ? mainColor : null,
-                              onPressed: () {
-                                setState(() {
-                                  currPage = 2;
-                                  _controller.animateToPage(2, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
-                                });
-                              },
+                            Expanded(
+                              child: new FlatButton(
+                                child: new Text("SCHEDULE", style: TextStyle(fontFamily: "Montserrat", color: currPage == 1 ? Colors.white : currTextColor)),
+                                color: currPage == 1 ? mainColor : null,
+                                onPressed: () {
+                                  setState(() {
+                                    currPage = 1;
+                                    _controller.animateToPage(1, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+                                  });
+                                },
+                              ),
                             ),
-                          ),
-                          Expanded(
-                            child: new FlatButton(
-                              child: new Text("MEDIA", style: TextStyle(fontFamily: "Montserrat", color: currPage == 3 ? Colors.white : currTextColor)),
-                              color: currPage == 3 ? mainColor : null,
-                              onPressed: () {
-                                setState(() {
-                                  currPage = 3;
-                                  _controller.animateToPage(3, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
-                                });
-                              },
+                            Expanded(
+                              child: new FlatButton(
+                                child: new Text("WINNERS", style: TextStyle(fontFamily: "Montserrat", color: currPage == 2 ? Colors.white : currTextColor)),
+                                color: currPage == 2 ? mainColor : null,
+                                onPressed: () {
+                                  setState(() {
+                                    currPage = 2;
+                                    _controller.animateToPage(2, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+                                  });
+                                },
+                              ),
                             ),
-                          ),
-                        ],
-                      )
-                  ),
-                  Container(
-                      padding: EdgeInsets.only(top: 16),
-                      width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
-                      height: 500,
-                      child: new PageView(
-                        controller: _controller,
-                        physics: NeverScrollableScrollPhysics(),
-                        children: [
-                          ConferenceOverviewPage(),
-                          ConferenceSchedulePage(),
-                          ConferenceWinnersPage(),
-                          ConferenceMediaPage()
-                        ],
-                      )
-                  ),
-                  new Container(height: 300)
-                ],
+                            Expanded(
+                              child: new FlatButton(
+                                child: new Text("MEDIA", style: TextStyle(fontFamily: "Montserrat", color: currPage == 3 ? Colors.white : currTextColor)),
+                                color: currPage == 3 ? mainColor : null,
+                                onPressed: () {
+                                  setState(() {
+                                    currPage = 3;
+                                    _controller.animateToPage(3, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+                                  });
+                                },
+                              ),
+                            ),
+                          ],
+                        )
+                    ),
+                    Container(
+                        padding: EdgeInsets.only(top: 16),
+                        width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                        height: 500,
+                        child: new PageView(
+                          controller: _controller,
+                          physics: NeverScrollableScrollPhysics(),
+                          children: [
+                            ConferenceOverviewPage(),
+                            ConferenceSchedulePage(),
+                            ConferenceWinnersPage(),
+                            ConferenceMediaPage()
+                          ],
+                        )
+                    ),
+                    new Container(height: 300)
+                  ],
+                ),
               ),
             ),
           ),

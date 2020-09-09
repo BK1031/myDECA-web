@@ -51,6 +51,26 @@ class _RegisterAdvisorPageState extends State<RegisterAdvisorPage> {
     );
   }
 
+  void alert(String alert) {
+    showDialog(
+        context: context,
+        child: new AlertDialog(
+          backgroundColor: currCardColor,
+          title: new Text("Alert", style: TextStyle(color: currTextColor),),
+          content: new Text(alert, style: TextStyle(color: currTextColor)),
+          actions: [
+            new FlatButton(
+                child: new Text("GOT IT"),
+                textColor: mainColor,
+                onPressed: () {
+                  router.pop(context);
+                }
+            )
+          ],
+        )
+    );
+  }
+
   void checkCodes() {
     fb.database().ref("chapters").child(html.window.location.toString().split("?")[1]).once("value").then((value) {
       if (value.snapshot != null && value.snapshot.val()["advisorCode"] == html.window.location.toString().split("?")[2]) {
@@ -67,13 +87,13 @@ class _RegisterAdvisorPageState extends State<RegisterAdvisorPage> {
   Future<void> register() async {
     fb.auth().setPersistence("local");
     if (currUser.firstName == "" || currUser.lastName == "") {
-      html.window.alert("Name cannot be empty!");
+      alert("Name cannot be empty!");
     }
     else if (currUser.email == "") {
-      html.window.alert("Email cannot be empty!");
+      alert("Email cannot be empty!");
     }
     else if (password != confirmPassword) {
-      html.window.alert("Passwords must match!");
+      alert("Passwords must match!");
     }
     else {
       // All good to create account!
@@ -118,7 +138,7 @@ class _RegisterAdvisorPageState extends State<RegisterAdvisorPage> {
         });
       } catch (e) {
         print(e);
-        html.window.alert("An error occured while creating your account: ${e.message}");
+        alert("An error occured while creating your account: ${e.message}");
       }
     }
     setState(() {
@@ -136,163 +156,167 @@ class _RegisterAdvisorPageState extends State<RegisterAdvisorPage> {
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      backgroundColor: currBackgroundColor,
-      body: new Center(
-        child: new Card(
-          color: currCardColor,
-          child: new AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            padding: EdgeInsets.all(32.0),
-            width: (MediaQuery.of(context).size.width > 500) ? 500.0 : MediaQuery.of(context).size.width - 25,
-            height: 600,
-            child: new SingleChildScrollView(
-              child: new Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  new Text("REGISTER", style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold, fontFamily: "Gotham"), textAlign: TextAlign.center),
-                  new Padding(padding: EdgeInsets.all(8.0),),
-                  new Text("Welcome advisor, we are excited to have you onboard!", textAlign: TextAlign.center, style: TextStyle(fontSize: 17, color: chapterExists ? Colors.green : currTextColor)),
-                  new TextField(
-                    decoration: InputDecoration(
-                      icon: new Icon(Icons.person),
-                      labelText: "First Name",
-                      hintText: "Enter your first name",
-                    ),
-                    autocorrect: false,
-                    textCapitalization: TextCapitalization.words,
-                    onChanged: (value) {
-                      currUser.firstName = value;
-                    },
-                  ),
-                  new TextField(
-                    decoration: InputDecoration(
-                      icon: new Icon(Icons.person),
-                      labelText: "Last Name",
-                      hintText: "Enter your last name",
-                    ),
-                    autocorrect: false,
-                    textCapitalization: TextCapitalization.words,
-                    onChanged: (value) {
-                      currUser.lastName = value;
-                    },
-                  ),
-                  new TextField(
-                    decoration: InputDecoration(
-                      icon: new Icon(Icons.email),
-                      labelText: "Email",
-                      hintText: "Enter your email",
-                    ),
-                    autocorrect: false,
-                    keyboardType: TextInputType.emailAddress,
-                    textCapitalization: TextCapitalization.none,
-                    onChanged: (value) {
-                      currUser.email = value;
-                    },
-                  ),
-                  new Row(
-                    children: <Widget>[
-                      new Expanded(
-                        flex: 2,
-                        child: new Text(
-                          "Gender",
-                          style: TextStyle(fontWeight: FontWeight.normal, fontSize: 16.0),
-                        ),
+    return new Title(
+      title: "myDECA",
+      color: mainColor,
+      child: new Scaffold(
+        backgroundColor: currBackgroundColor,
+        body: new Center(
+          child: new Card(
+            color: currCardColor,
+            child: new AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              padding: EdgeInsets.all(32.0),
+              width: (MediaQuery.of(context).size.width > 500) ? 500.0 : MediaQuery.of(context).size.width - 25,
+              height: 600,
+              child: new SingleChildScrollView(
+                child: new Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    new Text("REGISTER", style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold, fontFamily: "Gotham"), textAlign: TextAlign.center),
+                    new Padding(padding: EdgeInsets.all(8.0),),
+                    new Text("Welcome advisor, we are excited to have you onboard!", textAlign: TextAlign.center, style: TextStyle(fontSize: 17, color: chapterExists ? Colors.green : currTextColor)),
+                    new TextField(
+                      decoration: InputDecoration(
+                        icon: new Icon(Icons.person),
+                        labelText: "First Name",
+                        hintText: "Enter your first name",
                       ),
-                      new Expanded(
-                        flex: 1,
-                        child: new DropdownButton(
-                          value: currUser.gender,
-                          items: [
-                            DropdownMenuItem(child: new Text("Male"), value: "Male"),
-                            DropdownMenuItem(child: new Text("Female"), value: "Female"),
-                            DropdownMenuItem(child: new Text("Other"), value: "Other"),
-                            DropdownMenuItem(child: new Text("Prefer not to say"), value: "Opt-Out"),
-                          ],
-                          onChanged: (value) {
-                            setState(() {
-                              currUser.gender = value;
-                            });
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  new Row(
-                    children: <Widget>[
-                      new Expanded(
-                        flex: 2,
-                        child: new Text(
-                          "Shirt Size",
-                          style: TextStyle(fontWeight: FontWeight.normal, fontSize: 16.0),
-                        ),
-                      ),
-                      new Expanded(
-                        flex: 1,
-                        child: new DropdownButton(
-                          value: currUser.shirtSize,
-                          items: [
-                            DropdownMenuItem(child: new Text("S"), value: "S"),
-                            DropdownMenuItem(child: new Text("M"), value: "M"),
-                            DropdownMenuItem(child: new Text("L"), value: "L"),
-                            DropdownMenuItem(child: new Text("XL"), value: "XL"),
-                          ],
-                          onChanged: (value) {
-                            setState(() {
-                              currUser.shirtSize = value;
-                            });
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  new TextField(
-                    decoration: InputDecoration(
-                      icon: new Icon(Icons.lock),
-                      labelText: "Password",
-                      hintText: "Enter a password",
+                      autocorrect: false,
+                      textCapitalization: TextCapitalization.words,
+                      onChanged: (value) {
+                        currUser.firstName = value;
+                      },
                     ),
-                    autocorrect: false,
-                    obscureText: true,
-                    onChanged: (value) {
-                      password = value;
-                    },
-                  ),
-                  new TextField(
-                    decoration: InputDecoration(
-                      icon: new Icon(Icons.lock),
-                      labelText: "Confirm Password",
-                      hintText: "Confirm your password",
+                    new TextField(
+                      decoration: InputDecoration(
+                        icon: new Icon(Icons.person),
+                        labelText: "Last Name",
+                        hintText: "Enter your last name",
+                      ),
+                      autocorrect: false,
+                      textCapitalization: TextCapitalization.words,
+                      onChanged: (value) {
+                        currUser.lastName = value;
+                      },
                     ),
-                    autocorrect: false,
-                    obscureText: true,
-                    onChanged: (value) {
-                      confirmPassword = value;
-                    },
-                  ),
-                  new Padding(padding: EdgeInsets.all(8.0)),
-                  new RichText(
-                    text: new TextSpan(
-                      children: [
-                        new TextSpan(
-                          text: "By creating a myDECA account, you agree to our ",
-                          style: new TextStyle(color: Colors.black),
+                    new TextField(
+                      decoration: InputDecoration(
+                        icon: new Icon(Icons.email),
+                        labelText: "Email",
+                        hintText: "Enter your email",
+                      ),
+                      autocorrect: false,
+                      keyboardType: TextInputType.emailAddress,
+                      textCapitalization: TextCapitalization.none,
+                      onChanged: (value) {
+                        currUser.email = value;
+                      },
+                    ),
+                    new Row(
+                      children: <Widget>[
+                        new Expanded(
+                          flex: 2,
+                          child: new Text(
+                            "Gender",
+                            style: TextStyle(fontWeight: FontWeight.normal, fontSize: 16.0),
+                          ),
                         ),
-                        new TextSpan(
-                          text: 'Terms of Service',
-                          style: new TextStyle(color: Colors.blue),
-                          recognizer: new TapGestureRecognizer()
-                            ..onTap = () {
-                              launch("https://deca.bk1031.dev/terms");
+                        new Expanded(
+                          flex: 1,
+                          child: new DropdownButton(
+                            value: currUser.gender,
+                            items: [
+                              DropdownMenuItem(child: new Text("Male"), value: "Male"),
+                              DropdownMenuItem(child: new Text("Female"), value: "Female"),
+                              DropdownMenuItem(child: new Text("Other"), value: "Other"),
+                              DropdownMenuItem(child: new Text("Prefer not to say"), value: "Opt-Out"),
+                            ],
+                            onChanged: (value) {
+                              setState(() {
+                                currUser.gender = value;
+                              });
                             },
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                  new Padding(padding: EdgeInsets.all(16.0)),
-                  registerWidget,
-                  new Padding(padding: EdgeInsets.all(8.0)),
-                ],
+                    new Row(
+                      children: <Widget>[
+                        new Expanded(
+                          flex: 2,
+                          child: new Text(
+                            "Shirt Size",
+                            style: TextStyle(fontWeight: FontWeight.normal, fontSize: 16.0),
+                          ),
+                        ),
+                        new Expanded(
+                          flex: 1,
+                          child: new DropdownButton(
+                            value: currUser.shirtSize,
+                            items: [
+                              DropdownMenuItem(child: new Text("S"), value: "S"),
+                              DropdownMenuItem(child: new Text("M"), value: "M"),
+                              DropdownMenuItem(child: new Text("L"), value: "L"),
+                              DropdownMenuItem(child: new Text("XL"), value: "XL"),
+                            ],
+                            onChanged: (value) {
+                              setState(() {
+                                currUser.shirtSize = value;
+                              });
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    new TextField(
+                      decoration: InputDecoration(
+                        icon: new Icon(Icons.lock),
+                        labelText: "Password",
+                        hintText: "Enter a password",
+                      ),
+                      autocorrect: false,
+                      obscureText: true,
+                      onChanged: (value) {
+                        password = value;
+                      },
+                    ),
+                    new TextField(
+                      decoration: InputDecoration(
+                        icon: new Icon(Icons.lock),
+                        labelText: "Confirm Password",
+                        hintText: "Confirm your password",
+                      ),
+                      autocorrect: false,
+                      obscureText: true,
+                      onChanged: (value) {
+                        confirmPassword = value;
+                      },
+                    ),
+                    new Padding(padding: EdgeInsets.all(8.0)),
+                    new RichText(
+                      text: new TextSpan(
+                        children: [
+                          new TextSpan(
+                            text: "By creating a myDECA account, you agree to our ",
+                            style: new TextStyle(color: Colors.black),
+                          ),
+                          new TextSpan(
+                            text: 'Terms of Service',
+                            style: new TextStyle(color: Colors.blue),
+                            recognizer: new TapGestureRecognizer()
+                              ..onTap = () {
+                                launch("https://deca.bk1031.dev/terms");
+                              },
+                          ),
+                        ],
+                      ),
+                    ),
+                    new Padding(padding: EdgeInsets.all(16.0)),
+                    registerWidget,
+                    new Padding(padding: EdgeInsets.all(8.0)),
+                  ],
+                ),
               ),
             ),
           ),

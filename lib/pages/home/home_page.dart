@@ -62,6 +62,26 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  void alert(String alert) {
+    showDialog(
+        context: context,
+        child: new AlertDialog(
+          backgroundColor: currCardColor,
+          title: new Text("Alert", style: TextStyle(color: currTextColor),),
+          content: new Text(alert, style: TextStyle(color: currTextColor)),
+          actions: [
+            new FlatButton(
+                child: new Text("GOT IT"),
+                textColor: mainColor,
+                onPressed: () {
+                  router.pop(context);
+                }
+            )
+          ],
+        )
+    );
+  }
+
   void getAnnouncements() {
     print(DateTime.now());
     // Get Chapter announcements
@@ -224,247 +244,32 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     if (_localStorage["userID"] != null) {
       if (MediaQuery.of(context).size.width > 800) {
-        return new Scaffold(
-          body: Container(
-            child: new SingleChildScrollView(
-              child: new Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  HomeNavbar(),
-                  new Container(
-                    padding: new EdgeInsets.all(16.0),
-                    width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
-                    child: new Text("Welcome back, ${currUser.firstName}.", style: TextStyle(fontFamily: "Montserrat", color: currTextColor, fontSize: 35), textAlign: TextAlign.start,),
-                  ),
-                  new Container(
-                    padding: new EdgeInsets.only(top: 4.0, bottom: 4.0),
-                    width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
-                    child: new Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        new Expanded(
-                          flex: 2,
-                          child: new Column(
-                            children: [
-                              new Container(
-                                padding: new EdgeInsets.only(left: 16),
-                                child: new Card(
-                                  elevation: 2.0,
-                                  child: new Container(
-                                    color: currCardColor,
-                                    padding: new EdgeInsets.all(16),
-                                    child: new Column(
-                                      children: [
-                                        new Row(
-                                          children: [
-                                            new Icon(Icons.event),
-                                            new Padding(padding: EdgeInsets.all(4)),
-                                            new Text("DASHBOARD", style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor),)
-                                          ],
-                                        ),
-                                        new Padding(padding: EdgeInsets.only(top: 8, bottom: 16), child: new Divider(color: currDividerColor, height: 8)),
-                                        new Container(
-                                          width: double.infinity,
-                                          height: 100.0,
-                                          child: new Row(
-                                            children: <Widget>[
-                                              new Expanded(
-                                                flex: 5,
-                                                child: new Card(
-                                                  elevation: 2.0,
-                                                  color: currCardColor,
-                                                  child: new InkWell(
-                                                    onTap: () {
-                                                    },
-                                                    child: new Column(
-                                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                                      children: <Widget>[
-                                                        new Icon(Icons.event, size: 35.0, color: darkMode ? Colors.grey : Colors.black54),
-                                                        new Text(
-                                                          "My Events",
-                                                          style: TextStyle(fontSize: 13.0, color: currTextColor),
-                                                        )
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                              new Padding(padding: EdgeInsets.all(4.0)),
-                                              new Expanded(
-                                                flex: 3,
-                                                child: new Card(
-                                                  elevation: 2.0,
-                                                  color: currCardColor,
-                                                  child: new InkWell(
-                                                    onTap: () {
-                                                      router.navigateTo(context, '/home/announcements', transition: TransitionType.fadeIn);
-                                                    },
-                                                    child: new Column(
-                                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                                      children: <Widget>[
-                                                        new Text(
-                                                          unreadAnnounce > 0 ? unreadAnnounce.toString() : announcementList.length.toString(),
-                                                          style: TextStyle(fontSize: 35.0, color: unreadAnnounce > 0 ? mainColor : Colors.grey),
-                                                        ),
-                                                        new Text(
-                                                          unreadAnnounce > 0 ? "New Announcements" : "Announcements",
-                                                          style: TextStyle(fontSize: 13.0, color: unreadAnnounce > 0 ? mainColor : currTextColor),
-                                                        )
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                              )
-                                            ],
-                                          ),
-                                        ),
-                                        new Padding(padding: EdgeInsets.all(4.0)),
-                                        new Container(
-                                          width: double.infinity,
-                                          height: 100.0,
-                                          child: new Row(
-                                            children: <Widget>[
-                                              new Expanded(
-                                                flex: 3,
-                                                child: new Card(
-                                                  elevation: 2.0,
-                                                  color: currCardColor,
-                                                  child: new InkWell(
-                                                    onTap: () {
-                                                      if (currUser.groups.isNotEmpty) {
-                                                        router.navigateTo(context, '/home/handbook', transition: TransitionType.fadeIn);
-                                                      }
-                                                      else {
-                                                        html.window.alert("You are not a part of any groups. Please join a group to get access to your handbook.");
-                                                      }
-                                                    },
-                                                    child: new Column(
-                                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                                      children: <Widget>[
-                                                        new Icon(Icons.library_books, size: 35.0, color: darkMode ? Colors.grey : Colors.black54),
-                                                        new Text(
-                                                          "My Handbook",
-                                                          style: TextStyle(fontSize: 13.0, color: currTextColor),
-                                                        )
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                              new Padding(padding: EdgeInsets.all(4.0)),
-                                              new Expanded(
-                                                flex: 5,
-                                                child: new Card(
-                                                  elevation: 2.0,
-                                                  color: currCardColor,
-                                                  child: new InkWell(
-                                                    onTap: () {
-                                                      selectGroupDialog(currUser);
-                                                    },
-                                                    child: Row(
-                                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                                      children: [
-                                                        Container(
-                                                          child: new Column(
-                                                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                                            children: <Widget>[
-                                                              new Icon(Icons.group, size: 35.0, color: darkMode ? Colors.grey : Colors.black54),
-                                                              new Text(
-                                                                "My Groups",
-                                                                style: TextStyle(fontSize: 13.0, color: currTextColor),
-                                                              )
-                                                            ],
-                                                          ),
-                                                        ),
-                                                        Container(
-                                                          child: new Wrap(
-                                                            direction: Axis.horizontal,
-                                                            children: groupsWidgetList,
-                                                          ),
-                                                        ),
-                                                        new Visibility(
-                                                          visible: groupsWidgetList.isEmpty,
-                                                          child: Container(
-                                                            child: new Text(
-                                                              "It looks like you are not part of any groups.\nClick on this card to join a group.",
-                                                              style: TextStyle(color: currTextColor),
-                                                            ),
-                                                          ),
-                                                        )
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                              )
-                                            ],
-                                          ),
-                                        ),
-                                        new Padding(padding: EdgeInsets.all(4.0)),
-                                        new Visibility(
-                                          visible: currUser.roles.contains("Developer") || currUser.roles.contains("Officer"),
-                                          child: new Container(
-                                            width: double.infinity,
-                                            height: 100.0,
-                                            child: new Row(
-                                              children: <Widget>[
-                                                new Expanded(
-                                                  flex: 5,
-                                                  child: new Card(
-                                                    color: currCardColor,
-                                                    elevation: 2.0,
-                                                    child: new InkWell(
-                                                      onTap: () {
-                                                        router.navigateTo(context, '/home/notification-manager', transition: TransitionType.native);
-                                                      },
-                                                      child: new Column(
-                                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                                        children: <Widget>[
-                                                          new Icon(Icons.notifications_active, size: 35.0, color: darkMode ? Colors.grey : Colors.black54,),
-                                                          new Text(
-                                                            "Send Notification",
-                                                            style: TextStyle(fontSize: 13.0, color: currTextColor),
-                                                          )
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                new Padding(padding: EdgeInsets.all(4.0)),
-                                                new Expanded(
-                                                  flex: 3,
-                                                  child: new Card(
-                                                    elevation: 2.0,
-                                                    color: currCardColor,
-                                                    child: new InkWell(
-                                                      onTap: () {
-                                                        router.navigateTo(context, "/home/manage-users", transition: TransitionType.fadeIn);
-                                                      },
-                                                      child: new Column(
-                                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                                        children: <Widget>[
-                                                          new Icon(Icons.supervised_user_circle, size: 35.0, color: darkMode ? Colors.grey : Colors.black54),
-                                                          new Text(
-                                                            "Manage Users",
-                                                            style: TextStyle(fontSize: 13.0, color: currTextColor),
-                                                          )
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                )
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              new Padding(padding: EdgeInsets.all(8)),
-                              new Visibility(
-                                visible: currUser.roles.contains("Developer") || currUser.roles.contains("Advisor"),
-                                child: new Container(
+        return new Title(
+          title: "myDECA",
+          color: mainColor,
+          child: new Scaffold(
+            body: Container(
+              child: new SingleChildScrollView(
+                child: new Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    HomeNavbar(),
+                    new Container(
+                      padding: new EdgeInsets.all(16.0),
+                      width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                      child: new Text("Welcome back, ${currUser.firstName}.", style: TextStyle(fontFamily: "Montserrat", color: currTextColor, fontSize: 35), textAlign: TextAlign.start,),
+                    ),
+                    new Container(
+                      padding: new EdgeInsets.only(top: 4.0, bottom: 4.0),
+                      width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                      child: new Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          new Expanded(
+                            flex: 2,
+                            child: new Column(
+                              children: [
+                                new Container(
                                   padding: new EdgeInsets.only(left: 16),
                                   child: new Card(
                                     elevation: 2.0,
@@ -477,7 +282,7 @@ class _HomePageState extends State<HomePage> {
                                             children: [
                                               new Icon(Icons.event),
                                               new Padding(padding: EdgeInsets.all(4)),
-                                              new Text("ADVISOR PANEL", style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor),)
+                                              new Text("DASHBOARD", style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor),)
                                             ],
                                           ),
                                           new Padding(padding: EdgeInsets.only(top: 8, bottom: 16), child: new Divider(color: currDividerColor, height: 8)),
@@ -493,37 +298,15 @@ class _HomePageState extends State<HomePage> {
                                                     color: currCardColor,
                                                     child: new InkWell(
                                                       onTap: () {
-                                                        selectConferenceDialog(currUser);
+                                                        alert("No favorite events selected! Please select your favorite events from the competitive event browser first.");
                                                       },
-                                                      child: Row(
+                                                      child: new Column(
                                                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                                        children: [
-                                                          Container(
-                                                            child: new Column(
-                                                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                                              children: <Widget>[
-                                                                new Icon(Icons.event, size: 35.0, color: darkMode ? Colors.grey : Colors.black54),
-                                                                new Text(
-                                                                  "My Conferences",
-                                                                  style: TextStyle(fontSize: 13.0, color: currTextColor),
-                                                                )
-                                                              ],
-                                                            ),
-                                                          ),
-                                                          Container(
-                                                            child: new Wrap(
-                                                              direction: Axis.horizontal,
-                                                              children: conferenceWidgetList,
-                                                            ),
-                                                          ),
-                                                          new Visibility(
-                                                            visible: conferenceWidgetList.isEmpty,
-                                                            child: Container(
-                                                              child: new Text(
-                                                                "No conferences selected for this chapter.\nClick on this card to add a conference.",
-                                                                style: TextStyle(color: currTextColor),
-                                                              ),
-                                                            ),
+                                                        children: <Widget>[
+                                                          new Icon(Icons.event, size: 35.0, color: darkMode ? Colors.grey : Colors.black54),
+                                                          new Text(
+                                                            "My Events",
+                                                            style: TextStyle(fontSize: 13.0, color: currTextColor),
                                                           )
                                                         ],
                                                       ),
@@ -538,15 +321,18 @@ class _HomePageState extends State<HomePage> {
                                                     color: currCardColor,
                                                     child: new InkWell(
                                                       onTap: () {
-                                                        router.navigateTo(context, "/home/manage-users", transition: TransitionType.fadeIn);
+                                                        router.navigateTo(context, '/home/announcements', transition: TransitionType.fadeIn);
                                                       },
                                                       child: new Column(
                                                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                                         children: <Widget>[
-                                                          new Icon(Icons.supervised_user_circle, size: 35.0, color: darkMode ? Colors.grey : Colors.black54),
                                                           new Text(
-                                                            "Manage Users",
-                                                            style: TextStyle(fontSize: 13.0, color: currTextColor),
+                                                            unreadAnnounce > 0 ? unreadAnnounce.toString() : announcementList.length.toString(),
+                                                            style: TextStyle(fontSize: 35.0, color: unreadAnnounce > 0 ? mainColor : Colors.grey),
+                                                          ),
+                                                          new Text(
+                                                            unreadAnnounce > 0 ? "New Announcements" : "Announcements",
+                                                            style: TextStyle(fontSize: 13.0, color: unreadAnnounce > 0 ? mainColor : currTextColor),
                                                           )
                                                         ],
                                                       ),
@@ -565,18 +351,23 @@ class _HomePageState extends State<HomePage> {
                                                 new Expanded(
                                                   flex: 3,
                                                   child: new Card(
-                                                    color: currCardColor,
                                                     elevation: 2.0,
+                                                    color: currCardColor,
                                                     child: new InkWell(
                                                       onTap: () {
-                                                        router.navigateTo(context, '/home/notification-manager', transition: TransitionType.native);
+                                                        if (currUser.groups.isNotEmpty) {
+                                                          router.navigateTo(context, '/home/handbook', transition: TransitionType.fadeIn);
+                                                        }
+                                                        else {
+                                                          alert("You are not a part of any groups. Please join a group to get access to your handbook.");
+                                                        }
                                                       },
                                                       child: new Column(
                                                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                                         children: <Widget>[
-                                                          new Icon(Icons.notifications_active, size: 35.0, color: darkMode ? Colors.grey : Colors.black54,),
+                                                          new Icon(Icons.library_books, size: 35.0, color: darkMode ? Colors.grey : Colors.black54),
                                                           new Text(
-                                                            "Send Notification",
+                                                            "My Handbook",
                                                             style: TextStyle(fontSize: 13.0, color: currTextColor),
                                                           )
                                                         ],
@@ -592,15 +383,37 @@ class _HomePageState extends State<HomePage> {
                                                     color: currCardColor,
                                                     child: new InkWell(
                                                       onTap: () {
-                                                        router.navigateTo(context, '/home/handbook/manage', transition: TransitionType.fadeIn);
+                                                        selectGroupDialog(currUser);
                                                       },
-                                                      child: new Column(
+                                                      child: Row(
                                                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                                        children: <Widget>[
-                                                          new Icon(Icons.library_books, size: 35.0, color: darkMode ? Colors.grey : Colors.black54),
-                                                          new Text(
-                                                            "Manage Handbooks",
-                                                            style: TextStyle(fontSize: 13.0, color: currTextColor),
+                                                        children: [
+                                                          Container(
+                                                            child: new Column(
+                                                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                              children: <Widget>[
+                                                                new Icon(Icons.group, size: 35.0, color: darkMode ? Colors.grey : Colors.black54),
+                                                                new Text(
+                                                                  "My Groups",
+                                                                  style: TextStyle(fontSize: 13.0, color: currTextColor),
+                                                                )
+                                                              ],
+                                                            ),
+                                                          ),
+                                                          Container(
+                                                            child: new Wrap(
+                                                              direction: Axis.horizontal,
+                                                              children: groupsWidgetList,
+                                                            ),
+                                                          ),
+                                                          new Visibility(
+                                                            visible: groupsWidgetList.isEmpty,
+                                                            child: Container(
+                                                              child: new Text(
+                                                                "It looks like you are not part of any groups.\nClick on this card to join a group.",
+                                                                style: TextStyle(color: currTextColor),
+                                                              ),
+                                                            ),
                                                           )
                                                         ],
                                                       ),
@@ -610,98 +423,310 @@ class _HomePageState extends State<HomePage> {
                                               ],
                                             ),
                                           ),
+                                          new Padding(padding: EdgeInsets.all(4.0)),
+                                          new Visibility(
+                                            visible: currUser.roles.contains("Developer") || currUser.roles.contains("Officer"),
+                                            child: new Container(
+                                              width: double.infinity,
+                                              height: 100.0,
+                                              child: new Row(
+                                                children: <Widget>[
+                                                  new Expanded(
+                                                    flex: 5,
+                                                    child: new Card(
+                                                      color: currCardColor,
+                                                      elevation: 2.0,
+                                                      child: new InkWell(
+                                                        onTap: () {
+                                                          router.navigateTo(context, '/home/notification-manager', transition: TransitionType.native);
+                                                        },
+                                                        child: new Column(
+                                                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                          children: <Widget>[
+                                                            new Icon(Icons.notifications_active, size: 35.0, color: darkMode ? Colors.grey : Colors.black54,),
+                                                            new Text(
+                                                              "Send Notification",
+                                                              style: TextStyle(fontSize: 13.0, color: currTextColor),
+                                                            )
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  new Padding(padding: EdgeInsets.all(4.0)),
+                                                  new Expanded(
+                                                    flex: 3,
+                                                    child: new Card(
+                                                      elevation: 2.0,
+                                                      color: currCardColor,
+                                                      child: new InkWell(
+                                                        onTap: () {
+                                                          router.navigateTo(context, "/home/manage-users", transition: TransitionType.fadeIn);
+                                                        },
+                                                        child: new Column(
+                                                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                          children: <Widget>[
+                                                            new Icon(Icons.supervised_user_circle, size: 35.0, color: darkMode ? Colors.grey : Colors.black54),
+                                                            new Text(
+                                                              "Manage Users",
+                                                              style: TextStyle(fontSize: 13.0, color: currTextColor),
+                                                            )
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
+                                            ),
+                                          ),
                                         ],
                                       ),
                                     ),
                                   ),
                                 ),
-                              )
-                            ],
-                          ),
-                        ),
-                        new Padding(padding: EdgeInsets.all(8)),
-                        new Expanded(
-                          flex: 1,
-                          child: new Column(
-                            children: [
-                              new Container(
-                                padding: new EdgeInsets.only(right: 16),
-                                child: new Card(
-                                  elevation: 2.0,
+                                new Padding(padding: EdgeInsets.all(8)),
+                                new Visibility(
+                                  visible: currUser.roles.contains("Developer") || currUser.roles.contains("Advisor"),
                                   child: new Container(
-                                    color: currCardColor,
-                                    padding: new EdgeInsets.all(16),
-                                    child: new Column(
-                                      children: [
-                                        new Row(
-                                          mainAxisAlignment: MainAxisAlignment.start,
-                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                    padding: new EdgeInsets.only(left: 16),
+                                    child: new Card(
+                                      elevation: 2.0,
+                                      child: new Container(
+                                        color: currCardColor,
+                                        padding: new EdgeInsets.all(16),
+                                        child: new Column(
                                           children: [
-                                            new Icon(Icons.person),
-                                            new Padding(padding: EdgeInsets.all(4)),
-                                            new Text("PROFILE", style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor),)
+                                            new Row(
+                                              children: [
+                                                new Icon(Icons.event),
+                                                new Padding(padding: EdgeInsets.all(4)),
+                                                new Text("ADVISOR PANEL", style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor),)
+                                              ],
+                                            ),
+                                            new Padding(padding: EdgeInsets.only(top: 8, bottom: 16), child: new Divider(color: currDividerColor, height: 8)),
+                                            new Container(
+                                              width: double.infinity,
+                                              height: 100.0,
+                                              child: new Row(
+                                                children: <Widget>[
+                                                  new Expanded(
+                                                    flex: 5,
+                                                    child: new Card(
+                                                      elevation: 2.0,
+                                                      color: currCardColor,
+                                                      child: new InkWell(
+                                                        onTap: () {
+                                                          selectConferenceDialog(currUser);
+                                                        },
+                                                        child: Row(
+                                                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                          children: [
+                                                            Container(
+                                                              child: new Column(
+                                                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                                children: <Widget>[
+                                                                  new Icon(Icons.event, size: 35.0, color: darkMode ? Colors.grey : Colors.black54),
+                                                                  new Text(
+                                                                    "My Conferences",
+                                                                    style: TextStyle(fontSize: 13.0, color: currTextColor),
+                                                                  )
+                                                                ],
+                                                              ),
+                                                            ),
+                                                            Container(
+                                                              child: new Wrap(
+                                                                direction: Axis.horizontal,
+                                                                children: conferenceWidgetList,
+                                                              ),
+                                                            ),
+                                                            new Visibility(
+                                                              visible: conferenceWidgetList.isEmpty,
+                                                              child: Container(
+                                                                child: new Text(
+                                                                  "No conferences selected for this chapter.\nClick on this card to add a conference.",
+                                                                  style: TextStyle(color: currTextColor),
+                                                                ),
+                                                              ),
+                                                            )
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  new Padding(padding: EdgeInsets.all(4.0)),
+                                                  new Expanded(
+                                                    flex: 3,
+                                                    child: new Card(
+                                                      elevation: 2.0,
+                                                      color: currCardColor,
+                                                      child: new InkWell(
+                                                        onTap: () {
+                                                          router.navigateTo(context, "/home/manage-users", transition: TransitionType.fadeIn);
+                                                        },
+                                                        child: new Column(
+                                                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                          children: <Widget>[
+                                                            new Icon(Icons.supervised_user_circle, size: 35.0, color: darkMode ? Colors.grey : Colors.black54),
+                                                            new Text(
+                                                              "Manage Users",
+                                                              style: TextStyle(fontSize: 13.0, color: currTextColor),
+                                                            )
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
+                                            ),
+                                            new Padding(padding: EdgeInsets.all(4.0)),
+                                            new Container(
+                                              width: double.infinity,
+                                              height: 100.0,
+                                              child: new Row(
+                                                children: <Widget>[
+                                                  new Expanded(
+                                                    flex: 3,
+                                                    child: new Card(
+                                                      color: currCardColor,
+                                                      elevation: 2.0,
+                                                      child: new InkWell(
+                                                        onTap: () {
+                                                          router.navigateTo(context, '/home/notification-manager', transition: TransitionType.native);
+                                                        },
+                                                        child: new Column(
+                                                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                          children: <Widget>[
+                                                            new Icon(Icons.notifications_active, size: 35.0, color: darkMode ? Colors.grey : Colors.black54,),
+                                                            new Text(
+                                                              "Send Notification",
+                                                              style: TextStyle(fontSize: 13.0, color: currTextColor),
+                                                            )
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  new Padding(padding: EdgeInsets.all(4.0)),
+                                                  new Expanded(
+                                                    flex: 5,
+                                                    child: new Card(
+                                                      elevation: 2.0,
+                                                      color: currCardColor,
+                                                      child: new InkWell(
+                                                        onTap: () {
+                                                          router.navigateTo(context, '/home/handbook/manage', transition: TransitionType.fadeIn);
+                                                        },
+                                                        child: new Column(
+                                                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                          children: <Widget>[
+                                                            new Icon(Icons.library_books, size: 35.0, color: darkMode ? Colors.grey : Colors.black54),
+                                                            new Text(
+                                                              "Manage Handbooks",
+                                                              style: TextStyle(fontSize: 13.0, color: currTextColor),
+                                                            )
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
+                                            ),
                                           ],
                                         ),
-                                        new Container(padding: EdgeInsets.only(top: 8, bottom: 16), child: new Divider(color: currDividerColor, height: 8)),
-                                        new ClipRRect(
-                                          borderRadius: BorderRadius.all(Radius.circular(100)),
-                                          child: new CachedNetworkImage(
-                                            imageUrl: currUser.profileUrl,
-                                            height: 100,
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                          new Padding(padding: EdgeInsets.all(8)),
+                          new Expanded(
+                            flex: 1,
+                            child: new Column(
+                              children: [
+                                new Container(
+                                  padding: new EdgeInsets.only(right: 16),
+                                  child: new Card(
+                                    elevation: 2.0,
+                                    child: new Container(
+                                      color: currCardColor,
+                                      padding: new EdgeInsets.all(16),
+                                      child: new Column(
+                                        children: [
+                                          new Row(
+                                            mainAxisAlignment: MainAxisAlignment.start,
+                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                            children: [
+                                              new Icon(Icons.person),
+                                              new Padding(padding: EdgeInsets.all(4)),
+                                              new Text("PROFILE", style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor),)
+                                            ],
                                           ),
-                                        ),
-                                        new Padding(padding: EdgeInsets.all(8)),
-                                        new Text(
-                                          currUser.firstName + " " + currUser.lastName,
-                                          style: TextStyle(fontSize: 25),
-                                        ),
-                                        new Padding(padding: EdgeInsets.all(8)),
-                                        new Wrap(
-                                            direction: Axis.horizontal,
-                                            children: roleWidgetList
-                                        ),
-                                        new ListTile(
-                                          leading: new Icon(currUser.emailVerified ? Icons.verified_user : Icons.mail),
-                                          title: new Text(currUser.email),
-                                        ),
-                                      ],
+                                          new Container(padding: EdgeInsets.only(top: 8, bottom: 16), child: new Divider(color: currDividerColor, height: 8)),
+                                          new ClipRRect(
+                                            borderRadius: BorderRadius.all(Radius.circular(100)),
+                                            child: new CachedNetworkImage(
+                                              imageUrl: currUser.profileUrl,
+                                              height: 100,
+                                            ),
+                                          ),
+                                          new Padding(padding: EdgeInsets.all(8)),
+                                          new Text(
+                                            currUser.firstName + " " + currUser.lastName,
+                                            style: TextStyle(fontSize: 25),
+                                          ),
+                                          new Padding(padding: EdgeInsets.all(8)),
+                                          new Wrap(
+                                              direction: Axis.horizontal,
+                                              children: roleWidgetList
+                                          ),
+                                          new ListTile(
+                                            leading: new Icon(currUser.emailVerified ? Icons.verified_user : Icons.mail),
+                                            title: new Text(currUser.email),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              new Padding(padding: EdgeInsets.all(8)),
-                              new Container(
-                                padding: new EdgeInsets.only(right: 16),
-                                child: new Card(
-                                  elevation: 2.0,
-                                  child: new Container(
-                                    color: currCardColor,
-                                    padding: new EdgeInsets.all(16),
-                                    child: new Column(
-                                      children: [
-                                        new Row(
-                                          mainAxisAlignment: MainAxisAlignment.start,
-                                          crossAxisAlignment: CrossAxisAlignment.center,
-                                          children: [
-                                            new Icon(Icons.event),
-                                            new Padding(padding: EdgeInsets.all(4)),
-                                            new Text("UPCOMING EVENTS", style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor),)
-                                          ],
-                                        ),
-                                        new Container(padding: EdgeInsets.only(top: 8, bottom: 16), child: new Divider(color: currDividerColor, height: 8, )),
-                                        new Text("There are no upcoming events.")
-                                      ],
+                                new Padding(padding: EdgeInsets.all(8)),
+                                new Container(
+                                  padding: new EdgeInsets.only(right: 16),
+                                  child: new Card(
+                                    elevation: 2.0,
+                                    child: new Container(
+                                      color: currCardColor,
+                                      padding: new EdgeInsets.all(16),
+                                      child: new Column(
+                                        children: [
+                                          new Row(
+                                            mainAxisAlignment: MainAxisAlignment.start,
+                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                            children: [
+                                              new Icon(Icons.event),
+                                              new Padding(padding: EdgeInsets.all(4)),
+                                              new Text("UPCOMING EVENTS", style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor),)
+                                            ],
+                                          ),
+                                          new Container(padding: EdgeInsets.only(top: 8, bottom: 16), child: new Divider(color: currDividerColor, height: 8, )),
+                                          new Text("There are no upcoming events.")
+                                        ],
+                                      ),
                                     ),
                                   ),
-                                ),
-                              )
-                            ],
-                          ),
-                        )
-                      ],
-                    ),
-                  )
-                ],
+                                )
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                    )
+                  ],
+                ),
               ),
             ),
           ),
@@ -814,7 +839,7 @@ class _HomePageState extends State<HomePage> {
                                                   router.navigateTo(context, '/home/handbook', transition: TransitionType.fadeIn);
                                                 }
                                                 else {
-                                                  html.window.alert("You are not a part of any groups. Please join a group to get access to your handbook.");
+                                                  alert("You are not a part of any groups. Please join a group to get access to your handbook.");
                                                 }
                                               },
                                               child: new Column(
