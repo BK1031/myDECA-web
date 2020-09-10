@@ -46,6 +46,13 @@ class _NewGroupDialogState extends State<NewGroupDialog> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               new Visibility(
+                visible: id != "",
+                child: new Text(
+                  "Your code will be: $id",
+                  style: TextStyle(color: Colors.grey),
+                ),
+              ),
+              new Visibility(
                 visible: id.length > 0,
                 child: new Text(
                   valid ? "Valid Code" : "Invalid Code",
@@ -62,7 +69,7 @@ class _NewGroupDialogState extends State<NewGroupDialog> {
                       ),
                       textCapitalization: TextCapitalization.characters,
                       onChanged: (input) {
-                        id = input;
+                        id = input.toUpperCase().replaceAll(" ", "");
                         checkValid();
                       },
                     ),

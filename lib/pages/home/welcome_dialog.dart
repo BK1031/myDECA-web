@@ -65,7 +65,7 @@ class _WelcomeDialogState extends State<WelcomeDialog> {
                       child: new Card(
                         child: new InkWell(
                           onTap: () {
-                            html.window.open("https://docs.mydeca.org/user-1/registration", "Guide");
+                            html.window.open("https://docs.mydeca.org/user/registration", "Guide");
                           },
                           child: new Column(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,

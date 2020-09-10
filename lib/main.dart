@@ -2,6 +2,7 @@ import 'package:firebase/firebase.dart';
 import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:mydeca_web/beta_page.dart';
 import 'package:mydeca_web/pages/auth/login_page.dart';
 import 'package:mydeca_web/pages/auth/register_advisor_page.dart';
 import 'package:mydeca_web/pages/auth/register_page.dart';
@@ -29,6 +30,11 @@ void main() {
       projectId: ServiceAccount.projectID,
       storageBucket: ServiceAccount.storageUrl
   );
+
+  // BETA ROUTE
+  router.define('/beta', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
+    return new BetaPage();
+  }));
 
   // AUTH ROUTES
   router.define('/login', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
