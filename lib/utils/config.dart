@@ -3,7 +3,7 @@ import 'package:firebase/firebase.dart' as fb;
 
 import '../models/version.dart';
 
-Version appVersion = new Version("1.6.2+1");
+Version appVersion = new Version("1.6.3+1");
 String appStatus = "";
 String appFull = "Version ${appVersion.toString()}";
 

@@ -141,201 +141,343 @@ class _BetaPageState extends State<BetaPage> {
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      backgroundColor: mainColor.withOpacity(0.2),
-      body: Container(
-        child: new SingleChildScrollView(
-          child: new Column(
-            children: [
-              new Container(
-                child: Stack(
-                  alignment: Alignment.topCenter,
-                  children: [
-                    Stack(
-                      alignment: Alignment.bottomCenter,
-                      children: [
-                        Column(
-                          children: [
-                            new Image.asset(
-                              "images/beta-header.png",
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                              alignment: Alignment.topCenter,
-                            ),
-                            new Container(
-                              height: 550,
-                            ),
-                            new Container(
-                              color: mainColor,
-                              child: Column(
-                                children: [
-                                  Container(
-                                    padding: EdgeInsets.only(left: 64, right: 64),
-                                    child: new Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      children: [
-                                        new FlatButton(
-                                          child: new Text("Copyright © 2020 Equinox Initiative"),
-                                          textColor: Colors.white,
-                                          onPressed: () => launch("https://equinox.bk1031.dev"),
-                                        ),
-                                        new Row(
-                                          children: [
-                                            new FlatButton(
-                                              child: new Text("v${appVersion.toString()}"),
-                                              textColor: Colors.white,
-                                              onPressed: () {},
-                                            ),
-                                            new FlatButton(
-                                              child: new Text("Docs"),
-                                              textColor: Colors.white,
-                                              onPressed: () => launch("https://docs.mydeca.org"),
-                                            ),
-                                            new FlatButton(
-                                              child: new Text("Terms"),
-                                              textColor: Colors.white,
-                                              onPressed: () => launch("https://docs.mydeca.org/tos"),
-                                            ),
-                                            new FlatButton(
-                                              child: new Text("Privacy"),
-                                              textColor: Colors.white,
-                                              onPressed: () => launch("https://docs.mydeca.org/privacy"),
-                                            ),
-                                            new FlatButton(
-                                              child: new Text("Status"),
-                                              textColor: Colors.white,
-                                              onPressed: () => launch("https://status.bk1031.dev"),
-                                            ),
-                                          ],
-                                        )
-                                      ],
-                                    ),
-                                  )
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
-                        Container(
-                          width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+    if (MediaQuery.of(context).size.width > 1100) {
+      return new Scaffold(
+        backgroundColor: mainColor.withOpacity(0.2),
+        body: Container(
+          child: new SingleChildScrollView(
+            child: new Column(
+              children: [
+                new Container(
+                  child: Stack(
+                    alignment: Alignment.topCenter,
+                    children: [
+                      Stack(
+                        alignment: Alignment.bottomCenter,
+                        children: [
+                          Column(
                             children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
+                              new Image.asset(
+                                "images/beta-header.png",
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                                alignment: Alignment.topCenter,
+                              ),
+                              new Container(
+                                height: 550,
+                              ),
+                              new Container(
+                                color: mainColor,
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      padding: EdgeInsets.only(left: 64, right: 64),
+                                      child: new Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment: CrossAxisAlignment.center,
                                         children: [
-                                          new RaisedButton(
-                                            padding: EdgeInsets.only(left: 16, top: 8, bottom: 8, right: 16),
-                                            elevation: 0.0,
-                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
-                                            child: new Text("ADD YOUR CHAPTER", style: TextStyle(fontFamily: "Montserrat", fontWeight: FontWeight.bold, fontSize: 25),),
-                                            color: mainColor,
+                                          new FlatButton(
+                                            child: new Text("Copyright © 2020 Equinox Initiative"),
                                             textColor: Colors.white,
-                                            onPressed: () {
-                                              addChapter();
-                                            },
+                                            onPressed: () => launch("https://equinox.bk1031.dev"),
                                           ),
+                                          new Row(
+                                            children: [
+                                              new FlatButton(
+                                                child: new Text("v${appVersion.toString()}"),
+                                                textColor: Colors.white,
+                                                onPressed: () {},
+                                              ),
+                                              new FlatButton(
+                                                child: new Text("Docs"),
+                                                textColor: Colors.white,
+                                                onPressed: () => launch("https://docs.mydeca.org"),
+                                              ),
+                                              new FlatButton(
+                                                child: new Text("Terms"),
+                                                textColor: Colors.white,
+                                                onPressed: () => launch("https://docs.mydeca.org/tos"),
+                                              ),
+                                              new FlatButton(
+                                                child: new Text("Privacy"),
+                                                textColor: Colors.white,
+                                                onPressed: () => launch("https://docs.mydeca.org/privacy"),
+                                              ),
+                                              new FlatButton(
+                                                child: new Text("Status"),
+                                                textColor: Colors.white,
+                                                onPressed: () => launch("https://status.bk1031.dev"),
+                                              ),
+                                            ],
+                                          )
                                         ],
                                       ),
-                                      new Padding(padding: EdgeInsets.all(100)),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              new Container(
-                                child: new Text(
-                                  "These chapters already have",
-                                  style: TextStyle(fontFamily: "Montserrat", fontWeight: FontWeight.bold, fontSize: 50, color: Colors.white),
-                                )
-                              ),
-                              new Container(
-                                child: new Column(
-                                  children: chaptersList,
+                                    )
+                                  ],
                                 ),
-                              ),
-                              new Padding(padding: EdgeInsets.all(50)),
-                              new Container(
-                                  child: Center(
-                                    child: new Text(
-                                      "Don't see your chapter?",
-                                      style: TextStyle(fontFamily: "Montserrat", fontWeight: FontWeight.bold, fontSize: 40, color: Colors.white),
-                                    ),
-                                  )
-                              ),
-                              new Padding(padding: EdgeInsets.all(16)),
-                              new Container(
-                                child: Center(
-                                  child: new RaisedButton(
-                                    padding: EdgeInsets.only(left: 16, top: 8, bottom: 8, right: 16),
-                                    elevation: 0.0,
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
-                                    child: new Text("JOIN NOW", style: TextStyle(fontFamily: "Montserrat", fontWeight: FontWeight.bold, fontSize: 25),),
-                                    color: mainColor,
-                                    textColor: Colors.white,
-                                    onPressed: () {
-                                      addChapter();
-                                    },
-                                  ),
-                                ),
-                              ),
-                              new Container(
-                                height: 200,
                               )
                             ],
                           ),
-                        )
-                      ],
-                    ),
-                    Container(
-                      height: 80.0,
-                      padding: EdgeInsets.only(left: 64, right: 64),
-                      color: Colors.black.withOpacity(0.5),
-                      child: new Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          Container(
+                            width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            new RaisedButton(
+                                              padding: EdgeInsets.only(left: 16, top: 8, bottom: 8, right: 16),
+                                              elevation: 0.0,
+                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
+                                              child: new Text("ADD YOUR CHAPTER", style: TextStyle(fontFamily: "Montserrat", fontWeight: FontWeight.bold, fontSize: 25),),
+                                              color: mainColor,
+                                              textColor: Colors.white,
+                                              onPressed: () {
+                                                addChapter();
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                        new Padding(padding: EdgeInsets.all(100)),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                new Container(
+                                    child: new Text(
+                                      "These chapters already have",
+                                      style: TextStyle(fontFamily: "Montserrat", fontWeight: FontWeight.bold, fontSize: 50, color: Colors.white),
+                                    )
+                                ),
+                                new Container(
+                                  child: new Column(
+                                    children: chaptersList,
+                                  ),
+                                ),
+                                new Padding(padding: EdgeInsets.all(50)),
+                                new Container(
+                                    child: Center(
+                                      child: new Text(
+                                        "Don't see your chapter?",
+                                        style: TextStyle(fontFamily: "Montserrat", fontWeight: FontWeight.bold, fontSize: 40, color: Colors.white),
+                                      ),
+                                    )
+                                ),
+                                new Padding(padding: EdgeInsets.all(16)),
+                                new Container(
+                                  child: Center(
+                                    child: new RaisedButton(
+                                      padding: EdgeInsets.only(left: 16, top: 8, bottom: 8, right: 16),
+                                      elevation: 0.0,
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
+                                      child: new Text("JOIN NOW", style: TextStyle(fontFamily: "Montserrat", fontWeight: FontWeight.bold, fontSize: 25),),
+                                      color: mainColor,
+                                      textColor: Colors.white,
+                                      onPressed: () {
+                                        addChapter();
+                                      },
+                                    ),
+                                  ),
+                                ),
+                                new Container(
+                                  height: 200,
+                                )
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                      Container(
+                        height: 80.0,
+                        padding: EdgeInsets.only(left: 64, right: 64),
+                        color: Colors.black.withOpacity(0.5),
+                        child: new Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: <Widget>[
+                            new Container(
+                                child: Row(
+                                  children: [
+                                    new Image.asset(
+                                      "images/deca-logo.png",
+                                      color: Colors.white,
+                                      fit: BoxFit.fitHeight,
+                                      height: 60,
+                                    ),
+                                  ],
+                                )
+                            ),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: <Widget>[
+                                new OutlineButton(
+                                    highlightElevation: 6.0,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2.0)),
+                                    borderSide: BorderSide(color: Colors.grey),
+                                    child: new Text("GET STARTED", style: TextStyle(fontFamily: "Montserrat", letterSpacing: 1)),
+                                    textColor: Colors.white,
+                                    color: mainColor,
+                                    onPressed: getStarted
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+    else {
+      return new Scaffold(
+        backgroundColor: mainColor.withOpacity(0.2),
+        body: new Container(
+          child: new SingleChildScrollView(
+            child: new Column(
+              children: [
+                Container(
+                  height: 50.0,
+                  padding: EdgeInsets.only(left: 8, right: 8),
+                  color: Colors.black.withOpacity(0.8),
+                  child: new Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      new Container(
+                          child: Row(
+                            children: [
+                              new Image.asset(
+                                "images/deca-logo.png",
+                                color: Colors.white,
+                                fit: BoxFit.fitHeight,
+                                height: 40,
+                              ),
+                            ],
+                          )
+                      ),
+                      Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: <Widget>[
-                          new Container(
-                              child: Row(
-                                children: [
-                                  new Image.asset(
-                                    "images/deca-logo.png",
-                                    color: Colors.white,
-                                    fit: BoxFit.fitHeight,
-                                    height: 60,
-                                  ),
-                                ],
-                              )
-                          ),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: <Widget>[
-                              new OutlineButton(
-                                  highlightElevation: 6.0,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2.0)),
-                                  borderSide: BorderSide(color: Colors.grey),
-                                  child: new Text("GET STARTED", style: TextStyle(fontFamily: "Montserrat", letterSpacing: 1)),
-                                  textColor: Colors.white,
-                                  color: mainColor,
-                                  onPressed: getStarted
-                              ),
-                            ],
+                          new OutlineButton(
+                              highlightElevation: 6.0,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2.0)),
+                              borderSide: BorderSide(color: Colors.grey),
+                              child: new Text("GET STARTED", style: TextStyle(fontFamily: "Montserrat", letterSpacing: 1)),
+                              textColor: Colors.white,
+                              color: mainColor,
+                              onPressed: getStarted
                           ),
                         ],
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              )
-            ],
+                new Image.asset(
+                  "images/beta-header.png",
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  alignment: Alignment.topCenter,
+                ),
+                new Container(
+                  padding: EdgeInsets.all(8),
+                  child: new Text(
+                    "These chapters already have",
+                    style: TextStyle(fontFamily: "Montserrat", fontWeight: FontWeight.bold, fontSize: 30, color: Colors.white),
+                  )
+                ),
+                new Container(
+                  padding: EdgeInsets.all(8),
+                  child: new Column(
+                    children: chaptersList,
+                  ),
+                ),
+                new Padding(padding: EdgeInsets.all(50)),
+                new Container(
+                    child: Center(
+                      child: new Text(
+                        "Don't see your chapter?",
+                        style: TextStyle(fontFamily: "Montserrat", fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),
+                      ),
+                    )
+                ),
+                new Container(
+                  child: Center(
+                    child: new RaisedButton(
+                      padding: EdgeInsets.only(left: 16, top: 8, bottom: 8, right: 16),
+                      elevation: 0.0,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
+                      child: new Text("JOIN NOW", style: TextStyle(fontFamily: "Montserrat", fontWeight: FontWeight.bold, fontSize: 18),),
+                      color: mainColor,
+                      textColor: Colors.white,
+                      onPressed: () {
+                        addChapter();
+                      },
+                    ),
+                  ),
+                ),
+                new Padding(padding: EdgeInsets.all(16)),
+                new Container(
+                  color: mainColor,
+                  child: Column(
+                    children: [
+                      new Padding(padding: EdgeInsets.all(20)),
+                      Container(
+                        padding: EdgeInsets.only(left: 8, right: 8),
+                        child: new Wrap(
+                          direction: Axis.horizontal,
+                          children: [
+                            new FlatButton(
+                              child: new Text("Copyright © 2020 Equinox Initiative"),
+                              textColor: Colors.white,
+                              onPressed: () => launch("https://equinox.bk1031.dev"),
+                            ),
+                            new FlatButton(
+                              child: new Text("v${appVersion.toString()}"),
+                              textColor: Colors.white,
+                              onPressed: () {},
+                            ),
+                            new FlatButton(
+                              child: new Text("Docs"),
+                              textColor: Colors.white,
+                              onPressed: () => launch("https://docs.mydeca.org"),
+                            ),
+                            new FlatButton(
+                              child: new Text("Terms"),
+                              textColor: Colors.white,
+                              onPressed: () => launch("https://docs.mydeca.org/tos"),
+                            ),
+                            new FlatButton(
+                              child: new Text("Privacy"),
+                              textColor: Colors.white,
+                              onPressed: () => launch("https://docs.mydeca.org/privacy"),
+                            ),
+                            new FlatButton(
+                              child: new Text("Status"),
+                              textColor: Colors.white,
+                              onPressed: () => launch("https://status.bk1031.dev"),
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                )
+              ],
+            ),
           ),
         ),
-      ),
-    );
+      );
+    }
   }
 }
