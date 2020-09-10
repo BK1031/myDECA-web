@@ -59,5 +59,5 @@ final markdownStyle = MarkdownStyleSheet(
   h1: TextStyle(fontFamily: "Montserrat", fontSize: 26, color: currTextColor, fontWeight: FontWeight.bold),
   h2: TextStyle(fontFamily: "Montserrat", fontSize: 22, color: currTextColor, fontWeight: FontWeight.bold),
   h3: TextStyle(fontFamily: "Montserrat", fontSize: 18, color: currTextColor, fontWeight: FontWeight.bold),
-  p: TextStyle(fontSize: 18, color: currTextColor),
+  p: TextStyle(fontFamily: "Source Sans Pro", fontSize: 18, color: currTextColor),
 );
