@@ -3,7 +3,9 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase/firebase.dart' as fb;
+import 'package:intl/intl.dart';
 import 'package:mydeca_web/models/announcement.dart';
+import 'package:mydeca_web/models/meeting.dart';
 import 'package:mydeca_web/models/user.dart';
 import 'package:mydeca_web/navbars/home_navbar.dart';
 import 'package:mydeca_web/navbars/mobile_sidebar.dart';
@@ -14,6 +16,8 @@ import 'package:mydeca_web/pages/home/welcome_dialog.dart';
 import 'package:mydeca_web/utils/config.dart';
 import 'package:mydeca_web/utils/theme.dart';
 import 'dart:html' as html;
+
+import 'package:url_launcher/url_launcher.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -30,6 +34,8 @@ class _HomePageState extends State<HomePage> {
   List<Widget> roleWidgetList = new List();
   List<Widget> conferenceWidgetList = new List();
   List<Widget> groupsWidgetList = new List();
+  List<Widget> currentMeetingsWidgetList = new List();
+  List<Widget> meetingsWidgetList = new List();
 
   User currUser = User.plain();
 
@@ -56,6 +62,7 @@ class _HomePageState extends State<HomePage> {
           }
         });
         getAnnouncements();
+        getMeetings();
         getAdvisorInfo();
         updateUserGroups();
       });
@@ -116,6 +123,104 @@ class _HomePageState extends State<HomePage> {
           });
           break;
         }
+      }
+    });
+  }
+
+  void getMeetings() {
+    fb.database().ref("chapters").child(currUser.chapter.chapterID).child("meetings").onChildAdded.listen((event) {
+      Meeting meeting = new Meeting.fromSnapshot(event.snapshot);
+      if (meeting.startTime.isAfter(DateTime.now()) && meetingsWidgetList.length <= 3) {
+        // Meeting upcoming
+        setState(() {
+          meetingsWidgetList.add(new Container(
+            padding: EdgeInsets.only(bottom: 8),
+            child: new Card(
+              child: new InkWell(
+                onTap: () {
+
+                },
+                child: new Container(
+                  padding: EdgeInsets.all(8),
+                  width: double.infinity,
+                  child: new Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      new Text(
+                        meeting.name,
+                        style: TextStyle(fontSize: 18, fontFamily: "Montserrat"),
+                      ),
+                      new Text(
+                        "${DateFormat().add_yMMMd().format(meeting.startTime)} @ ${DateFormat().add_jm().format(meeting.startTime)}",
+                        style: TextStyle(fontSize: 17, color: Colors.grey),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ));
+        });
+      }
+      else if (meeting.startTime.isBefore(DateTime.now()) && meeting.endTime.isAfter(DateTime.now()) ) {
+        // Meeting ongoing
+        setState(() {
+          currentMeetingsWidgetList.add(new Container(
+            padding: EdgeInsets.only(bottom: 8),
+            child: new Card(
+              shape: new RoundedRectangleBorder(borderRadius: BorderRadius.circular(4), side: new BorderSide(color: mainColor, width: 2.0)),
+              child: new InkWell(
+                onTap: () {
+
+                },
+                child: new Container(
+                  padding: EdgeInsets.all(8),
+                  width: double.infinity,
+                  child: Row(
+                    children: [
+                      new Expanded(
+                        child: new Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            new Text(
+                              meeting.name,
+                              style: TextStyle(fontSize: 18, fontFamily: "Montserrat"),
+                            ),
+                            new Text(
+                              "${DateFormat().add_yMMMd().format(meeting.startTime)} @ ${DateFormat().add_jm().format(meeting.startTime)}",
+                              style: TextStyle(fontSize: 17, color: Colors.grey),
+                            )
+                          ],
+                        ),
+                      ),
+                      new Visibility(
+                        visible: meeting.url != "",
+                        child: Container(
+                          padding: EdgeInsets.only(left: 8, right: 8),
+                          child: new RaisedButton(
+                            child: new Text("JOIN"),
+                            textColor: Colors.white,
+                            color: mainColor,
+                            onPressed: () {
+                              launch(meeting.url);
+                            },
+                          ),
+                        ),
+                      ),
+                      new Visibility(
+                        visible: meeting.url == "",
+                        child: Container(
+                            padding: EdgeInsets.only(left: 8, right: 8),
+                            child: new Icon(Icons.arrow_forward_ios, color: mainColor,)
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ));
+        });
       }
     });
   }
@@ -700,7 +805,7 @@ class _HomePageState extends State<HomePage> {
                                     elevation: 2.0,
                                     child: new Container(
                                       color: currCardColor,
-                                      padding: new EdgeInsets.all(16),
+                                      padding: new EdgeInsets.only(left: 16, top: 16, right: 16),
                                       child: new Column(
                                         children: [
                                           new Row(
@@ -709,11 +814,24 @@ class _HomePageState extends State<HomePage> {
                                             children: [
                                               new Icon(Icons.event),
                                               new Padding(padding: EdgeInsets.all(4)),
-                                              new Text("UPCOMING EVENTS", style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor),)
+                                              new Text("MEETINGS", style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor),)
                                             ],
                                           ),
                                           new Container(padding: EdgeInsets.only(top: 8, bottom: 16), child: new Divider(color: currDividerColor, height: 8, )),
-                                          new Text("There are no upcoming events.")
+                                          new Visibility(visible: meetingsWidgetList.isEmpty, child: new Text("There are no upcoming events.")),
+                                          new Column(
+                                            children: currentMeetingsWidgetList,
+                                          ),
+                                          new Column(
+                                            children: meetingsWidgetList,
+                                          ),
+                                          new FlatButton(
+                                            child: new Text("VIEW ALL"),
+                                            textColor: mainColor,
+                                            onPressed: () {
+                                              router.navigateTo(context, "/home/meetings", transition: TransitionType.fadeIn);
+                                            },
+                                          )
                                         ],
                                       ),
                                     ),

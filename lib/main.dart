@@ -17,6 +17,8 @@ import 'package:mydeca_web/pages/home/announcement/new_announcement_page.dart';
 import 'package:mydeca_web/pages/home/handbook/handbook_page.dart';
 import 'package:mydeca_web/pages/home/handbook/manage_handbook_page.dart';
 import 'package:mydeca_web/pages/home/home_page.dart';
+import 'package:mydeca_web/pages/home/meeting/meeting_page.dart';
+import 'package:mydeca_web/pages/home/meeting/new_meeting_page.dart';
 import 'package:mydeca_web/pages/onboarding_page.dart';
 import 'package:mydeca_web/utils/service_account.dart';
 import 'package:mydeca_web/utils/theme.dart';
@@ -75,6 +77,17 @@ void main() {
   }));
   router.define('/home/announcements/new', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
     return new NewAnnouncementPage();
+  }));
+
+  // MEETING ROUTES
+  router.define('/home/meetings', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
+    return new MeetingPage();
+  }));
+  router.define('/home/meetings/details', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
+    return new AnnouncementDetailsPage();
+  }));
+  router.define('/home/meetings/new', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
+    return new NewMeetingPage();
   }));
 
   // CONFERENCES ROUTES

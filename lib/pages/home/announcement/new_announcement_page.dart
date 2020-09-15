@@ -17,6 +17,8 @@ import 'dart:html' as html;
 
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../utils/theme.dart';
+
 class NewAnnouncementPage extends StatefulWidget {
   @override
   _NewAnnouncementPageState createState() => _NewAnnouncementPageState();
@@ -234,9 +236,7 @@ class _NewAnnouncementPageState extends State<NewAnnouncementPage> {
                           child: new Markdown(
                             data: announcement.desc,
                             selectable: true,
-                            styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
-                              p: Theme.of(context).textTheme.body1.copyWith(fontSize: 18.0),
-                            ),
+                            styleSheet: markdownStyle,
                             onTapLink: (url) {
                               launch(url);
                             },
