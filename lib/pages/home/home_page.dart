@@ -493,22 +493,31 @@ class _HomePageState extends State<HomePage> {
                                                       child: Row(
                                                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                                         children: [
-                                                          Container(
-                                                            child: new Column(
-                                                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                                              children: <Widget>[
-                                                                new Icon(Icons.group, size: 35.0, color: darkMode ? Colors.grey : Colors.black54),
-                                                                new Text(
-                                                                  "My Groups",
-                                                                  style: TextStyle(fontSize: 13.0, color: currTextColor),
-                                                                )
-                                                              ],
+                                                          new ConstrainedBox(
+                                                            constraints: BoxConstraints(
+                                                                minHeight: 100
+                                                            ),
+                                                            child: Container(
+                                                              padding: EdgeInsets.only(left: 16, right: 16),
+                                                              child: new Column(
+                                                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                                children: <Widget>[
+                                                                  new Icon(Icons.group, size: 35.0, color: darkMode ? Colors.grey : Colors.black54),
+                                                                  new Text(
+                                                                    "My Groups",
+                                                                    style: TextStyle(fontSize: 13.0, color: currTextColor),
+                                                                  )
+                                                                ],
+                                                              ),
                                                             ),
                                                           ),
-                                                          Container(
-                                                            child: new Wrap(
-                                                              direction: Axis.horizontal,
-                                                              children: groupsWidgetList,
+                                                          new Expanded(
+                                                            child: Container(
+                                                              padding: EdgeInsets.only(top: 8, bottom: 8),
+                                                              child: new Wrap(
+                                                                direction: Axis.horizontal,
+                                                                children: groupsWidgetList,
+                                                              ),
                                                             ),
                                                           ),
                                                           new Visibility(
@@ -519,7 +528,8 @@ class _HomePageState extends State<HomePage> {
                                                                 style: TextStyle(color: currTextColor),
                                                               ),
                                                             ),
-                                                          )
+                                                          ),
+                                                          new Padding(padding: EdgeInsets.all(8))
                                                         ],
                                                       ),
                                                     ),
@@ -625,35 +635,44 @@ class _HomePageState extends State<HomePage> {
                                                           selectConferenceDialog(currUser);
                                                         },
                                                         child: Row(
-                                                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                                           children: [
-                                                            Container(
-                                                              child: new Column(
-                                                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                                                children: <Widget>[
-                                                                  new Icon(Icons.event, size: 35.0, color: darkMode ? Colors.grey : Colors.black54),
-                                                                  new Text(
-                                                                    "My Conferences",
-                                                                    style: TextStyle(fontSize: 13.0, color: currTextColor),
-                                                                  )
-                                                                ],
+                                                            new ConstrainedBox(
+                                                              constraints: BoxConstraints(
+                                                                  minHeight: 100
+                                                              ),
+                                                              child: Container(
+                                                                padding: EdgeInsets.only(left: 16, right: 16),
+                                                                child: new Column(
+                                                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                                  children: <Widget>[
+                                                                    new Icon(Icons.event, size: 35.0, color: darkMode ? Colors.grey : Colors.black54),
+                                                                    new Text(
+                                                                      "My Conferences",
+                                                                      style: TextStyle(fontSize: 13.0, color: currTextColor),
+                                                                    )
+                                                                  ],
+                                                                ),
                                                               ),
                                                             ),
-                                                            Container(
-                                                              child: new Wrap(
-                                                                direction: Axis.horizontal,
-                                                                children: conferenceWidgetList,
+                                                            new Expanded(
+                                                              child: Container(
+                                                                padding: EdgeInsets.only(top: 8, bottom: 8),
+                                                                child: new Wrap(
+                                                                  direction: Axis.horizontal,
+                                                                  children: conferenceWidgetList,
+                                                                ),
                                                               ),
                                                             ),
                                                             new Visibility(
                                                               visible: conferenceWidgetList.isEmpty,
                                                               child: Container(
                                                                 child: new Text(
-                                                                  "No conferences selected for this chapter.\nClick on this card to add a conference.",
+                                                                  "No conferences selected for this\nchapter. Click on this card to add\na conference.",
                                                                   style: TextStyle(color: currTextColor),
                                                                 ),
                                                               ),
-                                                            )
+                                                            ),
+                                                            new Padding(padding: EdgeInsets.all(8))
                                                           ],
                                                         ),
                                                       ),
