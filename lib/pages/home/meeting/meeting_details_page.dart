@@ -17,16 +17,23 @@ import 'package:mydeca_web/utils/config.dart';
 import 'package:mydeca_web/utils/theme.dart';
 import 'dart:html' as html;
 
+import 'package:url_launcher/url_launcher.dart';
+
 class MeetingDetailsPage extends StatefulWidget {
   @override
   _MeetingDetailsPageState createState() => _MeetingDetailsPageState();
 }
 
 class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
+
   final Storage _localStorage = html.window.localStorage;
   Meeting meeting = new Meeting();
-
   User currUser = User.plain();
+
+  bool editing = false;
+
+  TextEditingController nameController = new TextEditingController();
+  TextEditingController urlController = new TextEditingController();
 
   @override
   void initState() {
@@ -37,7 +44,13 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
           currUser = User.fromSnapshot(value.snapshot);
         });
         if (html.window.location.toString().contains("?id=")) {
-
+          fb.database().ref("chapters").child(currUser.chapter.chapterID).child("meetings").child(html.window.location.toString().split("?id=")[1]).once("value").then((value) {
+            setState(() {
+              meeting = new Meeting.fromSnapshot(value.snapshot);
+              nameController.text = meeting.name;
+              urlController.text = meeting.url;
+            });
+          });
         }
       });
     }
@@ -47,29 +60,6 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
   Widget build(BuildContext context) {
     if (_localStorage["userID"] != null) {
       return new Scaffold(
-        floatingActionButton: new FloatingActionButton.extended(
-          icon: Icon(Icons.add),
-          label: new Text("CREATE"),
-          onPressed: () {
-            if (fb.auth().currentUser != null) {
-              if (meeting.name != "" && meeting.startTime != null && meeting.endTime != null) {
-                fb.database().ref("chapters").child(currUser.chapter.chapterID).child("meetings").push().set({
-                  "name": meeting.name,
-                  "startTime": meeting.startTime.toString(),
-                  "endTime": meeting.endTime.toString(),
-                  "url": meeting.url
-                });
-                router.navigateTo(context, '/home/meetings', transition: TransitionType.fadeIn);
-              }
-              else {
-                html.window.alert("Please make sure that you fill out all the fields!");
-              }
-            }
-            else {
-              html.window.alert("AuthToken expired. Please login again.");
-            }
-          },
-        ),
         body: Container(
           child: new SingleChildScrollView(
             child: new Column(
@@ -91,117 +81,303 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                     ],
                   ),
                 ),
-                Container(
-                  padding: EdgeInsets.all(16),
-                  width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
-                  child: new TextField(
-                    maxLines: 1,
-                    onChanged: (input) {
-                      setState(() {
-                        meeting.name = input;
-                      });
-                    },
-                    decoration: InputDecoration(
-                        labelText: "Meeting Name",
-                        border: InputBorder.none
+                new Visibility(
+                  visible: !editing,
+                  child: Container(
+                    padding: EdgeInsets.all(16),
+                    width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                    child: new Text(
+                      meeting.name,
+                      style: TextStyle(fontFamily: "Montserrat", fontSize: 30, color: currTextColor),
                     ),
-                    style: TextStyle(fontFamily: "Montserrat", fontSize: 30, color: currTextColor),
                   ),
                 ),
-                Container(
-                    padding: EdgeInsets.only(left: 16, top: 16, right: 16),
+                new Visibility(
+                  visible: editing,
+                  child: Container(
+                    padding: EdgeInsets.all(16),
                     width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
-                    height: 1000,
-                    child: new Column(
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              padding: EdgeInsets.only(right: 8),
-                              child: new Text(
-                                "Start Time",
-                                style: TextStyle(fontSize: 18),
-                              ),
+                    child: new TextField(
+                      controller: nameController,
+                      maxLines: 1,
+                      onChanged: (input) {
+                        setState(() {
+                          meeting.name = input;
+                        });
+                      },
+                      decoration: InputDecoration(
+                          labelText: "Meeting Name",
+                          border: InputBorder.none
+                      ),
+                      style: TextStyle(fontFamily: "Montserrat", fontSize: 30, color: currTextColor),
+                    ),
+                  ),
+                ),
+                new Visibility(
+                  visible: DateTime.now().isAfter(meeting.startTime) && DateTime.now().isBefore(meeting.endTime),
+                  child: Container(
+                    padding: EdgeInsets.only(left: 16),
+                    width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                    child: new Tooltip(
+                      message: "This meeting is currently ongoing",
+                      child: Row(
+                        children: [
+                          new Card(
+                            color: mainColor,
+                            child: new Container(
+                              padding: EdgeInsets.only(left: 8, top: 4, bottom: 4, right: 8),
+                              child: new Text("• LIVE", style: TextStyle(fontSize: 18, color: Colors.white),),
                             ),
-                            new Expanded(
-                              child: DateTimeField(
-                                format: DateFormat("yyyy-MM-dd HH:mm"),
-                                onChanged: (date) {
-                                  print("Set start $date");
-                                  meeting.startTime = date;
-                                },
-                                onShowPicker: (context, currentValue) async {
-                                  final date = await showDatePicker(
-                                      context: context,
-                                      firstDate: DateTime(1900),
-                                      initialDate: currentValue ?? DateTime.now(),
-                                      lastDate: DateTime(2100));
-                                  if (date != null) {
-                                    final time = await showTimePicker(
-                                      initialEntryMode: TimePickerEntryMode.input,
-                                      context: context,
-                                      initialTime:
-                                      TimeOfDay.fromDateTime(currentValue ?? DateTime.now()),
-                                    );
-                                    return DateTimeField.combine(date, time);
-                                  } else {
-                                    return currentValue;
-                                  }
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Container(
-                              padding: EdgeInsets.only(right: 8),
-                              child: new Text(
-                                "End Time",
-                                style: TextStyle(fontSize: 18),
-                              ),
-                            ),
-                            new Expanded(
-                              child: DateTimeField(
-                                format: DateFormat("yyyy-MM-dd HH:mm"),
-                                onChanged: (date) {
-                                  print("Set end $date");
-                                  meeting.endTime = date;
-                                },
-                                onShowPicker: (context, currentValue) async {
-                                  final date = await showDatePicker(
-                                      context: context,
-                                      firstDate: DateTime(1900),
-                                      initialDate: currentValue ?? DateTime.now(),
-                                      lastDate: DateTime(2100));
-                                  if (date != null) {
-                                    final time = await showTimePicker(
-                                      initialEntryMode: TimePickerEntryMode.input,
-                                      context: context,
-                                      initialTime:
-                                      TimeOfDay.fromDateTime(currentValue ?? DateTime.now()),
-                                    );
-                                    return DateTimeField.combine(date, time);
-                                  } else {
-                                    return currentValue;
-                                  }
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                        new Padding(padding: EdgeInsets.all(4)),
-                        Container(
-                          child: new TextField(
-                            decoration: InputDecoration(
-                                hintText: "Meeting URL (optional)"
-                            ),
-                            onChanged: (input) {
-                              meeting.url = input;
-                            },
                           ),
-                        ),
-                      ],
+                          new Visibility(
+                            visible: currUser.roles.contains("Developer") || currUser.roles.contains("Advisor") || currUser.roles.contains("Officer"),
+                            child: new FlatButton(
+                              child: new Text("EDIT MEETING"),
+                              textColor: mainColor,
+                              onPressed: () {
+                                setState(() {
+                                  editing = true;
+                                });
+                              },
+                            )
+                          )
+                        ],
+                      ),
+                    )
+                  )
+                ),
+                new Visibility(
+                  visible: !editing,
+                  child: Container(
+                      padding: EdgeInsets.only(left: 16, top: 16, right: 16),
+                      width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                      height: 1000,
+                      child: new Column(
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                padding: EdgeInsets.only(right: 8),
+                                child: new Text(
+                                  "Start Time:",
+                                  style: TextStyle(fontSize: 18),
+                                ),
+                              ),
+                              new Expanded(
+                                child: Container(
+                                  padding: EdgeInsets.only(right: 8),
+                                  child: new Text(
+                                    DateFormat().format(meeting.startTime),
+                                    style: TextStyle(fontSize: 18),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Container(
+                                padding: EdgeInsets.only(right: 8),
+                                child: new Text(
+                                  "End Time:",
+                                  style: TextStyle(fontSize: 18),
+                                ),
+                              ),
+                              new Expanded(
+                                child: Container(
+                                  padding: EdgeInsets.only(right: 8),
+                                  child: new Text(
+                                    DateFormat().format(meeting.endTime),
+                                    style: TextStyle(fontSize: 18),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          new Padding(padding: EdgeInsets.all(4)),
+                          Row(
+                            children: [
+                              Container(
+                                padding: EdgeInsets.only(right: 8),
+                                child: new Text(
+                                  "Meeting URL:",
+                                  style: TextStyle(fontSize: 18),
+                                ),
+                              ),
+                              new Expanded(
+                                child: Container(
+                                  padding: EdgeInsets.only(right: 8),
+                                  child: new InkWell(
+                                    onTap: () => launch(meeting.url),
+                                    child: new Text(
+                                      meeting.url,
+                                      style: TextStyle(fontSize: 17, color: mainColor),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      )
+                  ),
+                ),
+                new Visibility(
+                  visible: editing,
+                  child: Container(
+                      padding: EdgeInsets.only(left: 16, top: 16, right: 16),
+                      width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                      child: new Column(
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                padding: EdgeInsets.only(right: 8),
+                                child: new Text(
+                                  "Start Time",
+                                  style: TextStyle(fontSize: 18),
+                                ),
+                              ),
+                              new Expanded(
+                                child: DateTimeField(
+                                  initialValue: meeting.startTime,
+                                  format: DateFormat("yyyy-MM-dd HH:mm"),
+                                  onChanged: (date) {
+                                    print("Set start $date");
+                                    meeting.startTime = date;
+                                  },
+                                  onShowPicker: (context, currentValue) async {
+                                    final date = await showDatePicker(
+                                        context: context,
+                                        firstDate: DateTime(1900),
+                                        initialDate: currentValue ?? DateTime.now(),
+                                        lastDate: DateTime(2100));
+                                    if (date != null) {
+                                      final time = await showTimePicker(
+                                        initialEntryMode: TimePickerEntryMode.input,
+                                        context: context,
+                                        initialTime:
+                                        TimeOfDay.fromDateTime(currentValue ?? DateTime.now()),
+                                      );
+                                      return DateTimeField.combine(date, time);
+                                    } else {
+                                      return currentValue;
+                                    }
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Container(
+                                padding: EdgeInsets.only(right: 8),
+                                child: new Text(
+                                  "End Time",
+                                  style: TextStyle(fontSize: 18),
+                                ),
+                              ),
+                              new Expanded(
+                                child: DateTimeField(
+                                  initialValue: meeting.endTime,
+                                  format: DateFormat("yyyy-MM-dd HH:mm"),
+                                  onChanged: (date) {
+                                    print("Set end $date");
+                                    meeting.endTime = date;
+                                  },
+                                  onShowPicker: (context, currentValue) async {
+                                    final date = await showDatePicker(
+                                        context: context,
+                                        firstDate: DateTime(1900),
+                                        initialDate: currentValue ?? DateTime.now(),
+                                        lastDate: DateTime(2100));
+                                    if (date != null) {
+                                      final time = await showTimePicker(
+                                        initialEntryMode: TimePickerEntryMode.input,
+                                        context: context,
+                                        initialTime:
+                                        TimeOfDay.fromDateTime(currentValue ?? DateTime.now()),
+                                      );
+                                      return DateTimeField.combine(date, time);
+                                    } else {
+                                      return currentValue;
+                                    }
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                          new Padding(padding: EdgeInsets.all(4)),
+                          new Visibility(
+                            visible: editing,
+                            child: Container(
+                              child: new TextField(
+                                controller: urlController,
+                                decoration: InputDecoration(
+                                    hintText: "Meeting URL (optional)"
+                                ),
+                                onChanged: (input) {
+                                  meeting.url = input;
+                                },
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                  ),
+                ),
+                new Visibility(
+                    visible: editing,
+                    child: Container(
+                        padding: EdgeInsets.all(16),
+                        width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            new FlatButton(
+                              child: new Text("DELETE MEETING"),
+                              textColor: Colors.red,
+                              onPressed: () {
+                                setState(() {
+                                  editing = false;
+                                });
+                                fb.database().ref("chapters").child(currUser.chapter.chapterID).child("meetings").child(html.window.location.toString().split("?id=")[1]).remove();
+                                router.navigateTo(context, "/home/meetings", transition: TransitionType.fadeIn, replace: true);
+                              },
+                            ),
+                            Row(
+                              children: [
+                                new FlatButton(
+                                  child: new Text("CANCEL"),
+                                  textColor: mainColor,
+                                  onPressed: () {
+                                    setState(() {
+                                      editing = false;
+                                    });
+                                    router.navigateTo(context, "/home/meetings/details?id=${html.window.location.toString().split("?id=")[1]}", transition: TransitionType.fadeIn, replace: true);
+                                  },
+                                ),
+                                new RaisedButton(
+                                  child: new Text("SAVE CHANGES"),
+                                  textColor: Colors.white,
+                                  color: mainColor,
+                                  onPressed: () {
+                                    fb.database().ref("chapters").child(currUser.chapter.chapterID).child("meetings").child(html.window.location.toString().split("?id=")[1]).set({
+                                      "name": meeting.name,
+                                      "startTime": meeting.startTime.toString(),
+                                      "endTime": meeting.endTime.toString(),
+                                      "url": meeting.url
+                                    });
+                                    setState(() {
+                                      editing = false;
+                                    });
+                                    router.navigateTo(context, "/home/meetings/details?id=${html.window.location.toString().split("?id=")[1]}", transition: TransitionType.fadeIn, replace: true);
+                                  },
+                                )
+                              ],
+                            ),
+                          ],
+                        )
                     )
                 ),
               ],

@@ -51,7 +51,7 @@ class _MeetingPageState extends State<MeetingPage> {
             child: new Card(
               child: new InkWell(
                 onTap: () {
-                  router.navigateTo(context, "/home/meetings/details?id=${meeting.url}", transition: TransitionType.fadeIn);
+                  router.navigateTo(context, "/home/meetings/details?id=${meeting.id}", transition: TransitionType.fadeIn);
                 },
                 child: new Container(
                   padding: EdgeInsets.all(8),
@@ -94,7 +94,7 @@ class _MeetingPageState extends State<MeetingPage> {
               shape: new RoundedRectangleBorder(borderRadius: BorderRadius.circular(4), side: new BorderSide(color: mainColor, width: 2.0)),
               child: new InkWell(
                 onTap: () {
-                  router.navigateTo(context, "/home/meetings/details?id=${meeting.url}", transition: TransitionType.fadeIn);
+                  router.navigateTo(context, "/home/meetings/details?id=${meeting.id}", transition: TransitionType.fadeIn);
                 },
                 child: new Container(
                   padding: EdgeInsets.all(8),
@@ -153,7 +153,7 @@ class _MeetingPageState extends State<MeetingPage> {
             child: new Card(
               child: new InkWell(
                 onTap: () {
-                  router.navigateTo(context, "/home/meetings/details?id=${meeting.url}", transition: TransitionType.fadeIn);
+                  router.navigateTo(context, "/home/meetings/details?id=${meeting.id}", transition: TransitionType.fadeIn);
                 },
                 child: new Container(
                   padding: EdgeInsets.all(8),

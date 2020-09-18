@@ -138,7 +138,7 @@ class _HomePageState extends State<HomePage> {
             child: new Card(
               child: new InkWell(
                 onTap: () {
-
+                  router.navigateTo(context, "/home/meetings/details?id=${meeting.id}", transition: TransitionType.fadeIn);
                 },
                 child: new Container(
                   padding: EdgeInsets.all(8),
@@ -171,7 +171,7 @@ class _HomePageState extends State<HomePage> {
               shape: new RoundedRectangleBorder(borderRadius: BorderRadius.circular(4), side: new BorderSide(color: mainColor, width: 2.0)),
               child: new InkWell(
                 onTap: () {
-
+                  router.navigateTo(context, "/home/meetings/details?id=${meeting.id}", transition: TransitionType.fadeIn);
                 },
                 child: new Container(
                   padding: EdgeInsets.all(8),
@@ -837,7 +837,7 @@ class _HomePageState extends State<HomePage> {
                                             ],
                                           ),
                                           new Container(padding: EdgeInsets.only(top: 8, bottom: 16), child: new Divider(color: currDividerColor, height: 8, )),
-                                          new Visibility(visible: meetingsWidgetList.isEmpty, child: new Text("There are no upcoming events.")),
+                                          new Visibility(visible: meetingsWidgetList.isEmpty && currentMeetingsWidgetList.isEmpty, child: new Text("There are no upcoming events.")),
                                           new Column(
                                             children: currentMeetingsWidgetList,
                                           ),
