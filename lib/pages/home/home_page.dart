@@ -972,7 +972,7 @@ class _HomePageState extends State<HomePage> {
                                             color: currCardColor,
                                             child: new InkWell(
                                               onTap: () {
-                                                if (currUser.groups.isNotEmpty) {
+                                                if (currUser.groups.isNotEmpty || currUser.roles.contains("Developer") || currUser.roles.contains("Advisor")) {
                                                   router.navigateTo(context, '/home/handbook', transition: TransitionType.fadeIn);
                                                 }
                                                 else {

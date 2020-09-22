@@ -120,6 +120,24 @@ class _ManageGroupDialogState extends State<ManageGroupDialog> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Container(
+                    height: 25,
+                    child: new RaisedButton(
+                      child: Text("DELETE", style: TextStyle()),
+                      color: Colors.red,
+                      textColor: Colors.white,
+                      onPressed: () {
+                        fb.database().ref("chapters").child(currUser.chapter.chapterID).child("groups").child(id).remove();
+                        router.pop(context);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              new Padding(padding: EdgeInsets.all(4)),
+              Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Column(

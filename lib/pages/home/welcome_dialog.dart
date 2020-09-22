@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase/firebase.dart' as fb;
 import 'package:mydeca_web/utils/config.dart';
 import 'package:mydeca_web/utils/theme.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class WelcomeDialog extends StatefulWidget {
   @override
@@ -82,7 +83,7 @@ class _WelcomeDialogState extends State<WelcomeDialog> {
                       child: new Card(
                         child: new InkWell(
                           onTap: () {
-
+                            launch("https://www.youtube.com/playlist?list=PLEjpQIEos_auZURPQqM4l8HFg6dnIegAj&playnext=1&index=1");
                           },
                           child: new Column(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,

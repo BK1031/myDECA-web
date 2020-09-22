@@ -303,10 +303,22 @@ class _RegisterAdvisorPageState extends State<RegisterAdvisorPage> {
                           ),
                           new TextSpan(
                             text: 'Terms of Service',
-                            style: new TextStyle(color: Colors.blue),
+                            style: new TextStyle(color: mainColor),
                             recognizer: new TapGestureRecognizer()
                               ..onTap = () {
-                                launch("https://deca.bk1031.dev/terms");
+                                launch("https://docs.mydeca.org/tos");
+                              },
+                          ),
+                          new TextSpan(
+                            text: " and ",
+                            style: new TextStyle(color: Colors.black),
+                          ),
+                          new TextSpan(
+                            text: 'Privacy Policy',
+                            style: new TextStyle(color: mainColor),
+                            recognizer: new TapGestureRecognizer()
+                              ..onTap = () {
+                                launch("https://docs.mydeca.org/privacy");
                               },
                           ),
                         ],
