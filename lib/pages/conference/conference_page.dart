@@ -53,7 +53,7 @@ class _ConferencesPageState extends State<ConferencesPage> {
                       width: 400,
                       child: new InkWell(
                         onTap: () {
-                          router.navigateTo(context, 'conferences/details?id=${conference.conferenceID}', transition: TransitionType.fadeIn);
+                          router.navigateTo(context, 'conferences/${conference.conferenceID}', transition: TransitionType.fadeIn);
                         },
                         child: new Stack(
                           fit: StackFit.passthrough,

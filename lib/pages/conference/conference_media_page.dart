@@ -19,8 +19,10 @@ import 'package:mydeca_web/utils/theme.dart';
 import 'dart:html' as html;
 
 class ConferenceMediaPage extends StatefulWidget {
+  String id;
+  ConferenceMediaPage(this.id);
   @override
-  _ConferenceMediaPageState createState() => _ConferenceMediaPageState();
+  _ConferenceMediaPageState createState() => _ConferenceMediaPageState(this.id);
 }
 
 class _ConferenceMediaPageState extends State<ConferenceMediaPage> {
@@ -29,6 +31,10 @@ class _ConferenceMediaPageState extends State<ConferenceMediaPage> {
 
   User currUser = User.plain();
   final Storage _localStorage = html.window.localStorage;
+
+  String id;
+
+  _ConferenceMediaPageState(this.id);
 
   @override
   Widget build(BuildContext context) {

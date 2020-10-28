@@ -1,17 +1,18 @@
 import 'dart:html';
+import 'dart:io';
 import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase/firebase.dart' as fb;
 import 'package:mydeca_web/navbars/home_navbar.dart';
+import 'package:mydeca_web/navbars/onboarding_navbar.dart';
 import 'package:mydeca_web/utils/config.dart';
 import 'package:mydeca_web/utils/theme.dart';
+import 'package:platform_detect/platform_detect.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:html' as html;
-
 import '../utils/config.dart';
 import '../utils/theme.dart';
-import '../utils/theme.dart';
-import '../utils/theme.dart';
+
 class OnboardingPage extends StatefulWidget {
   @override
   _OnboardingPageState createState() => _OnboardingPageState();
@@ -59,7 +60,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                                 alignment: Alignment.topCenter,
                               ),
                               new Container(
-                                height: 2600,
+                                height: 2500,
                               ),
                               new Container(
                                 color: mainColor,
@@ -72,6 +73,40 @@ class _OnboardingPageState extends State<OnboardingPage> {
                                         style: TextStyle(fontFamily: "Montserrat", fontWeight: FontWeight.bold, fontSize: 80, color: Colors.white),
                                         textAlign: TextAlign.center,
                                       ),
+                                    ),
+                                    new Padding(padding: EdgeInsets.all(20)),
+                                    new Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
+                                        new RaisedButton(
+                                          padding: EdgeInsets.only(left: 32, top: 16, bottom: 16, right: 32),
+                                          elevation: 0.0,
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
+                                          child: Row(
+                                            children: [
+                                              new Icon(Icons.save_alt, color: mainColor,),
+                                              new Padding(padding: EdgeInsets.all(8)),
+                                              new Text("DOWNLOAD ${operatingSystem.isMac ? "FOR MAC" : operatingSystem.isWindows ? "FOR WINDOWS" : ""}", style: TextStyle(fontFamily: "Montserrat", fontWeight: FontWeight.bold, fontSize: 25),),
+                                            ],
+                                          ),
+                                          color: Colors.white,
+                                          textColor: mainColor,
+                                          onPressed: () {
+                                            router.navigateTo(context, "/beta", transition: TransitionType.fadeIn);
+                                          },
+                                        ),
+                                        new Padding(padding: EdgeInsets.all(8)),
+                                        new RaisedButton(
+                                          padding: EdgeInsets.only(left: 32, top: 16, bottom: 16, right: 32),
+                                          elevation: 0.0,
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
+                                          child: new Text("OPEN MYDECA IN BROWSER", style: TextStyle(fontFamily: "Montserrat", fontWeight: FontWeight.bold, fontSize: 25),),
+                                          color: mainColor,
+                                          textColor: Colors.white,
+                                          onPressed: getStarted
+                                        ),
+                                      ],
                                     ),
                                     new Padding(padding: EdgeInsets.all(20)),
                                     new Row(
@@ -157,7 +192,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                                         Row(
                                           children: [
                                             new RaisedButton(
-                                              padding: EdgeInsets.only(left: 16, top: 8, bottom: 8, right: 16),
+                                              padding: EdgeInsets.only(left: 32, top: 16, bottom: 16, right: 32),
                                               elevation: 0.0,
                                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
                                               child: new Text("JOIN BETA", style: TextStyle(fontFamily: "Montserrat", fontWeight: FontWeight.bold, fontSize: 25),),
@@ -169,7 +204,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                                             ),
                                             new Padding(padding: EdgeInsets.all(16)),
                                             new OutlineButton(
-                                                padding: EdgeInsets.only(left: 16, top: 8, bottom: 8, right: 16),
+                                                padding: EdgeInsets.only(left: 32, top: 16, bottom: 16, right: 32),
                                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
                                                 borderSide: BorderSide(color: Colors.grey),
                                                 child: new Text("LEARN MORE", style: TextStyle(fontFamily: "Montserrat", fontWeight: FontWeight.bold, fontSize: 25)),
@@ -235,43 +270,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                           )
                         ],
                       ),
-                      Container(
-                        height: 80.0,
-                        padding: EdgeInsets.only(left: 64, right: 64),
-                        color: Colors.black.withOpacity(0.5),
-                        child: new Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: <Widget>[
-                            new Container(
-                                child: Row(
-                                  children: [
-                                    new Image.asset(
-                                      "images/deca-logo.png",
-                                      color: Colors.white,
-                                      fit: BoxFit.fitHeight,
-                                      height: 60,
-                                    ),
-                                  ],
-                                )
-                            ),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: <Widget>[
-                                new OutlineButton(
-                                    highlightElevation: 6.0,
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2.0)),
-                                    borderSide: BorderSide(color: Colors.grey),
-                                    child: new Text("GET STARTED", style: TextStyle(fontFamily: "Montserrat", letterSpacing: 1)),
-                                    textColor: Colors.white,
-                                    color: mainColor,
-                                    onPressed: getStarted
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
+                      new OnboardingNavbar()
                     ],
                   ),
                 )
@@ -283,48 +282,21 @@ class _OnboardingPageState extends State<OnboardingPage> {
     }
     else {
       return new Scaffold(
+        appBar: new AppBar(
+          backgroundColor: Colors.black.withOpacity(0.8),
+          title: new Image.asset(
+            "images/deca-logo.png",
+            height: 30,
+            color: Colors.white,
+            fit: BoxFit.contain,
+          ),
+        ),
+        drawer: new OnboardingNavbar(),
         backgroundColor: mainColor.withOpacity(0.2),
         body: new Container(
           child: new SingleChildScrollView(
             child: new Column(
               children: [
-                Container(
-                  height: 50.0,
-                  padding: EdgeInsets.only(left: 8, right: 8),
-                  color: Colors.black.withOpacity(0.8),
-                  child: new Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      new Container(
-                          child: Row(
-                            children: [
-                              new Image.asset(
-                                "images/deca-logo.png",
-                                color: Colors.white,
-                                fit: BoxFit.fitHeight,
-                                height: 40,
-                              ),
-                            ],
-                          )
-                      ),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          new OutlineButton(
-                              highlightElevation: 6.0,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2.0)),
-                              borderSide: BorderSide(color: Colors.grey),
-                              child: new Text("GET STARTED", style: TextStyle(fontFamily: "Montserrat", letterSpacing: 1)),
-                              textColor: Colors.white,
-                              color: mainColor,
-                              onPressed: getStarted
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
                 new Image.asset(
                   "images/onboarding-header.png",
                   width: double.infinity,

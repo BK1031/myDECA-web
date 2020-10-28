@@ -6,6 +6,7 @@ class User {
   String firstName = "";
   String lastName = "";
   String email = "";
+  String phone = "";
   bool emailVerified = false;
   String profileUrl = "";
   String gender = "Male";
@@ -23,6 +24,7 @@ class User {
     firstName = snapshot.val()["firstName"];
     lastName = snapshot.val()["lastName"];
     email = snapshot.val()["email"];
+    phone = snapshot.val()["phone"] != null ? snapshot.val()["phone"] : "";
     emailVerified = snapshot.val()["emailVerified"];
     profileUrl = snapshot.val()["profileUrl"];
     gender = snapshot.val()["gender"];

@@ -19,8 +19,10 @@ import 'package:mydeca_web/utils/theme.dart';
 import 'dart:html' as html;
 
 class ConferenceSchedulePage extends StatefulWidget {
+  String id;
+  ConferenceSchedulePage(this.id);
   @override
-  _ConferenceSchedulePageState createState() => _ConferenceSchedulePageState();
+  _ConferenceSchedulePageState createState() => _ConferenceSchedulePageState(this.id);
 }
 
 class _ConferenceSchedulePageState extends State<ConferenceSchedulePage> {
@@ -31,6 +33,10 @@ class _ConferenceSchedulePageState extends State<ConferenceSchedulePage> {
   User currUser = User.plain();
   final Storage _localStorage = html.window.localStorage;
 
+  String id;
+
+  _ConferenceSchedulePageState(this.id);
+
   @override
   void initState() {
     super.initState();
@@ -40,7 +46,7 @@ class _ConferenceSchedulePageState extends State<ConferenceSchedulePage> {
           currUser = User.fromSnapshot(value.snapshot);
           print(currUser);
         });
-        fb.database().ref("conferences").child(html.window.location.toString().split("?id=")[1]).child("agenda").onChildAdded.listen((event) {
+        fb.database().ref("conferences").child(id).child("agenda").onChildAdded.listen((event) {
           setState(() {
             ConferenceAgendaItem agendaItem = ConferenceAgendaItem.fromSnapshot(event.snapshot);
             agendaList.add(agendaItem);

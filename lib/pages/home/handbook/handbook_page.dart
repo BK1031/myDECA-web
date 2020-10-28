@@ -177,6 +177,7 @@ class _HandbookPageState extends State<HandbookPage> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 HomeNavbar(),
+                new Padding(padding: EdgeInsets.only(bottom: 16.0)),
                 new Container(
                   width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
                   child: new Row(

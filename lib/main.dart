@@ -8,6 +8,8 @@ import 'package:mydeca_web/pages/auth/register_advisor_page.dart';
 import 'package:mydeca_web/pages/auth/register_page.dart';
 import 'package:mydeca_web/pages/conference/conference_details_page.dart';
 import 'package:mydeca_web/pages/conference/conference_page.dart';
+import 'package:mydeca_web/pages/conference/mock/mock_conference_testing_page.dart';
+import 'package:mydeca_web/pages/download_page.dart';
 import 'package:mydeca_web/pages/event/event_details_page.dart';
 import 'package:mydeca_web/pages/event/events_page.dart';
 import 'package:mydeca_web/pages/home/advisor/manage_user_page.dart';
@@ -21,6 +23,8 @@ import 'package:mydeca_web/pages/home/meeting/meeting_details_page.dart';
 import 'package:mydeca_web/pages/home/meeting/meeting_page.dart';
 import 'package:mydeca_web/pages/home/meeting/new_meeting_page.dart';
 import 'package:mydeca_web/pages/onboarding_page.dart';
+import 'package:mydeca_web/pages/settings/settings_about_page.dart';
+import 'package:mydeca_web/pages/settings/settings_page.dart';
 import 'package:mydeca_web/utils/service_account.dart';
 import 'package:mydeca_web/utils/theme.dart';
 import 'utils/config.dart';
@@ -53,6 +57,9 @@ void main() {
   // HOME ROUTES
   router.define('/', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
     return new OnboardingPage();
+  }));
+  router.define('/download', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
+    return new DownloadPage();
   }));
   router.define('/home', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
     return new HomePage();
@@ -95,8 +102,11 @@ void main() {
   router.define('/conferences', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
     return new ConferencesPage();
   }));
-  router.define('/conferences/details', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
-    return new ConferenceDetailsPage();
+  router.define('/conferences/:id', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
+    return new ConferenceDetailsPage(params["id"][0]);
+  }));
+  router.define('/conferences/:id/testing', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
+    return new MockConferenceTestingPage(params["id"][0]);
   }));
 
 
@@ -106,6 +116,22 @@ void main() {
   }));
   router.define('/events/details', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
     return new EventDetailsPage();
+  }));
+
+  // CHAT ROUTES
+  router.define('/events', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
+    return new EventsPage();
+  }));
+  router.define('/events/details', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
+    return new EventDetailsPage();
+  }));
+
+  // SETTINGS ROUTES
+  router.define('/settings', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
+    return new SettingsPage();
+  }));
+  router.define('/settings/about', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
+    return new SettingsAboutPage();
   }));
 
   runApp(new MaterialApp(

@@ -11,6 +11,7 @@ import 'package:mydeca_web/navbars/home_navbar.dart';
 import 'package:mydeca_web/navbars/mobile_sidebar.dart';
 import 'package:mydeca_web/pages/auth/login_page.dart';
 import 'package:mydeca_web/pages/home/advisor/advisor_conference_select.dart';
+import 'package:mydeca_web/pages/home/advisor/send_notification_dialog.dart';
 import 'package:mydeca_web/pages/home/join_group_dialog.dart';
 import 'package:mydeca_web/pages/home/welcome_dialog.dart';
 import 'package:mydeca_web/utils/config.dart';
@@ -130,97 +131,102 @@ class _HomePageState extends State<HomePage> {
   void getMeetings() {
     fb.database().ref("chapters").child(currUser.chapter.chapterID).child("meetings").onChildAdded.listen((event) {
       Meeting meeting = new Meeting.fromSnapshot(event.snapshot);
-      if (meeting.startTime.isAfter(DateTime.now()) && meetingsWidgetList.length <= 3) {
-        // Meeting upcoming
-        setState(() {
-          meetingsWidgetList.add(new Container(
-            padding: EdgeInsets.only(bottom: 8),
-            child: new Card(
-              child: new InkWell(
-                onTap: () {
-                  router.navigateTo(context, "/home/meetings/details?id=${meeting.id}", transition: TransitionType.fadeIn);
-                },
-                child: new Container(
-                  padding: EdgeInsets.all(8),
-                  width: double.infinity,
-                  child: new Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      new Text(
-                        meeting.name,
-                        style: TextStyle(fontSize: 18, fontFamily: "Montserrat"),
-                      ),
-                      new Text(
-                        "${DateFormat().add_yMMMd().format(meeting.startTime)} @ ${DateFormat().add_jm().format(meeting.startTime)}",
-                        style: TextStyle(fontSize: 17, color: Colors.grey),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ));
-        });
-      }
-      else if (meeting.startTime.isBefore(DateTime.now()) && meeting.endTime.isAfter(DateTime.now()) ) {
-        // Meeting ongoing
-        setState(() {
-          currentMeetingsWidgetList.add(new Container(
-            padding: EdgeInsets.only(bottom: 8),
-            child: new Card(
-              shape: new RoundedRectangleBorder(borderRadius: BorderRadius.circular(4), side: new BorderSide(color: mainColor, width: 2.0)),
-              child: new InkWell(
-                onTap: () {
-                  router.navigateTo(context, "/home/meetings/details?id=${meeting.id}", transition: TransitionType.fadeIn);
-                },
-                child: new Container(
-                  padding: EdgeInsets.all(8),
-                  width: double.infinity,
-                  child: Row(
-                    children: [
-                      new Expanded(
-                        child: new Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            new Text(
-                              meeting.name,
-                              style: TextStyle(fontSize: 18, fontFamily: "Montserrat"),
-                            ),
-                            new Text(
-                              "${DateFormat().add_yMMMd().format(meeting.startTime)} @ ${DateFormat().add_jm().format(meeting.startTime)}",
-                              style: TextStyle(fontSize: 17, color: Colors.grey),
-                            )
-                          ],
-                        ),
-                      ),
-                      new Visibility(
-                        visible: meeting.url != "",
-                        child: Container(
-                          padding: EdgeInsets.only(left: 8, right: 8),
-                          child: new RaisedButton(
-                            child: new Text("JOIN"),
-                            textColor: Colors.white,
-                            color: mainColor,
-                            onPressed: () {
-                              launch(meeting.url);
-                            },
+      for (int i = 0; i < meeting.topics.length; i++) {
+        if (currUser.roles.contains(meeting.topics[i])) {
+          if (meeting.startTime.isAfter(DateTime.now()) && meetingsWidgetList.length <= 3) {
+            // Meeting upcoming
+            setState(() {
+              meetingsWidgetList.add(new Container(
+                padding: EdgeInsets.only(bottom: 8),
+                child: new Card(
+                  child: new InkWell(
+                    onTap: () {
+                      router.navigateTo(context, "/home/meetings/details?id=${meeting.id}", transition: TransitionType.fadeIn);
+                    },
+                    child: new Container(
+                      padding: EdgeInsets.all(8),
+                      width: double.infinity,
+                      child: new Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          new Text(
+                            meeting.name,
+                            style: TextStyle(fontSize: 18, fontFamily: "Montserrat"),
                           ),
-                        ),
+                          new Text(
+                            "${DateFormat().add_yMMMd().format(meeting.startTime)} @ ${DateFormat().add_jm().format(meeting.startTime)}",
+                            style: TextStyle(fontSize: 17, color: Colors.grey),
+                          )
+                        ],
                       ),
-                      new Visibility(
-                        visible: meeting.url == "",
-                        child: Container(
-                            padding: EdgeInsets.only(left: 8, right: 8),
-                            child: new Icon(Icons.arrow_forward_ios, color: mainColor,)
-                        ),
-                      )
-                    ],
+                    ),
                   ),
                 ),
-              ),
-            ),
-          ));
-        });
+              ));
+            });
+          }
+          else if (meeting.startTime.isBefore(DateTime.now()) && meeting.endTime.isAfter(DateTime.now()) ) {
+            // Meeting ongoing
+            setState(() {
+              currentMeetingsWidgetList.add(new Container(
+                padding: EdgeInsets.only(bottom: 8),
+                child: new Card(
+                  shape: new RoundedRectangleBorder(borderRadius: BorderRadius.circular(4), side: new BorderSide(color: mainColor, width: 2.0)),
+                  child: new InkWell(
+                    onTap: () {
+                      router.navigateTo(context, "/home/meetings/details?id=${meeting.id}", transition: TransitionType.fadeIn);
+                    },
+                    child: new Container(
+                      padding: EdgeInsets.all(8),
+                      width: double.infinity,
+                      child: Row(
+                        children: [
+                          new Expanded(
+                            child: new Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                new Text(
+                                  meeting.name,
+                                  style: TextStyle(fontSize: 18, fontFamily: "Montserrat"),
+                                ),
+                                new Text(
+                                  "${DateFormat().add_yMMMd().format(meeting.startTime)} @ ${DateFormat().add_jm().format(meeting.startTime)}",
+                                  style: TextStyle(fontSize: 17, color: Colors.grey),
+                                )
+                              ],
+                            ),
+                          ),
+                          new Visibility(
+                            visible: meeting.url != "",
+                            child: Container(
+                              padding: EdgeInsets.only(left: 8, right: 8),
+                              child: new RaisedButton(
+                                child: new Text("JOIN"),
+                                textColor: Colors.white,
+                                color: mainColor,
+                                onPressed: () {
+                                  launch(meeting.url);
+                                },
+                              ),
+                            ),
+                          ),
+                          new Visibility(
+                            visible: meeting.url == "",
+                            child: Container(
+                                padding: EdgeInsets.only(left: 8, right: 8),
+                                child: new Icon(Icons.arrow_forward_ios, color: mainColor,)
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ));
+            });
+          }
+          break;
+        }
       }
     });
   }
@@ -345,6 +351,19 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  sendNotificationDialog() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: new Text("Send Notification", style: TextStyle(color: currTextColor),),
+            backgroundColor: currCardColor,
+            content: new SendNotificationDialog(currUser),
+          );
+        }
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_localStorage["userID"] != null) {
@@ -383,11 +402,19 @@ class _HomePageState extends State<HomePage> {
                                       padding: new EdgeInsets.all(16),
                                       child: new Column(
                                         children: [
-                                          new Row(
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [
-                                              new Icon(Icons.event),
-                                              new Padding(padding: EdgeInsets.all(4)),
-                                              new Text("DASHBOARD", style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor),)
+                                              new Row(
+                                                children: [
+                                                  new Icon(Icons.dashboard),
+                                                  new Padding(padding: EdgeInsets.all(4)),
+                                                  new Text("DASHBOARD", style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor),)
+                                                ],
+                                              ),
+                                              new IconButton(
+                                                icon: Icon(Icons.settings, color: currCardColor,),
+                                              )
                                             ],
                                           ),
                                           new Padding(padding: EdgeInsets.only(top: 8, bottom: 16), child: new Divider(color: currDividerColor, height: 8)),
@@ -553,7 +580,7 @@ class _HomePageState extends State<HomePage> {
                                                       elevation: 2.0,
                                                       child: new InkWell(
                                                         onTap: () {
-                                                          router.navigateTo(context, '/home/notification-manager', transition: TransitionType.native);
+                                                          sendNotificationDialog();
                                                         },
                                                         child: new Column(
                                                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -614,7 +641,7 @@ class _HomePageState extends State<HomePage> {
                                           children: [
                                             new Row(
                                               children: [
-                                                new Icon(Icons.event),
+                                                new Icon(Icons.admin_panel_settings),
                                                 new Padding(padding: EdgeInsets.all(4)),
                                                 new Text("ADVISOR PANEL", style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor),)
                                               ],
@@ -717,7 +744,7 @@ class _HomePageState extends State<HomePage> {
                                                       elevation: 2.0,
                                                       child: new InkWell(
                                                         onTap: () {
-                                                          router.navigateTo(context, '/home/notification-manager', transition: TransitionType.native);
+                                                          sendNotificationDialog();
                                                         },
                                                         child: new Column(
                                                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -781,13 +808,25 @@ class _HomePageState extends State<HomePage> {
                                       padding: new EdgeInsets.all(16),
                                       child: new Column(
                                         children: [
-                                          new Row(
-                                            mainAxisAlignment: MainAxisAlignment.start,
-                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [
-                                              new Icon(Icons.person),
-                                              new Padding(padding: EdgeInsets.all(4)),
-                                              new Text("PROFILE", style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor),)
+                                              new Row(
+                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                crossAxisAlignment: CrossAxisAlignment.center,
+                                                children: [
+                                                  new Icon(Icons.person),
+                                                  new Padding(padding: EdgeInsets.all(4)),
+                                                  new Text("PROFILE", style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor),)
+                                                ],
+                                              ),
+                                              new IconButton(
+                                                icon: Icon(Icons.settings),
+                                                color: Colors.grey,
+                                                onPressed: () {
+                                                  router.navigateTo(context, '/settings', transition: TransitionType.fadeIn);
+                                                },
+                                              )
                                             ],
                                           ),
                                           new Container(padding: EdgeInsets.only(top: 8, bottom: 16), child: new Divider(color: currDividerColor, height: 8)),
@@ -837,7 +876,10 @@ class _HomePageState extends State<HomePage> {
                                             ],
                                           ),
                                           new Container(padding: EdgeInsets.only(top: 8, bottom: 16), child: new Divider(color: currDividerColor, height: 8, )),
-                                          new Visibility(visible: meetingsWidgetList.isEmpty && currentMeetingsWidgetList.isEmpty, child: new Text("There are no upcoming events.")),
+                                          new Visibility(visible: meetingsWidgetList.isEmpty && currentMeetingsWidgetList.isEmpty, child: Padding(
+                                            padding: const EdgeInsets.only(bottom: 8.0),
+                                            child: new Text("There are no upcoming events."),
+                                          )),
                                           new Column(
                                             children: currentMeetingsWidgetList,
                                           ),
@@ -846,11 +888,13 @@ class _HomePageState extends State<HomePage> {
                                           ),
                                           new FlatButton(
                                             child: new Text("VIEW ALL"),
+                                            padding: EdgeInsets.only(left: 20, top: 16, bottom: 16, right: 20),
                                             textColor: mainColor,
                                             onPressed: () {
                                               router.navigateTo(context, "/home/meetings", transition: TransitionType.fadeIn);
                                             },
-                                          )
+                                          ),
+                                          new Padding(padding: EdgeInsets.all(4),)
                                         ],
                                       ),
                                     ),
@@ -896,11 +940,16 @@ class _HomePageState extends State<HomePage> {
                               padding: new EdgeInsets.all(8),
                               child: new Column(
                                 children: [
-                                  new Row(
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      new Icon(Icons.event),
-                                      new Padding(padding: EdgeInsets.all(4)),
-                                      new Text("DASHBOARD", style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor),)
+                                      new Row(
+                                        children: [
+                                          new Icon(Icons.event),
+                                          new Padding(padding: EdgeInsets.all(4)),
+                                          new Text("DASHBOARD", style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor),)
+                                        ],
+                                      ),
                                     ],
                                   ),
                                   new Padding(padding: EdgeInsets.only(top: 8, bottom: 16), child: new Divider(color: currDividerColor, height: 8)),
@@ -1055,7 +1104,7 @@ class _HomePageState extends State<HomePage> {
                                               elevation: 2.0,
                                               child: new InkWell(
                                                 onTap: () {
-                                                  router.navigateTo(context, '/home/notification-manager', transition: TransitionType.native);
+                                                  sendNotificationDialog();
                                                 },
                                                 child: new Column(
                                                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -1209,7 +1258,7 @@ class _HomePageState extends State<HomePage> {
                                               elevation: 2.0,
                                               child: new InkWell(
                                                 onTap: () {
-                                                  router.navigateTo(context, '/home/notification-manager', transition: TransitionType.native);
+                                                  sendNotificationDialog();
                                                 },
                                                 child: new Column(
                                                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,

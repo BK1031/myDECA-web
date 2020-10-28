@@ -20,8 +20,10 @@ import 'dart:html' as html;
 import 'package:url_launcher/url_launcher.dart';
 
 class ConferenceOverviewPage extends StatefulWidget {
+  String id;
+  ConferenceOverviewPage(this.id);
   @override
-  _ConferenceOverviewPageState createState() => _ConferenceOverviewPageState();
+  _ConferenceOverviewPageState createState() => _ConferenceOverviewPageState(this.id);
 }
 
 class _ConferenceOverviewPageState extends State<ConferenceOverviewPage> {
@@ -30,11 +32,15 @@ class _ConferenceOverviewPageState extends State<ConferenceOverviewPage> {
 
   Conference conference = new Conference.plain();
 
+  _ConferenceOverviewPageState(String id) {
+    conference.conferenceID = id;
+  }
+
   @override
   void initState() {
     super.initState();
     if (_localStorage["userID"] != null) {
-      fb.database().ref("conferences").child(html.window.location.toString().split("?id=")[1]).once("value").then((value) {
+      fb.database().ref("conferences").child(conference.conferenceID).once("value").then((value) {
         setState(() {
           conference = new Conference.fromSnapshot(value.snapshot);
         });

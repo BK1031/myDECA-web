@@ -20,8 +20,10 @@ import 'package:mydeca_web/utils/theme.dart';
 import 'dart:html' as html;
 
 class ConferenceWinnersPage extends StatefulWidget {
+  String id;
+  ConferenceWinnersPage(this.id);
   @override
-  _ConferenceWinnersPageState createState() => _ConferenceWinnersPageState();
+  _ConferenceWinnersPageState createState() => _ConferenceWinnersPageState(this.id);
 }
 
 class _ConferenceWinnersPageState extends State<ConferenceWinnersPage> {
@@ -32,6 +34,10 @@ class _ConferenceWinnersPageState extends State<ConferenceWinnersPage> {
   User currUser = User.plain();
   final Storage _localStorage = html.window.localStorage;
 
+  String id;
+
+  _ConferenceWinnersPageState(this.id);
+
   @override
   void initState() {
     super.initState();
@@ -41,7 +47,7 @@ class _ConferenceWinnersPageState extends State<ConferenceWinnersPage> {
           currUser = User.fromSnapshot(value.snapshot);
           print(currUser);
         });
-        fb.database().ref("chapters").child(currUser.chapter.chapterID).child("conferences").child(html.window.location.toString().split("?id=")[1]).child("winners").onChildAdded.listen((event) {
+        fb.database().ref("chapters").child(currUser.chapter.chapterID).child("conferences").child(id).child("winners").onChildAdded.listen((event) {
           ConferenceWinner winner = ConferenceWinner.fromSnapshot(event.snapshot);
           print(winner);
           setState(() {

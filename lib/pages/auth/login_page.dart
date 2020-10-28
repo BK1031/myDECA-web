@@ -151,6 +151,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     new Padding(padding: EdgeInsets.all(16.0)),
                     loginWidget,
+                    new Padding(padding: EdgeInsets.all(8.0)),
                     new FlatButton(
                       child: new Text("Don't have an account?", style: TextStyle(fontSize: 17),),
                       textColor: mainColor,

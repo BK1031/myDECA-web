@@ -39,7 +39,7 @@ class _HomeNavbarState extends State<HomeNavbar> {
                     "my",
                     style: TextStyle(
                         color: Colors.white,
-                        fontSize: 65
+                        fontSize: 65,
                     ),
                   ),
                   new Text(
@@ -58,32 +58,37 @@ class _HomeNavbarState extends State<HomeNavbar> {
             children: <Widget>[
               new FlatButton(
                 child: new Text("HOME", style: TextStyle(fontFamily: "Montserrat", color: Colors.white)),
+                padding: EdgeInsets.only(left: 20, top: 16, bottom: 16, right: 20),
                 onPressed: () {
                   router.navigateTo(context, '/home', transition: TransitionType.fadeIn);
                 },
               ),
               new FlatButton(
                 child: new Text("CONFERENCES", style: TextStyle(fontFamily: "Montserrat", color: Colors.white)),
+                padding: EdgeInsets.only(left: 20, top: 16, bottom: 16, right: 20),
                 onPressed: () {
                   router.navigateTo(context, '/conferences', transition: TransitionType.fadeIn);
                 },
               ),
               new FlatButton(
                 child: new Text("EVENTS", style: TextStyle(fontFamily: "Montserrat", color: Colors.white)),
+                padding: EdgeInsets.only(left: 20, top: 16, bottom: 16, right: 20),
                 onPressed: () {
                   router.navigateTo(context, '/events', transition: TransitionType.fadeIn);
                 },
               ),
-              new Padding(padding: EdgeInsets.all(4.0),),
-              new ClipRRect(
-                borderRadius: BorderRadius.all(Radius.circular(100)),
-                child: new CachedNetworkImage(
-                  imageUrl: "",
-                ),
+              new FlatButton(
+                child: new Text("CHAT", style: TextStyle(fontFamily: "Montserrat", color: Colors.white)),
+                padding: EdgeInsets.only(left: 20, top: 16, bottom: 16, right: 20),
+                onPressed: () {
+                  router.navigateTo(context, '/chat', transition: TransitionType.fadeIn);
+                },
               ),
+              new Padding(padding: EdgeInsets.all(4.0),),
               new FlatButton(
                 child: new Text("SIGN OUT", style: TextStyle(fontFamily: "Montserrat")),
                 textColor: Colors.white,
+                padding: EdgeInsets.only(left: 20, top: 16, bottom: 16, right: 20),
                 color: Colors.red,
                 onPressed: () async {
                   await fb.auth().signOut();

@@ -113,37 +113,37 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                     ),
                   ),
                 ),
-                new Visibility(
-                  visible: DateTime.now().isAfter(meeting.startTime) && DateTime.now().isBefore(meeting.endTime),
-                  child: Container(
-                    padding: EdgeInsets.only(left: 16),
-                    width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
-                    child: new Tooltip(
-                      message: "This meeting is currently ongoing",
-                      child: Row(
-                        children: [
-                          new Card(
+                Container(
+                  padding: EdgeInsets.only(left: 16),
+                  width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                  child: Row(
+                    children: [
+                      new Visibility(
+                        visible: DateTime.now().isAfter(meeting.startTime) && DateTime.now().isBefore(meeting.endTime),
+                        child: new Tooltip(
+                          message: "This meeting is currently ongoing",
+                          child: new Card(
                             color: mainColor,
                             child: new Container(
                               padding: EdgeInsets.only(left: 8, top: 4, bottom: 4, right: 8),
-                              child: new Text("• LIVE", style: TextStyle(fontSize: 18, color: Colors.white),),
+                              child: new Text("LIVE", style: TextStyle(fontSize: 18, color: Colors.white),),
                             ),
                           ),
-                          new Visibility(
-                            visible: currUser.roles.contains("Developer") || currUser.roles.contains("Advisor") || currUser.roles.contains("Officer"),
-                            child: new FlatButton(
-                              child: new Text("EDIT MEETING"),
-                              textColor: mainColor,
-                              onPressed: () {
-                                setState(() {
-                                  editing = true;
-                                });
-                              },
-                            )
-                          )
-                        ],
+                        ),
                       ),
-                    )
+                      new Visibility(
+                        visible: currUser.roles.contains("Developer") || currUser.roles.contains("Advisor") || currUser.roles.contains("Officer"),
+                        child: new FlatButton(
+                          child: new Text("EDIT MEETING"),
+                          textColor: mainColor,
+                          onPressed: () {
+                            setState(() {
+                              editing = true;
+                            });
+                          },
+                        )
+                      )
+                    ],
                   )
                 ),
                 new Visibility(

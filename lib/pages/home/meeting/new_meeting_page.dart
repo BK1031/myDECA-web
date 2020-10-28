@@ -26,7 +26,8 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
 
   final Storage _localStorage = html.window.localStorage;
   Meeting meeting = new Meeting();
-
+  List<String> topics = [];
+  double visibilityBoxHeight = 0.0;
   User currUser = User.plain();
 
   @override
@@ -41,6 +42,26 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
     }
   }
 
+  void alert(String alert) {
+    showDialog(
+        context: context,
+        child: new AlertDialog(
+          backgroundColor: currCardColor,
+          title: new Text("Alert", style: TextStyle(color: currTextColor),),
+          content: new Text(alert, style: TextStyle(color: currTextColor)),
+          actions: [
+            new FlatButton(
+                child: new Text("GOT IT"),
+                textColor: mainColor,
+                onPressed: () {
+                  router.pop(context);
+                }
+            )
+          ],
+        )
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_localStorage["userID"] != null) {
@@ -50,21 +71,22 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
           label: new Text("CREATE"),
           onPressed: () {
             if (fb.auth().currentUser != null) {
-              if (meeting.name != "" && meeting.startTime != null && meeting.endTime != null) {
+              if (meeting.name != "" && meeting.startTime != null && meeting.endTime != null && topics.isNotEmpty) {
                 fb.database().ref("chapters").child(currUser.chapter.chapterID).child("meetings").push().set({
                   "name": meeting.name,
                   "startTime": meeting.startTime.toString(),
                   "endTime": meeting.endTime.toString(),
-                  "url": meeting.url
+                  "url": meeting.url,
+                  "topics": topics
                 });
                 router.navigateTo(context, '/home/meetings', transition: TransitionType.fadeIn);
               }
               else {
-                html.window.alert("Please make sure that you fill out all the fields!");
+                alert("Please make sure that you fill out all the fields! Don't forget to select the meeting recipients.");
               }
             }
             else {
-              html.window.alert("AuthToken expired. Please login again.");
+              alert("AuthToken expired. Please login again.");
             }
           },
         ),
@@ -198,6 +220,95 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
                             meeting.url = input;
                           },
                         ),
+                      ),
+                      new Padding(padding: EdgeInsets.all(4)),
+                      new ListTile(
+                        leading: new Icon(Icons.group_add),
+                        title: new Text("Select Recipients"),
+                        onTap: () {
+                          setState(() {
+                            if (visibilityBoxHeight == 0.0) {
+                              visibilityBoxHeight = 400;
+                            }
+                            else {
+                              visibilityBoxHeight = 0.0;
+                            }
+                          });
+                        },
+                      ),
+                      new AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                          height: visibilityBoxHeight,
+                          child: new Scrollbar(
+                            child: new ListView(
+                              padding: EdgeInsets.only(right: 16.0, left: 16.0),
+                              children: <Widget>[
+                                new Text("Only users with the roles selected below will receive this meeting."),
+                                new ListTile(
+                                  leading: topics.contains("Member") ? Icon(Icons.check_box, color: mainColor) : Icon(Icons.check_box_outline_blank, color: Colors.grey),
+                                  title: new Text("Member"),
+                                  onTap: () {
+                                    setState(() {
+                                      topics.contains("Member") ? topics.remove("Member") : topics.add("Member");
+                                    });
+                                  },
+                                ),
+                                new ListTile(
+                                  leading: topics.contains("Officer") ? Icon(Icons.check_box, color: mainColor) : Icon(Icons.check_box_outline_blank, color: Colors.grey),
+                                  title: new Text("Officer"),
+                                  onTap: () {
+                                    setState(() {
+                                      topics.contains("Officer") ? topics.remove("Officer") : topics.add("Officer");
+                                    });
+                                  },
+                                ),
+                                new ListTile(
+                                  leading: topics.contains("President") ? Icon(Icons.check_box, color: mainColor) : Icon(Icons.check_box_outline_blank, color: Colors.grey),
+                                  title: new Text("President"),
+                                  onTap: () {
+                                    setState(() {
+                                      topics.contains("President") ? topics.remove("President") : topics.add("President");
+                                    });
+                                  },
+                                ),
+                                new ListTile(
+                                  leading: topics.contains("Advisor") ? Icon(Icons.check_box, color: mainColor) : Icon(Icons.check_box_outline_blank, color: Colors.grey),
+                                  title: new Text("Advisor"),
+                                  onTap: () {
+                                    setState(() {
+                                      topics.contains("Advisor") ? topics.remove("Advisor") : topics.add("Advisor");
+                                    });
+                                  },
+                                ),
+                                new ListTile(
+                                  leading: topics.contains("Developer") ? Icon(Icons.check_box, color: mainColor) : Icon(Icons.check_box_outline_blank, color: Colors.grey),
+                                  title: new Text("Developer"),
+                                  onTap: () {
+                                    setState(() {
+                                      topics.contains("Developer") ? topics.remove("Developer") : topics.add("Developer");
+                                    });
+                                  },
+                                ),
+                                new Visibility(
+                                  visible: topics.contains("Member") && !topics.contains("Advisor"),
+                                  child: new Card(
+                                    color: Color(0xFFffebba),
+                                    child: new Container(
+                                      padding: EdgeInsets.all(8),
+                                      child: new Row(
+                                        children: [
+                                          new Icon(Icons.warning, color: Colors.orangeAccent,),
+                                          new Padding(padding: EdgeInsets.all(4)),
+                                          new Text("Advisors are not given the\nMember role by default, so\nyour advisors may not recieve\nthis announcement.", style: TextStyle(color: Colors.orangeAccent),)
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
                       ),
                     ],
                   )

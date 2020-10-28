@@ -43,149 +43,154 @@ class _MeetingPageState extends State<MeetingPage> {
   void getMeetings() {
     fb.database().ref("chapters").child(currUser.chapter.chapterID).child("meetings").onChildAdded.listen((event) {
       Meeting meeting = new Meeting.fromSnapshot(event.snapshot);
-      if (meeting.startTime.isAfter(DateTime.now())) {
-        // Meeting upcoming
-        setState(() {
-          upcomingMeetingList.add(new Container(
-            padding: EdgeInsets.only(bottom: 8),
-            child: new Card(
-              child: new InkWell(
-                onTap: () {
-                  router.navigateTo(context, "/home/meetings/details?id=${meeting.id}", transition: TransitionType.fadeIn);
-                },
-                child: new Container(
-                  padding: EdgeInsets.all(8),
-                  width: double.infinity,
-                  child: Row(
-                    children: [
-                      new Expanded(
-                        child: new Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            new Text(
-                              meeting.name,
-                              style: TextStyle(fontSize: 18, fontFamily: "Montserrat"),
+      for (int i = 0; i < meeting.topics.length; i++) {
+        if (currUser.roles.contains(meeting.topics[i])) {
+          if (meeting.startTime.isAfter(DateTime.now())) {
+            // Meeting upcoming
+            setState(() {
+              upcomingMeetingList.add(new Container(
+                padding: EdgeInsets.only(bottom: 8),
+                child: new Card(
+                  child: new InkWell(
+                    onTap: () {
+                      router.navigateTo(context, "/home/meetings/details?id=${meeting.id}", transition: TransitionType.fadeIn);
+                    },
+                    child: new Container(
+                      padding: EdgeInsets.all(8),
+                      width: double.infinity,
+                      child: Row(
+                        children: [
+                          new Expanded(
+                            child: new Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                new Text(
+                                  meeting.name,
+                                  style: TextStyle(fontSize: 18, fontFamily: "Montserrat"),
+                                ),
+                                new Text(
+                                  "${DateFormat().add_yMMMd().format(meeting.startTime)} @ ${DateFormat().add_jm().format(meeting.startTime)}",
+                                  style: TextStyle(fontSize: 17, color: Colors.grey),
+                                )
+                              ],
                             ),
-                            new Text(
-                              "${DateFormat().add_yMMMd().format(meeting.startTime)} @ ${DateFormat().add_jm().format(meeting.startTime)}",
-                              style: TextStyle(fontSize: 17, color: Colors.grey),
-                            )
-                          ],
-                        ),
-                      ),
-                      Container(
-                        padding: EdgeInsets.only(left: 8, right: 8),
-                        child: new Icon(Icons.arrow_forward_ios, color: mainColor,)
-                      )
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ));
-        });
-      }
-      else if (meeting.startTime.isBefore(DateTime.now()) && meeting.endTime.isAfter(DateTime.now()) ) {
-        // Meeting ongoing
-        setState(() {
-          currentMeetingList.add(new Container(
-            padding: EdgeInsets.only(bottom: 8),
-            child: new Card(
-              shape: new RoundedRectangleBorder(borderRadius: BorderRadius.circular(4), side: new BorderSide(color: mainColor, width: 2.0)),
-              child: new InkWell(
-                onTap: () {
-                  router.navigateTo(context, "/home/meetings/details?id=${meeting.id}", transition: TransitionType.fadeIn);
-                },
-                child: new Container(
-                  padding: EdgeInsets.all(8),
-                  width: double.infinity,
-                  child: Row(
-                    children: [
-                      new Expanded(
-                        child: new Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            new Text(
-                              meeting.name,
-                              style: TextStyle(fontSize: 18, fontFamily: "Montserrat"),
-                            ),
-                            new Text(
-                              "${DateFormat().add_yMMMd().format(meeting.startTime)} @ ${DateFormat().add_jm().format(meeting.startTime)}",
-                              style: TextStyle(fontSize: 17, color: Colors.grey),
-                            )
-                          ],
-                        ),
-                      ),
-                      new Visibility(
-                        visible: meeting.url != "",
-                        child: Container(
-                          padding: EdgeInsets.only(left: 8, right: 8),
-                          child: new RaisedButton(
-                            child: new Text("JOIN"),
-                            textColor: Colors.white,
-                            color: mainColor,
-                            onPressed: () {
-                              launch(meeting.url);
-                            },
                           ),
-                        ),
+                          Container(
+                              padding: EdgeInsets.only(left: 8, right: 8),
+                              child: new Icon(Icons.arrow_forward_ios, color: mainColor,)
+                          )
+                        ],
                       ),
-                      new Visibility(
-                        visible: meeting.url == "",
-                        child: Container(
-                            padding: EdgeInsets.only(left: 8, right: 8),
-                            child: new Icon(Icons.arrow_forward_ios, color: mainColor,)
-                        ),
-                      )
-                    ],
+                    ),
                   ),
                 ),
-              ),
-            ),
-          ));
-        });
-      }
-      else {
-        // Meeting past
-        setState(() {
-          pastMeetingList.add(new Container(
-            padding: EdgeInsets.only(bottom: 8),
-            child: new Card(
-              child: new InkWell(
-                onTap: () {
-                  router.navigateTo(context, "/home/meetings/details?id=${meeting.id}", transition: TransitionType.fadeIn);
-                },
-                child: new Container(
-                  padding: EdgeInsets.all(8),
-                  width: double.infinity,
-                  child: Row(
-                    children: [
-                      new Expanded(
-                        child: new Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            new Text(
-                              meeting.name,
-                              style: TextStyle(fontSize: 18, fontFamily: "Montserrat"),
+              ));
+            });
+          }
+          else if (meeting.startTime.isBefore(DateTime.now()) && meeting.endTime.isAfter(DateTime.now()) ) {
+            // Meeting ongoing
+            setState(() {
+              currentMeetingList.add(new Container(
+                padding: EdgeInsets.only(bottom: 8),
+                child: new Card(
+                  shape: new RoundedRectangleBorder(borderRadius: BorderRadius.circular(4), side: new BorderSide(color: mainColor, width: 2.0)),
+                  child: new InkWell(
+                    onTap: () {
+                      router.navigateTo(context, "/home/meetings/details?id=${meeting.id}", transition: TransitionType.fadeIn);
+                    },
+                    child: new Container(
+                      padding: EdgeInsets.all(8),
+                      width: double.infinity,
+                      child: Row(
+                        children: [
+                          new Expanded(
+                            child: new Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                new Text(
+                                  meeting.name,
+                                  style: TextStyle(fontSize: 18, fontFamily: "Montserrat"),
+                                ),
+                                new Text(
+                                  "${DateFormat().add_yMMMd().format(meeting.startTime)} @ ${DateFormat().add_jm().format(meeting.startTime)}",
+                                  style: TextStyle(fontSize: 17, color: Colors.grey),
+                                )
+                              ],
                             ),
-                            new Text(
-                              "${DateFormat().add_yMMMd().format(meeting.startTime)} @ ${DateFormat().add_jm().format(meeting.startTime)}",
-                              style: TextStyle(fontSize: 17, color: Colors.grey),
-                            )
-                          ],
-                        ),
+                          ),
+                          new Visibility(
+                            visible: meeting.url != "",
+                            child: Container(
+                              padding: EdgeInsets.only(left: 8, right: 8),
+                              child: new RaisedButton(
+                                child: new Text("JOIN"),
+                                textColor: Colors.white,
+                                color: mainColor,
+                                onPressed: () {
+                                  launch(meeting.url);
+                                },
+                              ),
+                            ),
+                          ),
+                          new Visibility(
+                            visible: meeting.url == "",
+                            child: Container(
+                                padding: EdgeInsets.only(left: 8, right: 8),
+                                child: new Icon(Icons.arrow_forward_ios, color: mainColor,)
+                            ),
+                          )
+                        ],
                       ),
-                      Container(
-                          padding: EdgeInsets.only(left: 8, right: 8),
-                          child: new Icon(Icons.arrow_forward_ios, color: mainColor,)
-                      )
-                    ],
+                    ),
                   ),
                 ),
-              ),
-            ),
-          ));
-        });
+              ));
+            });
+          }
+          else {
+            // Meeting past
+            setState(() {
+              pastMeetingList.add(new Container(
+                padding: EdgeInsets.only(bottom: 8),
+                child: new Card(
+                  child: new InkWell(
+                    onTap: () {
+                      router.navigateTo(context, "/home/meetings/details?id=${meeting.id}", transition: TransitionType.fadeIn);
+                    },
+                    child: new Container(
+                      padding: EdgeInsets.all(8),
+                      width: double.infinity,
+                      child: Row(
+                        children: [
+                          new Expanded(
+                            child: new Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                new Text(
+                                  meeting.name,
+                                  style: TextStyle(fontSize: 18, fontFamily: "Montserrat"),
+                                ),
+                                new Text(
+                                  "${DateFormat().add_yMMMd().format(meeting.startTime)} @ ${DateFormat().add_jm().format(meeting.startTime)}",
+                                  style: TextStyle(fontSize: 17, color: Colors.grey),
+                                )
+                              ],
+                            ),
+                          ),
+                          Container(
+                              padding: EdgeInsets.only(left: 8, right: 8),
+                              child: new Icon(Icons.arrow_forward_ios, color: mainColor,)
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ));
+            });
+          }
+          break;
+        }
       }
     });
   }

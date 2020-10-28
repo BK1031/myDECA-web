@@ -6,6 +6,7 @@ import 'package:flutter/gestures.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:firebase/firebase.dart' as fb;
+import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:mydeca_web/models/chapter.dart';
 import 'package:mydeca_web/models/user.dart';
 import 'package:mydeca_web/utils/config.dart';
@@ -117,6 +118,7 @@ class _RegisterAdvisorPageState extends State<RegisterAdvisorPage> {
             "lastName": currUser.lastName.replaceAll(new RegExp(r"\s+\b|\b\s"), ""),
             "email": currUser.email,
             "emailVerified": currUser.emailVerified,
+            "phone": currUser.phone,
             "gender": currUser.gender,
             "roles": currUser.roles,
             "grade": currUser.grade,
@@ -212,6 +214,23 @@ class _RegisterAdvisorPageState extends State<RegisterAdvisorPage> {
                       onChanged: (value) {
                         currUser.email = value;
                       },
+                    ),
+                    InternationalPhoneNumberInput(
+                      onInputChanged: (value) {
+                        currUser.phone = value.phoneNumber;
+                        print(currUser.phone);
+                      },
+                      formatInput: true,
+                      hintText: "Phone",
+                      initialValue: PhoneNumber(isoCode: "US"),
+                      countries: [
+                        "US",
+                        "CN",
+                        "CA",
+                        "IN",
+                        "JP",
+                        "KR"
+                      ],
                     ),
                     new Row(
                       children: <Widget>[
