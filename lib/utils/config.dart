@@ -1,5 +1,6 @@
 import 'package:fluro/fluro.dart';
 import 'package:firebase/firebase.dart' as fb;
+import 'package:mydeca_web/models/user.dart';
 
 import '../models/version.dart';
 
@@ -8,6 +9,29 @@ String appStatus = "";
 String appFull = "Version ${appVersion.toString()}";
 
 final router = new Router();
+
+Map<String, List<String>> mockConferenceEvents = {
+  "Business Administration Operations Written Event": ["BOR", "BMOR", "FOR"],
+  "Hospitality/Sports Operations Written Event": ["BOR", "BMOR", "FOR"],
+  "Entrepreneurship Written Event": ["EIB", "IBP", "EIP", "ESB", "EBG"],
+  "Project Management Written Event": ["PMBS", "PMCD", "PMCA", "PMCG", "PMFL", "PMSP"],
+  "Professional Selling Written Event": ["HTPS", "PSE"],
+  "Principles of Finance": ["PFN"],
+  "Principles of Business Management and Administration": ["PBM"],
+  "Principles of Hospitality and Tourism": ["PHT"],
+  "Principles of Marketing": ["PMK"],
+  "Retail Marketing Roleplay": ["AAM", "RMS"],
+  "Business Law and Ethics Roleplay": ["BLTDM"],
+  "Entrepreneurship Roleplay": ["ETDM", "ENT"],
+  "Sports Entertainment Roleplay": ["SEM", "STDM"],
+  "Human Resources Management Roleplay": ["HRM"],
+  "Hospitality Services Roleplay": ["QSRM", "FRSM", "TTDM", "HTDM"],
+  "Financial Services Roleplay": ["ACT", "BFS", "FTDM"],
+  "Marketing Services Roleplay": ["BSM", "FMS", "MCS", "MTDM"]
+};
+
+List<User> writtenTeam = new List();
+List<User> roleplayTeam = new List();
 
 String appLegal = """
 MIT License

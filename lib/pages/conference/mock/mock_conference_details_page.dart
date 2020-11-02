@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:html';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fluro/fluro.dart';
@@ -8,6 +9,8 @@ import 'package:mydeca_web/models/user.dart';
 import 'package:mydeca_web/navbars/home_navbar.dart';
 import 'package:mydeca_web/navbars/mobile_sidebar.dart';
 import 'package:mydeca_web/pages/auth/login_page.dart';
+
+import 'dart:math';
 import 'package:mydeca_web/pages/conference/conference_media_page.dart';
 import 'package:mydeca_web/pages/conference/conference_overview_page.dart';
 import 'package:mydeca_web/pages/conference/conference_schedule_page.dart';
@@ -16,6 +19,8 @@ import 'package:mydeca_web/utils/config.dart';
 import 'package:mydeca_web/utils/theme.dart';
 import 'dart:html' as html;
 import 'package:progress_indicators/progress_indicators.dart';
+
+import 'event_teammate_dialog.dart';
 
 class MockConferenceDetailsPage extends StatefulWidget {
   String id;
@@ -33,9 +38,15 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
 
   Conference conference = new Conference.plain();
 
-  bool registered = false;
+  bool writtenRegistered = false;
+  bool roleplayRegistered = false;
   String selectedRoleplay = "0";
   String selectedWritten = "0";
+
+  String writtenTeamID = "";
+  String roleplayTeamID = "";
+
+  Timer _timer;
 
   _MockConferenceDetailsPageState(String id) {
     conference.conferenceID = id;
@@ -44,10 +55,20 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
   @override
   void initState() {
     super.initState();
+    _timer = new Timer.periodic(const Duration(seconds: 2), (timer) {
+      setState(() {
+      });
+    });
     if (_localStorage["userID"] != null) {
       fb.database().ref("users").child(_localStorage["userID"]).once("value").then((value) {
         setState(() {
           currUser = User.fromSnapshot(value.snapshot);
+          writtenTeam.clear();
+          roleplayTeam.clear();
+          writtenTeam.add(currUser);
+          roleplayTeam.add(currUser);
+          writtenTeamID = getRandomString(5).toUpperCase();
+          roleplayTeamID = getRandomString(5).toUpperCase();
           print(currUser);
         });
         fb.database().ref("conferences").child(conference.conferenceID).once("value").then((value) {
@@ -55,20 +76,74 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
             conference = new Conference.fromSnapshot(value.snapshot);
           });
         });
-        if (conference.conferenceID.contains("Mock")) {
-          fb.database().ref("conferences").child(conference.conferenceID).child("users").child(currUser.userID).once("value").then((value) {
-            if (value.snapshot.val()["roleplay"] != null) {
-              setState(() {
-                registered = true;
-                selectedRoleplay = value.snapshot.val()["roleplay"];
-                selectedWritten = value.snapshot.val()["written"];
-              });
-            }
-          });
-        }
+        fb.database().ref("conferences").child(conference.conferenceID).child("users").child(currUser.userID).once("value").then((value) {
+          if (value.snapshot.val()["written"] != null) {
+            setState(() {
+              writtenRegistered = true;
+              writtenTeamID = value.snapshot.val()["written"];
+            });
+            fb.database().ref("conferences").child(conference.conferenceID).child("teams").child(writtenTeamID).once("value").then((value) {
+              if (value.snapshot.val() != null) {
+                setState(() {
+                  selectedWritten = value.snapshot.val()["written"];
+                });
+                getTeammates("written");
+              }
+            });
+          }
+          if (value.snapshot.val()["roleplay"] != null) {
+            setState(() {
+              roleplayRegistered = true;
+              roleplayTeamID = value.snapshot.val()["written"];
+            });
+            fb.database().ref("conferences").child(conference.conferenceID).child("teams").child(roleplayTeamID).once("value").then((value) {
+              if (value.snapshot.val() != null) {
+                setState(() {
+                  selectedRoleplay = value.snapshot.val()["roleplay"];
+                });
+                getTeammates("roleplay");
+              }
+            });
+          }
+        });
       });
     }
   }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _timer.cancel();
+  }
+  
+  void getTeammates(String type) {
+    if (type == "written") {
+      writtenTeam.clear();
+      fb.database().ref("conferences").child(conference.conferenceID).child("teams").child(writtenTeamID).child("users").onChildAdded.listen((event) {
+        fb.database().ref("users").child(event.snapshot.val()).once("value").then((value) {
+          setState(() {
+            writtenTeam.add(new User.fromSnapshot(value.snapshot));
+          });
+        });
+      });
+    }
+    else if (type == "roleplay") {
+      roleplayTeam.clear();
+      fb.database().ref("conferences").child(conference.conferenceID).child("teams").child(roleplayTeamID).child("users").onChildAdded.listen((event) {
+        fb.database().ref("users").child(event.snapshot.val()).once("value").then((value) {
+          setState(() {
+            roleplayTeam.add(new User.fromSnapshot(value.snapshot));
+          });
+        });
+      });
+    }
+  }
+
+  static const _chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz';
+  Random _rnd = Random();
+
+  String getRandomString(int length) => String.fromCharCodes(Iterable.generate(
+      length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
 
   void alert(String alert) {
     showDialog(
@@ -86,6 +161,17 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
                 }
             )
           ],
+        )
+    );
+  }
+  
+  void addTeammate(String type) {
+    showDialog(
+        context: context,
+        child: new AlertDialog(
+          backgroundColor: currCardColor,
+          title: new Text("Add Teammate", style: TextStyle(color: currTextColor),),
+          content: new EventTeammateDialog(type, currUser)
         )
     );
   }
@@ -109,13 +195,36 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
                 child: new Text("REGISTER"),
                 textColor: mainColor,
                 onPressed: () {
-                  fb.database().ref("conferences").child(conference.conferenceID).child("users").child(currUser.userID).update({
-                    "roleplay": selectedRoleplay,
-                    "written": selectedWritten
-                  });
-                  setState(() {
-                    registered = true;
-                  });
+                  if (!writtenRegistered) {
+                    fb.database().ref("conferences").child(conference.conferenceID).child("users").child(currUser.userID).update({
+                      "written": writtenTeamID
+                    });
+                    fb.database().ref("conferences").child(conference.conferenceID).child("teams").child(writtenTeamID).update({"written": selectedWritten});
+                    writtenTeam.forEach((element) {
+                      fb.database().ref("conferences").child(conference.conferenceID).child("teams").child(writtenTeamID).child("users").child(element.userID).set(element.userID);
+                      fb.database().ref("conferences").child(conference.conferenceID).child("users").child(element.userID).update({
+                        "written": writtenTeamID
+                      });
+                    });
+                    setState(() {
+                      writtenRegistered = true;
+                    });
+                  }
+                  if (!roleplayRegistered) {
+                    fb.database().ref("conferences").child(conference.conferenceID).child("users").child(currUser.userID).update({
+                      "roleplay": roleplayTeamID
+                    });
+                    fb.database().ref("conferences").child(conference.conferenceID).child("teams").child(roleplayTeamID).update({"roleplay": selectedRoleplay});
+                    roleplayTeam.forEach((element) {
+                      fb.database().ref("conferences").child(conference.conferenceID).child("teams").child(roleplayTeamID).child("users").child(element.userID).set(element.userID);
+                      fb.database().ref("conferences").child(conference.conferenceID).child("users").child(element.userID).update({
+                        "roleplay": roleplayTeamID
+                      });
+                    });
+                    setState(() {
+                      roleplayRegistered = true;
+                    });
+                  }
                   router.pop(context);
                 }
             )
@@ -218,7 +327,7 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
               ),
               new Padding(padding: EdgeInsets.only(bottom: 8.0)),
               new Visibility(
-                visible: !registered,
+                visible: !(writtenRegistered && roleplayRegistered),
                 child: new Container(
                   width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
                   child: new Card(
@@ -235,118 +344,176 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
                             children: [
                               new Text("Written Event:", style: TextStyle(fontSize: 17),),
                               new Padding(padding: EdgeInsets.all(4),),
-                              new DropdownButton(
-                                value: selectedWritten,
-                                hint: new Text("Select Written Event"),
-                                onChanged: (value) {
-                                  setState(() {
-                                    selectedWritten = value;
-                                  });
-                                },
-                                items: [
-                                  DropdownMenuItem(
-                                    value: "0",
-                                    child: new Text("Select Written Event"),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "1",
-                                    child: new Text("Business Adminstration Operations Written Event"),
-                                    onTap: () {},
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "BOR",
-                                    child: new Text("BOR"),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "BMOR",
-                                    child: new Text("BMOR"),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "FOR",
-                                    child: new Text("FOR"),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "2",
-                                    child: new Text("Hospitality/Sports Operations Written Event"),
-                                    onTap: () {},
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "HTOR",
-                                    child: new Text("HTOR"),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "SEOR",
-                                    child: new Text("SEOR"),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "3",
-                                    child: new Text("Entrepreneurship Written Event"),
-                                    onTap: () {},
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "EIB",
-                                    child: new Text("EIB"),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "IBP",
-                                    child: new Text("IBP"),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "EIP",
-                                    child: new Text("EIP"),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "ESB",
-                                    child: new Text("ESB"),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "EBG",
-                                    child: new Text("EBG"),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "4",
-                                    child: new Text("Project Management Written Event"),
-                                    onTap: () {},
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "PMBS",
-                                    child: new Text("PMBS"),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "PMCD",
-                                    child: new Text("PMCD"),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "PMCA",
-                                    child: new Text("PMCA"),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "PMCG",
-                                    child: new Text("PMCG"),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "PMFL",
-                                    child: new Text("PMFL"),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "PMSP",
-                                    child: new Text("PMSP"),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "5",
-                                    child: new Text("Professional Selling Written Event"),
-                                    onTap: () {},
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "HTPS",
-                                    child: new Text("HTPS"),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "PSE",
-                                    child: new Text("PSE"),
-                                  ),
-                                ],
+                              new Visibility(
+                                visible: !writtenRegistered,
+                                child: new DropdownButton(
+                                  value: selectedWritten,
+                                  hint: new Text("Select Written Event"),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      selectedWritten = value;
+                                    });
+                                  },
+                                  items: [
+                                    DropdownMenuItem(
+                                      value: "0",
+                                      child: new Text("Select Written Event"),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "1",
+                                      child: new Text("Business Adminstration Operations Written Event"),
+                                      onTap: () {},
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "BOR",
+                                      child: new Text("BOR"),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "BMOR",
+                                      child: new Text("BMOR"),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "FOR",
+                                      child: new Text("FOR"),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "2",
+                                      child: new Text("Hospitality/Sports Operations Written Event"),
+                                      onTap: () {},
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "HTOR",
+                                      child: new Text("HTOR"),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "SEOR",
+                                      child: new Text("SEOR"),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "3",
+                                      child: new Text("Entrepreneurship Written Event"),
+                                      onTap: () {},
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "EIB",
+                                      child: new Text("EIB"),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "IBP",
+                                      child: new Text("IBP"),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "EIP",
+                                      child: new Text("EIP"),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "ESB",
+                                      child: new Text("ESB"),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "EBG",
+                                      child: new Text("EBG"),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "4",
+                                      child: new Text("Project Management Written Event"),
+                                      onTap: () {},
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "PMBS",
+                                      child: new Text("PMBS"),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "PMCD",
+                                      child: new Text("PMCD"),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "PMCA",
+                                      child: new Text("PMCA"),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "PMCG",
+                                      child: new Text("PMCG"),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "PMFL",
+                                      child: new Text("PMFL"),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "PMSP",
+                                      child: new Text("PMSP"),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "5",
+                                      child: new Text("Professional Selling Written Event"),
+                                      onTap: () {},
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "HTPS",
+                                      child: new Text("HTPS"),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "PSE",
+                                      child: new Text("PSE"),
+                                    ),
+                                  ],
+                                ),
                               ),
+                              new Visibility(
+                                visible: writtenRegistered,
+                                child: new Text(selectedWritten, style: TextStyle(fontSize: 17)),
+                              ),
+                              new Padding(padding: EdgeInsets.all(4),),
+                              new Text("My Team:", style: TextStyle(fontSize: 17)),
+                              new Padding(padding: EdgeInsets.all(4),),
+                              new Expanded(
+                                child: new Wrap(
+                                  spacing: 8,
+                                  runSpacing: 4,
+                                  children: writtenTeam.map((e) => new Chip(
+                                      label: new Text(e.firstName + " " + e.lastName, style: TextStyle(color: Colors.white)),
+                                      backgroundColor: mainColor,
+                                      deleteIconColor: Colors.white,
+                                      onDeleted: !writtenRegistered ? () {
+                                        if (e != currUser) {
+                                          setState(() {
+                                            writtenTeam.remove(e);
+                                          });
+                                        }
+                                        else {
+                                          alert("You can't remove yourself from your own team!");
+                                        }
+                                      } : null,
+                                  )).toList(),
+                                ),
+                              ),
+                              new Padding(padding: EdgeInsets.all(2),),
+                              new Visibility(
+                                visible: !writtenRegistered,
+                                child: new IconButton(
+                                  tooltip: "Add Teammate",
+                                  splashRadius: 15,
+                                  icon: Icon(Icons.add, color: Colors.grey,),
+                                  onPressed: () {
+                                    if (writtenTeam.length < 3) {
+                                      addTeammate("written");
+                                    }
+                                    else {
+                                      alert("Your team already has reached the max of 3 members.");
+                                    }
+                                  },
+                                ),
+                              ),
+                              new Visibility(
+                                visible: writtenRegistered,
+                                child: Row(
+                                  children: [
+                                    new Icon(Icons.check_circle, color: Colors.green,),
+                                    new Padding(padding: EdgeInsets.all(2),),
+                                    new Text("Your written team is registered!", style: TextStyle(color: Colors.green),)
+                                  ],
+                                )
+                              )
                             ],
                           ),
                           new Padding(padding: EdgeInsets.all(4),),
@@ -354,153 +521,211 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
                             children: [
                               new Text("Roleplay Event:", style: TextStyle(fontSize: 17),),
                               new Padding(padding: EdgeInsets.all(4),),
-                              new DropdownButton(
-                                value: selectedRoleplay,
-                                hint: new Text("Select Roleplay Event"),
-                                onChanged: (value) {
-                                  setState(() {
-                                    selectedRoleplay = value;
-                                  });
-                                },
-                                items: [
-                                  DropdownMenuItem(
-                                    value: "0",
-                                    child: new Text("Select Roleplay Event"),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "PFN",
-                                    child: new Text("PFN"),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "PBM",
-                                    child: new Text("PBM"),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "PHT",
-                                    child: new Text("PHT"),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "PMK",
-                                    child: new Text("PMK"),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "1",
-                                    child: new Text("Retail Marketing Roleplay"),
-                                    onTap: () {},
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "AAM",
-                                    child: new Text("AAM"),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "RMS",
-                                    child: new Text("RMS"),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "2",
-                                    child: new Text("Business Law and Ethics Roleplay"),
-                                    onTap: () {},
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "BLTDM",
-                                    child: new Text("BLTDM"),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "3",
-                                    child: new Text("Entrepreneurship Roleplay"),
-                                    onTap: () {},
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "ETDM",
-                                    child: new Text("ETDM"),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "ENT",
-                                    child: new Text("ENT"),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "4",
-                                    child: new Text("Sports Entertainment Roleplay"),
-                                    onTap: () {},
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "SEM",
-                                    child: new Text("SEM"),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "STDM",
-                                    child: new Text("STDM"),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "5",
-                                    child: new Text("Human Resources Management Roleplay"),
-                                    onTap: () {},
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "HRM",
-                                    child: new Text("HRM"),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "6",
-                                    child: new Text("Hospitality Services Roleplay"),
-                                    onTap: () {},
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "QSRM",
-                                    child: new Text("QSRM"),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "RFSM",
-                                    child: new Text("RFSM"),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "TTDM",
-                                    child: new Text("TTDM"),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "HTDM",
-                                    child: new Text("HTDM"),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "7",
-                                    child: new Text("Financial Services Roleplay"),
-                                    onTap: () {},
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "ACT",
-                                    child: new Text("ACT"),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "BFS",
-                                    child: new Text("BFS"),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "FTDM",
-                                    child: new Text("FTDM"),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "8",
-                                    child: new Text("Marketing Services Roleplay"),
-                                    onTap: () {},
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "BSM",
-                                    child: new Text("BSM"),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "FMS",
-                                    child: new Text("FMS"),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "MCS",
-                                    child: new Text("MCS"),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "MTDM",
-                                    child: new Text("MTDM"),
-                                  ),
-                                ],
+                              new Visibility(
+                                visible: !roleplayRegistered,
+                                child: new DropdownButton(
+                                  value: selectedRoleplay,
+                                  hint: new Text("Select Roleplay Event"),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      selectedRoleplay = value;
+                                    });
+                                  },
+                                  items: [
+                                    DropdownMenuItem(
+                                      value: "0",
+                                      child: new Text("Select Roleplay Event"),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "PFN",
+                                      child: new Text("PFN"),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "PBM",
+                                      child: new Text("PBM"),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "PHT",
+                                      child: new Text("PHT"),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "PMK",
+                                      child: new Text("PMK"),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "1",
+                                      child: new Text("Retail Marketing Roleplay"),
+                                      onTap: () {},
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "AAM",
+                                      child: new Text("AAM"),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "RMS",
+                                      child: new Text("RMS"),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "2",
+                                      child: new Text("Business Law and Ethics Roleplay"),
+                                      onTap: () {},
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "BLTDM",
+                                      child: new Text("BLTDM"),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "3",
+                                      child: new Text("Entrepreneurship Roleplay"),
+                                      onTap: () {},
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "ETDM",
+                                      child: new Text("ETDM"),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "ENT",
+                                      child: new Text("ENT"),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "4",
+                                      child: new Text("Sports Entertainment Roleplay"),
+                                      onTap: () {},
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "SEM",
+                                      child: new Text("SEM"),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "STDM",
+                                      child: new Text("STDM"),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "5",
+                                      child: new Text("Human Resources Management Roleplay"),
+                                      onTap: () {},
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "HRM",
+                                      child: new Text("HRM"),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "6",
+                                      child: new Text("Hospitality Services Roleplay"),
+                                      onTap: () {},
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "QSRM",
+                                      child: new Text("QSRM"),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "RFSM",
+                                      child: new Text("RFSM"),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "TTDM",
+                                      child: new Text("TTDM"),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "HTDM",
+                                      child: new Text("HTDM"),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "7",
+                                      child: new Text("Financial Services Roleplay"),
+                                      onTap: () {},
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "ACT",
+                                      child: new Text("ACT"),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "BFS",
+                                      child: new Text("BFS"),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "FTDM",
+                                      child: new Text("FTDM"),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "8",
+                                      child: new Text("Marketing Services Roleplay"),
+                                      onTap: () {},
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "BSM",
+                                      child: new Text("BSM"),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "FMS",
+                                      child: new Text("FMS"),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "MCS",
+                                      child: new Text("MCS"),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "MTDM",
+                                      child: new Text("MTDM"),
+                                    ),
+                                  ],
+                                ),
                               ),
+                              new Visibility(
+                                visible: roleplayRegistered,
+                                child: new Text(selectedRoleplay, style: TextStyle(fontSize: 17)),
+                              ),
+                              new Padding(padding: EdgeInsets.all(4),),
+                              new Text("My Team:", style: TextStyle(fontSize: 17),),
+                              new Padding(padding: EdgeInsets.all(4),),
+                              new Expanded(
+                                child: new Wrap(
+                                  spacing: 8,
+                                  runSpacing: 4,
+                                  children: roleplayTeam.map((e) => new Chip(
+                                      label: new Text(e.firstName + " " + e.lastName, style: TextStyle(color: Colors.white)),
+                                      backgroundColor: mainColor,
+                                      deleteIconColor: Colors.white,
+                                      onDeleted: !roleplayRegistered ? () {
+                                        if (e != currUser) {
+                                          setState(() {
+                                            roleplayTeam.remove(e);
+                                          });
+                                        }
+                                        else {
+                                          alert("You can't remove yourself from your own team!");
+                                        }
+                                      } : null,
+                                  )).toList(),
+                                ),
+                              ),
+                              new Padding(padding: EdgeInsets.all(2),),
+                              new Visibility(
+                                visible: !roleplayRegistered,
+                                child: new IconButton(
+                                  tooltip: "Add Teammate",
+                                  splashRadius: 15,
+                                  icon: Icon(Icons.add, color: Colors.grey,),
+                                  onPressed: () {
+                                    if (roleplayTeam.length < 3) {
+                                      addTeammate("roleplay");
+                                    }
+                                    else {
+                                      alert("Your team already has reached the max of 3 members.");
+                                    }
+                                  },
+                                ),
+                              ),
+                              new Visibility(
+                                  visible: roleplayRegistered,
+                                  child: Row(
+                                    children: [
+                                      new Icon(Icons.check_circle, color: Colors.green,),
+                                      new Padding(padding: EdgeInsets.all(2),),
+                                      new Text("Your roleplay team is registered!", style: TextStyle(color: Colors.green),)
+                                    ],
+                                  )
+                              )
                             ],
                           ),
                           new Padding(padding: EdgeInsets.all(8),),
@@ -532,7 +757,7 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
                 ),
               ),
               new Visibility(
-                visible: registered && currUser.roles.contains("Developer"),
+                visible: (writtenRegistered && roleplayRegistered) && currUser.roles.contains("Developer"),
                 child: new Container(
                   width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
                   child: new Card(
@@ -571,7 +796,7 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
                 ),
               ),
               new Visibility(
-                visible: registered,
+                visible: (writtenRegistered && roleplayRegistered),
                 child: new Container(
                   width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
                   child: new Card(
