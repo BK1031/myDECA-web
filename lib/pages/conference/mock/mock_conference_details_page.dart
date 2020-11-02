@@ -83,7 +83,7 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
               writtenTeamID = value.snapshot.val()["written"];
             });
             fb.database().ref("conferences").child(conference.conferenceID).child("teams").child(writtenTeamID).once("value").then((value) {
-              if (value.snapshot.val() != null) {
+              if (value.snapshot.val()["written"] != null) {
                 setState(() {
                   selectedWritten = value.snapshot.val()["written"];
                 });
@@ -94,10 +94,10 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
           if (value.snapshot.val()["roleplay"] != null) {
             setState(() {
               roleplayRegistered = true;
-              roleplayTeamID = value.snapshot.val()["written"];
+              roleplayTeamID = value.snapshot.val()["roleplay"];
             });
             fb.database().ref("conferences").child(conference.conferenceID).child("teams").child(roleplayTeamID).once("value").then((value) {
-              if (value.snapshot.val() != null) {
+              if (value.snapshot.val()["roleplay"] != null) {
                 setState(() {
                   selectedRoleplay = value.snapshot.val()["roleplay"];
                 });
@@ -464,7 +464,7 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
                                 child: new Text(selectedWritten, style: TextStyle(fontSize: 17)),
                               ),
                               new Padding(padding: EdgeInsets.all(4),),
-                              new Text("My Team:", style: TextStyle(fontSize: 17)),
+                              new Tooltip(message: "ID: " + writtenTeamID, child: new Text("My Team:", style: TextStyle(fontSize: 17))),
                               new Padding(padding: EdgeInsets.all(4),),
                               new Expanded(
                                 child: new Wrap(
@@ -676,7 +676,7 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
                                 child: new Text(selectedRoleplay, style: TextStyle(fontSize: 17)),
                               ),
                               new Padding(padding: EdgeInsets.all(4),),
-                              new Text("My Team:", style: TextStyle(fontSize: 17),),
+                              new Tooltip(message: "ID: " + roleplayTeamID, child: new Text("My Team:", style: TextStyle(fontSize: 17),)),
                               new Padding(padding: EdgeInsets.all(4),),
                               new Expanded(
                                 child: new Wrap(
