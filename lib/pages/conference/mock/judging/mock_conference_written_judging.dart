@@ -32,7 +32,6 @@ class _MockConferenceWrittenJudgingPageState extends State<MockConferenceWritten
 
   final Storage _localStorage = html.window.localStorage;
   User currUser = User.plain();
-  User student = User.plain();
   Conference conference = Conference.plain();
 
   String mockConferenceEvent = "";
@@ -45,10 +44,19 @@ class _MockConferenceWrittenJudgingPageState extends State<MockConferenceWritten
   String guidelinesUrl = 'https://static.impression.co.uk/2014/05/loading1.gif';
   static ValueKey key = ValueKey('key_0');
 
-  String zoomRoom = "";
+  String zoomUrl = "";
 
   String eventName = "";
   String eventDesc = "";
+
+  int score = 0;
+  String feedback = "";
+
+  List<List<int>> scores = new List();
+
+  List<Widget> scoringWidgets = new List();
+
+  TextEditingController feedbackController = new TextEditingController();
 
   _MockConferenceWrittenJudgingPageState(String id, String writtenTeamID) {
     conference.conferenceID = id;
@@ -70,46 +78,35 @@ class _MockConferenceWrittenJudgingPageState extends State<MockConferenceWritten
             conference = new Conference.fromSnapshot(value.snapshot);
           });
         });
-        fb.database().ref("conferences").child(conference.conferenceID).child("users").child(currUser.userID).once("value").then((value) {
+        getTeammates();
+        fb.database().ref("conferences").child(conference.conferenceID).child("teams").child(writtenTeamID).once("value").then((value) {
           if (value.snapshot.val()["written"] != null) {
             setState(() {
-              writtenTeamID = value.snapshot.val()["written"];
+              selectedWritten = value.snapshot.val()["written"];
             });
-            getTeammates();
-            fb.database().ref("conferences").child(conference.conferenceID).child("teams").child(writtenTeamID).once("value").then((value) {
-              if (value.snapshot.val()["written"] != null) {
-                setState(() {
-                  selectedWritten = value.snapshot.val()["written"];
-                });
-                mockConferenceEvents.forEach((key, value) {
-                  if (value.contains(selectedWritten)) mockConferenceEvent = key;
-                });
-                fb.database().ref("events").child(selectedWritten).once("value").then((value) {
-                  setState(() {
-                    eventName = value.snapshot.val()["name"];
-                    eventDesc = value.snapshot.val()["desc"];
-                    guidelinesUrl = value.snapshot.val()["guidelines"];
-                  });
-                });
-              }
-              if (value.snapshot.val()["writtenUrl"] != null) {
-                setState(() {
-                  writtenUrl = value.snapshot.val()["writtenUrl"];
-                });
-              }
+            mockConferenceEvents.forEach((key, value) {
+              if (value.contains(selectedWritten)) mockConferenceEvent = key;
             });
-            fb.database().ref("conferences").child(conference.conferenceID).child("eventSchedule").child(writtenTeamID).once("value").then((value) {
+            fb.database().ref("events").child(selectedWritten).once("value").then((value) {
               setState(() {
-                startTime = DateTime.parse(value.snapshot.val()["time"]);
-                zoomRoom = value.snapshot.val()["url"];
-              });
-              fb.database().ref("users").child(value.snapshot.val()["judge"]).once("value").then((value) {
-                setState(() {
-                  student = User.fromSnapshot(value.snapshot);
-                });
+                eventName = value.snapshot.val()["name"];
+                eventDesc = value.snapshot.val()["desc"];
+                guidelinesUrl = value.snapshot.val()["guidelines"];
               });
             });
           }
+          if (value.snapshot.val()["writtenUrl"] != null) {
+            setState(() {
+              writtenUrl = value.snapshot.val()["writtenUrl"];
+            });
+          }
+          createScoringForms(mockConferenceEvent);
+        });
+        fb.database().ref("conferences").child(conference.conferenceID).child("eventSchedule").child(writtenTeamID).once("value").then((value) {
+          setState(() {
+            startTime = DateTime.parse(value.snapshot.val()["time"]);
+            zoomUrl = value.snapshot.val()["url"];
+          });
         });
       });
     }
@@ -144,6 +141,103 @@ class _MockConferenceWrittenJudgingPageState extends State<MockConferenceWritten
         });
       });
     });
+  }
+
+  Future<void> createScoringForms(String event) async {
+    List<List<int>> savedScores;
+    fb.database().ref("conferences").child(conference.conferenceID).child("teams").child(writtenTeamID).child("scores").once("value").then((value) {
+      if (value.snapshot.val()["feedback"] != null) {
+        feedback = value.snapshot.val()["feedback"];
+        feedbackController.text = feedback;
+      }
+      if (value.snapshot.val()["breakdown"] != null) {
+        print("Retrieving saved scores");
+        score = value.snapshot.val()["total"];
+        savedScores = value.snapshot.val()["breakdown"];
+
+        print("\n\nSAVED SCORES\n\n" + savedScores.toString() + "\n\n\n\n");
+      }
+    });
+    setState(() {
+      scoringWidgets.add(new Text("Written Evaluation:", style: TextStyle(fontSize: 20),),);
+    });
+    scores.add(new List());
+    for (int i = 0; i < writtenRubrics[event][0].length; i++) {
+      scores[0].add(0);
+      setState(() {
+        scoringWidgets.add(new Row(
+            children: [
+              new Expanded(flex: 3, child: new Text(writtenRubrics[event][0][i], style: TextStyle(fontSize: 17))),
+              new Expanded(
+                flex: 1,
+                child: new TextField(
+                  decoration: InputDecoration(hintText: "0"),
+                  textAlign: TextAlign.center,
+                  onChanged: (input) {
+                    print(int.tryParse(input).toString());
+                    if (int.tryParse(input) != null) {
+                      scores[0][i] = int.tryParse(input);
+                    }
+                    else {
+                      scores[0][i] = 0;
+                    }
+                    calculateTotal();
+                  },
+                ),
+              )
+            ]
+        ));
+      });
+    }
+    setState(() {
+      scoringWidgets.add(new Padding(padding: EdgeInsets.all(4),));
+      scoringWidgets.add(new Text("Presentation Evaluation:", style: TextStyle(fontSize: 20),),);
+    });
+    scores.add(new List());
+    for (int i = 0; i < writtenRubrics[event][1].length; i++) {
+      scores[1].add(0);
+      setState(() {
+        scoringWidgets.add(new Row(
+            children: [
+              new Expanded(flex: 3, child: new Text(writtenRubrics[event][1][i], style: TextStyle(fontSize: 17))),
+              new Expanded(
+                flex: 1,
+                child: new TextField(
+                  decoration: InputDecoration(hintText: "0"),
+                  textAlign: TextAlign.center,
+                  onChanged: (input) {
+                    print(int.tryParse(input).toString());
+                    if (int.tryParse(input) != null) {
+                      scores[1][i] = int.tryParse(input);
+                    }
+                    else {
+                      scores[1][i] = 0;
+                    }
+                    calculateTotal();
+                  },
+                ),
+              )
+            ]
+        ));
+      });
+    }
+  }
+
+  void calculateTotal() {
+    score = 0;
+    print(scores);
+    for (int i = 0; i < scores[0].length; i++) {
+      setState(() {
+        score += scores[0][i];
+      });
+    }
+    for (int i = 0; i < scores[1].length; i++) {
+      setState(() {
+        score += scores[1][i];
+      });
+    }
+    fb.database().ref("conferences").child(conference.conferenceID).child("teams").child(writtenTeamID).child("scores").child("total").set(score);
+    fb.database().ref("conferences").child(conference.conferenceID).child("teams").child(writtenTeamID).child("scores").child("breakdown").set(scores);
   }
 
   @override
@@ -211,6 +305,7 @@ class _MockConferenceWrittenJudgingPageState extends State<MockConferenceWritten
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
                                           new Text("$selectedWritten – $eventName", style: TextStyle(fontSize: 20),),
+                                          new Text("${DateFormat("MMMd").format(startTime)} (${DateFormat("jm").format(startTime)} - ${DateFormat("jm").format(startTime.add(Duration(minutes: 10)))})", style: TextStyle(fontSize: 20, color: mainColor)),
                                         ],
                                       ),
                                       new Padding(padding: EdgeInsets.all(8),),
@@ -253,53 +348,31 @@ class _MockConferenceWrittenJudgingPageState extends State<MockConferenceWritten
                                             children: [
                                               new Text("JUDGING", style: TextStyle(fontFamily: "Montserrat", fontSize: 25),),
                                               new Padding(padding: EdgeInsets.all(8),),
-                                              Row(
-                                                mainAxisAlignment: MainAxisAlignment.start,
-                                                children: [
-                                                  new CircleAvatar(
-                                                    radius: 20,
-                                                    backgroundColor: student.roles.length != 0 ? roleColors[student.roles.first] : currTextColor,
-                                                    child: new ClipRRect(
-                                                      borderRadius: new BorderRadius.all(Radius.circular(45)),
-                                                      child: new CachedNetworkImage(
-                                                        imageUrl: student.profileUrl,
-                                                        height: 35,
-                                                        width: 35,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  new Padding(padding: EdgeInsets.all(8),),
-                                                  new Text("${student.firstName} ${student.lastName}", style: TextStyle(fontSize: 20),)
-                                                ],
-                                              ),
-                                              new Text("${DateFormat("MMMd").format(startTime)} (${DateFormat("jm").format(startTime)} - ${DateFormat("jm").format(startTime.add(Duration(minutes: 10)))})", style: TextStyle(fontSize: 20, color: mainColor)),
                                             ],
                                           ),
-                                          new Text("94/100", style: TextStyle(fontFamily: "Gotham", fontSize: 60, color: mainColor))
+                                          new Text("$score/100", style: TextStyle(fontFamily: "Gotham", fontSize: 60, color: mainColor))
                                         ],
                                       ),
                                       new Padding(padding: EdgeInsets.all(8),),
-                                      new Text("Judge Feedback:", style: TextStyle(fontSize: 20),),
+                                      new Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: scoringWidgets,
+                                      ),
+                                      new Padding(padding: EdgeInsets.all(8),),
+                                      new Text("Additional Feedback:", style: TextStyle(fontSize: 20),),
                                       new Padding(padding: EdgeInsets.all(4),),
-                                      new Text("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam egestas est ac efficitur tempus. Donec ac dictum nulla, ut dignissim nibh. Nunc iaculis purus ultrices nunc malesuada euismod.", style: TextStyle(fontSize: 17),),
-                                      new Padding(padding: EdgeInsets.all(8),),
-                                      new Text("Joining Instructions:\n\nWhen you join the zoom room, you will need to send a message similar to the following in the chat so that you can be moved into the correct breakout room for your judge.\n", style: TextStyle(fontSize: 17)),
-                                      new SelectableText("Team ID: ${writtenTeamID} [${selectedWritten}] ${currUser.firstName} ${currUser.lastName}, Judge: ${student.firstName} ${student.lastName} @ ${DateFormat("jm").format(startTime)}", style: TextStyle(fontFamily: "Courier New", fontSize: 17),),
-                                      new Padding(padding: EdgeInsets.all(8),),
-                                      new Card(
-                                        color: mainColor,
-                                        child: new InkWell(
-                                          onTap: () {
-
-                                          },
-                                          child: Container(
-                                            padding: EdgeInsets.all(8),
-                                            child: new Center(
-                                              child: new Text("JOIN JUDGING ROOM", style: TextStyle(color: Colors.white),),
-                                            ),
-                                          ),
+                                      new TextField(
+                                        controller: feedbackController,
+                                        decoration: InputDecoration(
+                                          labelText: "Feedback",
                                         ),
-                                      )
+                                        maxLines: null,
+                                        onChanged: (input) {
+                                          feedback = input;
+                                          fb.database().ref("conferences").child(conference.conferenceID).child("teams").child(writtenTeamID).child("scores").child("feedback").set(feedback);
+                                        },
+                                      ),
+                                      new Padding(padding: EdgeInsets.all(8),),
                                     ],
                                   ),
                                 ),

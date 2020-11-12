@@ -114,14 +114,14 @@ void main() {
   router.define('/conferences/:id/written', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
     return new MockConferenceWrittenPage(params["id"][0]);
   }));
-  router.define('/conferences/:id/written/:wid/judging', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
-    return new MockConferenceWrittenJudgingPage(params["id"][0], params["id"][1]);
+  router.define('/conferences/:id/written/:tid/judging', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
+    return new MockConferenceWrittenJudgingPage(params["id"][0], params["tid"][0]);
   }));
   router.define('/conferences/:id/roleplay', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
     return new MockConferenceRoleplayPage(params["id"][0]);
   }));
-  router.define('/conferences/:id/roleplay/:wid/judging', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
-    return new MockConferenceWrittenJudgingPage(params["id"][0], params["id"][1]);
+  router.define('/conferences/:id/roleplay/:tid/judging', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
+    return new MockConferenceWrittenJudgingPage(params["id"][0], params["tid"][0]);
   }));
 
 

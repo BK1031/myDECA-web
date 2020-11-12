@@ -226,6 +226,9 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
                   mcTeam.type = "Roleplay";
                   mcTeam.event = value.snapshot.val()["roleplay"];
                 }
+                if (value.snapshot.val()["scores"] != null) {
+                  mcTeam.score = value.snapshot.val()["scores"]["total"];
+                }
                 setState(() {
                  judgeTeams.add(mcTeam);
                  judgeTeams.sort((a, b) => a.startTime.compareTo(b.startTime));
@@ -578,6 +581,13 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
                                                 )).toList(),
                                               )
                                             ],
+                                          ),
+                                        ),
+                                        new Visibility(
+                                          visible: team.score != null,
+                                          child: new Container(
+                                            padding: EdgeInsets.all(16),
+                                            child: new Text("${team.score}/100", style: TextStyle(color: mainColor, fontSize: 25, fontFamily: "Gotham"),),
                                           ),
                                         ),
                                         new Icon(Icons.arrow_forward_ios, color: mainColor,)

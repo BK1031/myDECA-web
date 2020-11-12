@@ -56,6 +56,15 @@ Map<String, List<String>> roleplayExams = {
   "Personal Finance Literacy Exam": ["PFL"]
 };
 
+Map<String, List<List<String>>> writtenRubrics = {
+  "Business Administration Operations Written Event": [["EIB", "IBP", "EIP", "ESB", "EFB", "EBG"]],
+  "Hospitality/Sports Operations Written Event": [["EIB", "IBP", "EIP", "ESB", "EFB", "EBG"]],
+  "Entrepreneurship Written Event": [["EIB", "IBP", "EIP", "ESB", "EFB", "EBG"]],
+  "Project Management Written Event": [["Statement of the problem and project scope (0 - 10)", "Planning and Organizaiton (0 - 15)", "Description and documentation of the project plan implementation (0 - 10)", "Monitoring and Controlling (0 - 10)", "Evaluation of key metrics, lessons learned, recommendations for future projects (0 - 10)", "Appearance and Word Usage (0 - 5)"], ["Explain the project? (0 - 10)", "Apply project management tools to complete the project? (0 - 10)", "Evaluate project results? (0 - 10)", "Professional standards (organization, clarity and effectiveness of the presentation); effective use of visuals, appearance, poise, confidence, participation of all (0 - 10)"]],
+  "Professional Selling Written Event": [["EIB", "IBP", "EIP", "ESB", "EFB", "EBG"]],
+  "Integrated Marketing Written Event": [["EIB", "IBP", "EIP", "ESB", "EFB", "EBG"]],
+};
+
 List<User> writtenTeam = new List();
 List<User> roleplayTeam = new List();
 

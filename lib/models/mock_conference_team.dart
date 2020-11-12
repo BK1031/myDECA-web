@@ -8,6 +8,7 @@ class MockConferenceTeam {
 
   DateTime startTime;
   User judge = User.plain();
+  int score;
 
   List<User> users = new List();
 }

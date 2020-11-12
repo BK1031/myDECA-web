@@ -310,13 +310,13 @@ class _MockConferenceWrittenPageState extends State<MockConferenceWrittenPage> {
                                               new Text("${DateFormat("MMMd").format(startTime)} (${DateFormat("jm").format(startTime)} - ${DateFormat("jm").format(startTime.add(Duration(minutes: 10)))})", style: TextStyle(fontSize: 20, color: mainColor)),
                                             ],
                                           ),
-                                          new Visibility(visible: score != -1, child: new Text("94/100", style: TextStyle(fontFamily: "Gotham", fontSize: 60, color: mainColor)))
+                                          new Visibility(visible: score != -1, child: new Text("$score/100", style: TextStyle(fontFamily: "Gotham", fontSize: 60, color: mainColor)))
                                         ],
                                       ),
                                       new Padding(padding: EdgeInsets.all(8),),
                                       new Visibility(visible: score != -1, child: new Text("Judge Feedback:", style: TextStyle(fontSize: 20),)),
                                       new Visibility(visible: score != -1, child: new Padding(padding: EdgeInsets.all(4),)),
-                                      new Visibility(visible: score != -1, child: new Text("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam egestas est ac efficitur tempus. Donec ac dictum nulla, ut dignissim nibh. Nunc iaculis purus ultrices nunc malesuada euismod.", style: TextStyle(fontSize: 17),)),
+                                      new Visibility(visible: score != -1, child: new Text(feedback, style: TextStyle(fontSize: 17),)),
                                       new Visibility(visible: score == -1, child: new Text("Joining Instructions:\n\nWhen you join the zoom room, you will need to send a message similar to the following in the chat so that you can be moved into the correct breakout room for your judge.\n", style: TextStyle(fontSize: 17))),
                                       new Visibility(visible: score == -1, child: new SelectableText("Team ID: ${writtenTeamID} [${selectedWritten}] ${currUser.firstName} ${currUser.lastName}, Judge: ${judge.firstName} ${judge.lastName} @ ${DateFormat("jm").format(startTime)}", style: TextStyle(fontFamily: "Courier New", fontSize: 17),)),
                                       new Padding(padding: EdgeInsets.all(8),),
