@@ -61,6 +61,9 @@ class _HomePageState extends State<HomePage> {
               ),
             ));
           }
+          if (currUser.roles.contains("Judge")) {
+            router.navigateTo(context, "/conferences/2020-VC-Mock", transition: TransitionType.fadeIn, clearStack: true, replace: true);
+          }
         });
         getAnnouncements();
         getMeetings();

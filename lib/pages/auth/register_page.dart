@@ -156,6 +156,9 @@ class _RegisterPageState extends State<RegisterPage> {
     else if (password != confirmPassword) {
       alert("Passwords must match!");
     }
+    else if (selectedChapter.chapterID == "CC-121212" && !currUser.email.contains("warriorlife.net")) {
+      alert("Please use a warriorlife.net email when registering for this chapter!");
+    }
     else {
       // All good to create account!
       try {
@@ -176,7 +179,7 @@ class _RegisterPageState extends State<RegisterPage> {
           await fb.database().ref("users").child(currUser.userID).set({
             "firstName": currUser.firstName.replaceAll(new RegExp(r"\s+\b|\b\s"), ""),
             "lastName": currUser.lastName.replaceAll(new RegExp(r"\s+\b|\b\s"), ""),
-            "email": currUser.email,
+            "email": currUser.email.toLowerCase(),
             "emailVerified": currUser.emailVerified,
             "phone": currUser.phone,
             "gender": currUser.gender,

@@ -54,7 +54,6 @@ class _ConferenceSchedulePageState extends State<ConferenceSchedulePage> {
               padding: EdgeInsets.only(bottom: 4.0),
               child: new Card(
                 color: currCardColor,
-                elevation: 2.0,
                 child: new Container(
                   padding: EdgeInsets.all(16.0),
                   child: new Row(
@@ -113,17 +112,139 @@ class _ConferenceSchedulePageState extends State<ConferenceSchedulePage> {
     }
   }
 
+  void addItem() {
+    ConferenceAgendaItem item = new ConferenceAgendaItem.plain();
+    showDialog(
+        context: context,
+        child: new AlertDialog(
+          backgroundColor: currCardColor,
+          title: new Text("Add Schedule Item", style: TextStyle(color: currTextColor),),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              new TextField(
+                decoration: InputDecoration(
+                  hintText: "Title"
+                ),
+                textCapitalization: TextCapitalization.words,
+                onChanged: (input) {
+                  item.title = input;
+                },
+              ),
+              new TextField(
+                decoration: InputDecoration(
+                    hintText: "Description"
+                ),
+                textCapitalization: TextCapitalization.sentences,
+                onChanged: (input) {
+                  item.desc = input;
+                },
+              ),
+              new TextField(
+                decoration: InputDecoration(
+                    hintText: "Date"
+                ),
+                onChanged: (input) {
+                  item.date = input;
+                },
+              ),
+              new TextField(
+                decoration: InputDecoration(
+                    hintText: "Start Time"
+                ),
+                onChanged: (input) {
+                  item.time = input;
+                },
+              ),
+              new TextField(
+                decoration: InputDecoration(
+                    hintText: "End Time"
+                ),
+                onChanged: (input) {
+                  item.endTime = input;
+                },
+              ),
+              new TextField(
+                decoration: InputDecoration(
+                    hintText: "Location"
+                ),
+                onChanged: (input) {
+                  item.location = input;
+                },
+              )
+            ],
+          ),
+          actions: [
+            new FlatButton(
+                child: new Text("CANCEL"),
+                textColor: mainColor,
+                onPressed: () {
+                  router.pop(context);
+                }
+            ),
+            new FlatButton(
+                child: new Text("ADD"),
+                textColor: mainColor,
+                onPressed: () {
+                  if (item.title != "" && item.date != "" && item.time != "" && item.endTime != "" && item.location != "") {
+                    fb.database().ref("conferences").child(id).child("agenda").push().set({
+                      "title": item.title,
+                      "desc": item.desc,
+                      "date": item.date,
+                      "time": item.time,
+                      "endTime": item.endTime,
+                      "location": item.location
+                    });
+                    router.pop(context);
+                  }
+                }
+            )
+          ],
+        )
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (widgetList.isEmpty) {
-      return Container(
-          child: new Text("Nothing to see here!\nCheck back later for schedule.", textAlign: TextAlign.center, style: TextStyle(fontSize: 17, color: currTextColor),)
+      return SingleChildScrollView(
+          child: Column(
+            children: [
+              new Text("Nothing to see here!\nCheck back later for schedule.", textAlign: TextAlign.center, style: TextStyle(fontSize: 17, color: currTextColor),),
+              new Padding(padding: EdgeInsets.all(16),),
+              new Visibility(
+                visible: currUser.roles.contains("Developer"),
+                child: new FlatButton(
+                  child: new Text("ADD ITEM"),
+                  textColor: mainColor,
+                  onPressed: () {
+                    addItem();
+                  },
+                ),
+              )
+            ],
+          )
       );
     }
     else {
-      return Container(
-        child: new Column(
-            children: widgetList
+      return SingleChildScrollView(
+        child: Column(
+          children: [
+            new Column(
+                children: widgetList
+            ),
+            new Padding(padding: EdgeInsets.all(16),),
+            new Visibility(
+              visible: currUser.roles.contains("Developer"),
+              child: new FlatButton(
+                child: new Text("ADD ITEM"),
+                textColor: mainColor,
+                onPressed: () {
+                  addItem();
+                },
+              ),
+            )
+          ],
         ),
       );
     }

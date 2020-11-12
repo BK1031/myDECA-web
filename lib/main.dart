@@ -8,7 +8,10 @@ import 'package:mydeca_web/pages/auth/register_advisor_page.dart';
 import 'package:mydeca_web/pages/auth/register_page.dart';
 import 'package:mydeca_web/pages/conference/conference_details_page.dart';
 import 'package:mydeca_web/pages/conference/conference_page.dart';
+import 'package:mydeca_web/pages/conference/mock/judging/mock_conference_written_judging.dart';
+import 'package:mydeca_web/pages/conference/mock/mock_conference_roleplay_page.dart';
 import 'package:mydeca_web/pages/conference/mock/mock_conference_testing_page.dart';
+import 'package:mydeca_web/pages/conference/mock/mock_conference_written_page.dart';
 import 'package:mydeca_web/pages/download_page.dart';
 import 'package:mydeca_web/pages/event/event_details_page.dart';
 import 'package:mydeca_web/pages/event/events_page.dart';
@@ -107,6 +110,18 @@ void main() {
   }));
   router.define('/conferences/:id/testing', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
     return new MockConferenceTestingPage(params["id"][0]);
+  }));
+  router.define('/conferences/:id/written', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
+    return new MockConferenceWrittenPage(params["id"][0]);
+  }));
+  router.define('/conferences/:id/written/:wid/judging', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
+    return new MockConferenceWrittenJudgingPage(params["id"][0], params["id"][1]);
+  }));
+  router.define('/conferences/:id/roleplay', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
+    return new MockConferenceRoleplayPage(params["id"][0]);
+  }));
+  router.define('/conferences/:id/roleplay/:wid/judging', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
+    return new MockConferenceWrittenJudgingPage(params["id"][0], params["id"][1]);
   }));
 
 

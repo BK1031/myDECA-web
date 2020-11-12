@@ -4,12 +4,14 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase/firebase.dart' as fb;
+import 'package:flutter/services.dart';
+import 'package:flutter_dropzone/flutter_dropzone.dart';
+import 'package:intl/intl.dart';
 import 'package:mydeca_web/models/conference.dart';
+import 'package:mydeca_web/models/mock_conference_team.dart';
+import 'package:mydeca_web/models/mock_conference_user.dart';
 import 'package:mydeca_web/models/user.dart';
 import 'package:mydeca_web/navbars/home_navbar.dart';
-import 'package:mydeca_web/navbars/mobile_sidebar.dart';
-import 'package:mydeca_web/pages/auth/login_page.dart';
-
 import 'dart:math';
 import 'package:mydeca_web/pages/conference/conference_media_page.dart';
 import 'package:mydeca_web/pages/conference/conference_overview_page.dart';
@@ -19,6 +21,7 @@ import 'package:mydeca_web/utils/config.dart';
 import 'package:mydeca_web/utils/theme.dart';
 import 'dart:html' as html;
 import 'package:progress_indicators/progress_indicators.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'event_teammate_dialog.dart';
 
@@ -46,7 +49,21 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
   String writtenTeamID = "";
   String roleplayTeamID = "";
 
-  Timer _timer;
+  String writtenUrl = "";
+  bool examOpen = false;
+
+  DateTime writtenTime = DateTime.now();
+  DateTime roleplayTime = DateTime.now();
+
+  String activeRegistrationTab = "Users";
+  List<MockConferenceUser> usersTable = new List();
+  List<MockConferenceTeam> teamsTable = new List();
+
+  List<MockConferenceTeam> judgeTeams = new List();
+
+  Map<String, int> eventTotals = new Map();
+
+  double uploadProgress = 0;
 
   _MockConferenceDetailsPageState(String id) {
     conference.conferenceID = id;
@@ -55,20 +72,12 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
   @override
   void initState() {
     super.initState();
-    _timer = new Timer.periodic(const Duration(seconds: 2), (timer) {
-      setState(() {
-      });
-    });
     if (_localStorage["userID"] != null) {
       fb.database().ref("users").child(_localStorage["userID"]).once("value").then((value) {
         setState(() {
           currUser = User.fromSnapshot(value.snapshot);
           writtenTeam.clear();
           roleplayTeam.clear();
-          writtenTeam.add(currUser);
-          roleplayTeam.add(currUser);
-          writtenTeamID = getRandomString(5).toUpperCase();
-          roleplayTeamID = getRandomString(5).toUpperCase();
           print(currUser);
         });
         fb.database().ref("conferences").child(conference.conferenceID).once("value").then((value) {
@@ -76,46 +85,159 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
             conference = new Conference.fromSnapshot(value.snapshot);
           });
         });
-        fb.database().ref("conferences").child(conference.conferenceID).child("users").child(currUser.userID).once("value").then((value) {
-          if (value.snapshot.val()["written"] != null) {
+        fb.database().ref("conferences").child(conference.conferenceID).child("users").onChildAdded.listen((event) {
+          MockConferenceUser mcUser = new MockConferenceUser();
+          fb.database().ref("users").child(event.snapshot.key).once("value").then((value) async {
+            mcUser.user = User.fromSnapshot(value.snapshot);
+            if (event.snapshot.val()["written"] != null) {
+              mcUser.writtenTeamID = event.snapshot.val()["written"];
+              await fb.database().ref("conferences").child(conference.conferenceID).child("teams").child(mcUser.writtenTeamID).once("value").then((value) {
+                if (value.snapshot.val()["written"] != null) {
+                  mcUser.writtenEvent = value.snapshot.val()["written"];
+                  mockConferenceEvents.forEach((key, value) {
+                    if (value.contains(mcUser.writtenEvent)) mcUser.writtenEvent += " - $key";
+                  });
+                }
+                if (value.snapshot.val()["writtenUrl"] != null) {
+                  mcUser.writtenUrl = value.snapshot.val()["writtenUrl"];
+                }
+              });
+            }
+            if (event.snapshot.val()["roleplay"] != null) {
+              mcUser.roleplayTeamID = event.snapshot.val()["roleplay"];
+              await fb.database().ref("conferences").child(conference.conferenceID).child("teams").child(event.snapshot.val()["roleplay"]).once("value").then((value) {
+                if (value.snapshot.val()["roleplay"] != null) {
+                  mcUser.roleplayEvent = value.snapshot.val()["roleplay"];
+                  mockConferenceEvents.forEach((key, value) {
+                    if (value.contains(mcUser.roleplayEvent)) mcUser.roleplayEvent += " - $key";
+                  });
+                }
+              });
+            }
             setState(() {
-              writtenRegistered = true;
-              writtenTeamID = value.snapshot.val()["written"];
+              usersTable.add(mcUser);
+              usersTable.sort((a, b) => a.user.firstName.compareTo(b.user.firstName));
             });
-            fb.database().ref("conferences").child(conference.conferenceID).child("teams").child(writtenTeamID).once("value").then((value) {
-              if (value.snapshot.val()["written"] != null) {
-                setState(() {
-                  selectedWritten = value.snapshot.val()["written"];
-                });
-                getTeammates("written");
-              }
-            });
-          }
-          if (value.snapshot.val()["roleplay"] != null) {
-            setState(() {
-              roleplayRegistered = true;
-              roleplayTeamID = value.snapshot.val()["roleplay"];
-            });
-            fb.database().ref("conferences").child(conference.conferenceID).child("teams").child(roleplayTeamID).once("value").then((value) {
-              if (value.snapshot.val()["roleplay"] != null) {
-                setState(() {
-                  selectedRoleplay = value.snapshot.val()["roleplay"];
-                });
-                getTeammates("roleplay");
-              }
-            });
-          }
+          });
         });
+        fb.database().ref("conferences").child(conference.conferenceID).child("teams").onChildAdded.listen((team) {
+          MockConferenceTeam mcTeam = new MockConferenceTeam();
+          mcTeam.teamID = team.snapshot.key;
+          List<String> ids = team.snapshot.val()["users"].keys.toList();
+          ids.forEach((element) {
+            fb.database().ref("users").child(element).once("value").then((value) {
+              mcTeam.users.add(new User.fromSnapshot(value.snapshot));
+            });
+          });
+          if (team.snapshot.val()["written"] != null) {
+            mcTeam.type = "Written";
+            mcTeam.event = team.snapshot.val()["written"];
+            mockConferenceEvents.forEach((key, value) {
+              if (value.contains(mcTeam.event)) {
+                mcTeam.event += " - $key";
+                eventTotals[key] != null ? eventTotals[key]++ : eventTotals[key] = 1;
+              }
+            });
+            if (value.snapshot.val()["writtenUrl"] != null) {
+              mcTeam.writtenUrl = value.snapshot.val()["writtenUrl"];
+            }
+          }
+          else if (team.snapshot.val()["roleplay"] != null) {
+            mcTeam.type = "Roleplay";
+            mcTeam.event = team.snapshot.val()["roleplay"];
+            mockConferenceEvents.forEach((key, value) {
+              if (value.contains(mcTeam.event)) {
+                mcTeam.event += " - $key";
+                eventTotals[key] != null ? eventTotals[key]++ : eventTotals[key] = 1;
+              }
+            });
+          }
+          setState(() {
+            teamsTable.add(mcTeam);
+          });
+        });
+        fb.database().ref("conferences").child(conference.conferenceID).child("examOpen").onValue.listen((event) {
+          print("TEST OPEN: ${event.snapshot.val()}");
+          setState(() {
+            examOpen = event.snapshot.val();
+          });
+        });
+        if (!currUser.roles.contains("Judge")) {
+          fb.database().ref("conferences").child(conference.conferenceID).child("users").child(currUser.userID).once("value").then((value) {
+            if (value.snapshot.val()["written"] != null) {
+              setState(() {
+                writtenRegistered = true;
+                writtenTeamID = value.snapshot.val()["written"];
+              });
+              fb.database().ref("conferences").child(conference.conferenceID).child("teams").child(writtenTeamID).once("value").then((value) {
+                if (value.snapshot.val()["written"] != null) {
+                  setState(() {
+                    selectedWritten = value.snapshot.val()["written"];
+                  });
+                  getTeammates("written");
+                }
+                if (value.snapshot.val()["writtenUrl"] != null) {
+                  setState(() {
+                    writtenUrl = value.snapshot.val()["writtenUrl"];
+                  });
+                }
+              });
+              getSchedule();
+            }
+            if (value.snapshot.val()["roleplay"] != null) {
+              setState(() {
+                roleplayRegistered = true;
+                roleplayTeamID = value.snapshot.val()["roleplay"];
+              });
+              fb.database().ref("conferences").child(conference.conferenceID).child("teams").child(roleplayTeamID).once("value").then((value) {
+                if (value.snapshot.val()["roleplay"] != null) {
+                  setState(() {
+                    selectedRoleplay = value.snapshot.val()["roleplay"];
+                  });
+                  getTeammates("roleplay");
+                }
+              });
+              getSchedule();
+            }
+          });
+        }
+        else {
+          fb.database().ref("conferences").child(conference.conferenceID).child("eventSchedule").onChildAdded.listen((event) {
+            if (event.snapshot.val()["judge"] == currUser.userID) {
+              MockConferenceTeam mcTeam = new MockConferenceTeam();
+              mcTeam.judge = currUser;
+              mcTeam.teamID = event.snapshot.key;
+              mcTeam.startTime = DateTime.parse(event.snapshot.val()["time"]);
+              fb.database().ref("conferences").child(conference.conferenceID).child("teams").child(mcTeam.teamID).once("value").then((value) {
+                List<String> ids = value.snapshot.val()["users"].keys.toList();
+                ids.forEach((element) {
+                  fb.database().ref("users").child(element).once("value").then((value) {
+                    mcTeam.users.add(new User.fromSnapshot(value.snapshot));
+                  });
+                });
+                if (value.snapshot.val()["written"] != null) {
+                  mcTeam.type = "Written";
+                  mcTeam.event = value.snapshot.val()["written"];
+                  if (value.snapshot.val()["writtenUrl"] != null) {
+                    mcTeam.writtenUrl = value.snapshot.val()["writtenUrl"];
+                  }
+                }
+                else if (value.snapshot.val()["roleplay"] != null) {
+                  mcTeam.type = "Roleplay";
+                  mcTeam.event = value.snapshot.val()["roleplay"];
+                }
+                setState(() {
+                 judgeTeams.add(mcTeam);
+                 judgeTeams.sort((a, b) => a.startTime.compareTo(b.startTime));
+                });
+              });
+            }
+          });
+        }
       });
     }
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-    _timer.cancel();
-  }
-  
   void getTeammates(String type) {
     if (type == "written") {
       writtenTeam.clear();
@@ -139,11 +261,22 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
     }
   }
 
-  static const _chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz';
-  Random _rnd = Random();
-
-  String getRandomString(int length) => String.fromCharCodes(Iterable.generate(
-      length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
+  void getSchedule() {
+    if (writtenTeamID != "") {
+      fb.database().ref("conferences").child(conference.conferenceID).child("eventSchedule").child(writtenTeamID).once("value").then((value) {
+        setState(() {
+          writtenTime = DateTime.parse(value.snapshot.val()["time"]);
+        });
+      });
+    }
+    if (roleplayTeamID != "") {
+      fb.database().ref("conferences").child(conference.conferenceID).child("eventSchedule").child(roleplayTeamID).once("value").then((value) {
+        setState(() {
+          roleplayTime = DateTime.parse(value.snapshot.val()["time"]).subtract(Duration(minutes: 15));
+        });
+      });
+    }
+  }
 
   void alert(String alert) {
     showDialog(
@@ -231,6 +364,51 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
           ],
         )
     );
+  }
+
+  void exportTeamsCsv() {
+    String teamsCsv = "Team ID,Team Members,Type,Event\n";
+    teamsTable.forEach((element) {
+      teamsCsv += "${element.teamID},";
+      element.users.forEach((user) {
+        teamsCsv += "${user.firstName} ${user.lastName} - ";
+      });
+      teamsCsv += ",${element.type},${element.event}\n";
+    });
+    print(teamsCsv);
+    Clipboard.setData(new ClipboardData(text: teamsCsv));
+  }
+
+  _startFilePicker() async {
+    InputElement uploadInput = FileUploadInputElement();
+    uploadInput.click();
+    uploadInput.onChange.listen((e) {
+      // read file content as dataURL
+      final files = uploadInput.files;
+      if (files.length == 1) {
+        final file = files[0];
+        final reader = new FileReader();
+        reader.onLoadEnd.listen((e) async {
+          setState(() {
+            uploadProgress = 20;
+          });
+          await fb.storage().ref("conferences/2020-VC-Mock/writtens/$writtenTeamID.pdf").put(file).future.then((fb.UploadTaskSnapshot snapshot) async {
+            await Future.delayed(const Duration(seconds: 1));
+            var downUrl = await snapshot.ref.getDownloadURL();
+            setState(() {
+              writtenUrl = downUrl.toString();
+              uploadProgress = 100;
+            });
+            print(writtenUrl);
+            fb.database().ref("conferences").child(conference.conferenceID).child("teams").child(writtenTeamID).child("writtenUrl").set(writtenUrl);
+          });
+        });
+        reader.readAsDataUrl(file);
+      }
+      else {
+        alert("Please make sure that the file you are submitting is less than 25mb and is a PDF.");
+      }
+    });
   }
 
   @override
@@ -327,7 +505,7 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
               ),
               new Padding(padding: EdgeInsets.only(bottom: 8.0)),
               new Visibility(
-                visible: !(writtenRegistered && roleplayRegistered),
+                visible: !(writtenRegistered || roleplayRegistered) && !currUser.roles.contains("Judge"),
                 child: new Container(
                   width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
                   child: new Card(
@@ -336,419 +514,79 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
                       child: new Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          new Text("Register for this conference", style: TextStyle(fontFamily: "Montserrat", fontSize: 25),),
+                          new Text("Sorry, you just missed it!", style: TextStyle(fontFamily: "Montserrat", fontSize: 25),),
                           new Padding(padding: EdgeInsets.all(4),),
-                          new Text("Please select your events below. (Enter the letter code for your event)"),
-                          new Padding(padding: EdgeInsets.all(4),),
-                          Row(
-                            children: [
-                              new Text("Written Event:", style: TextStyle(fontSize: 17),),
-                              new Padding(padding: EdgeInsets.all(4),),
-                              new Visibility(
-                                visible: !writtenRegistered,
-                                child: new DropdownButton(
-                                  value: selectedWritten,
-                                  hint: new Text("Select Written Event"),
-                                  onChanged: (value) {
-                                    setState(() {
-                                      selectedWritten = value;
-                                    });
-                                  },
-                                  items: [
-                                    DropdownMenuItem(
-                                      value: "0",
-                                      child: new Text("Select Written Event"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "1",
-                                      child: new Text("Business Adminstration Operations Written Event"),
-                                      onTap: () {},
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "BOR",
-                                      child: new Text("BOR"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "BMOR",
-                                      child: new Text("BMOR"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "FOR",
-                                      child: new Text("FOR"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "2",
-                                      child: new Text("Hospitality/Sports Operations Written Event"),
-                                      onTap: () {},
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "HTOR",
-                                      child: new Text("HTOR"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "SEOR",
-                                      child: new Text("SEOR"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "3",
-                                      child: new Text("Entrepreneurship Written Event"),
-                                      onTap: () {},
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "EIB",
-                                      child: new Text("EIB"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "IBP",
-                                      child: new Text("IBP"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "EIP",
-                                      child: new Text("EIP"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "ESB",
-                                      child: new Text("ESB"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "EBG",
-                                      child: new Text("EBG"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "4",
-                                      child: new Text("Project Management Written Event"),
-                                      onTap: () {},
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "PMBS",
-                                      child: new Text("PMBS"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "PMCD",
-                                      child: new Text("PMCD"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "PMCA",
-                                      child: new Text("PMCA"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "PMCG",
-                                      child: new Text("PMCG"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "PMFL",
-                                      child: new Text("PMFL"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "PMSP",
-                                      child: new Text("PMSP"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "5",
-                                      child: new Text("Professional Selling Written Event"),
-                                      onTap: () {},
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "HTPS",
-                                      child: new Text("HTPS"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "PSE",
-                                      child: new Text("PSE"),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              new Visibility(
-                                visible: writtenRegistered,
-                                child: new Text(selectedWritten, style: TextStyle(fontSize: 17)),
-                              ),
-                              new Padding(padding: EdgeInsets.all(4),),
-                              new Tooltip(message: "ID: " + writtenTeamID, child: new Text("My Team:", style: TextStyle(fontSize: 17))),
-                              new Padding(padding: EdgeInsets.all(4),),
-                              new Expanded(
-                                child: new Wrap(
-                                  spacing: 8,
-                                  runSpacing: 4,
-                                  children: writtenTeam.map((e) => new Chip(
-                                      label: new Text(e.firstName + " " + e.lastName, style: TextStyle(color: Colors.white)),
-                                      backgroundColor: mainColor,
-                                      deleteIconColor: Colors.white,
-                                      onDeleted: !writtenRegistered ? () {
-                                        if (e != currUser) {
-                                          setState(() {
-                                            writtenTeam.remove(e);
-                                          });
-                                        }
-                                        else {
-                                          alert("You can't remove yourself from your own team!");
-                                        }
-                                      } : null,
-                                  )).toList(),
-                                ),
-                              ),
-                              new Padding(padding: EdgeInsets.all(2),),
-                              new Visibility(
-                                visible: !writtenRegistered,
-                                child: new IconButton(
-                                  tooltip: "Add Teammate",
-                                  splashRadius: 15,
-                                  icon: Icon(Icons.add, color: Colors.grey,),
-                                  onPressed: () {
-                                    if (writtenTeam.length < 3) {
-                                      addTeammate("written");
-                                    }
-                                    else {
-                                      alert("Your team already has reached the max of 3 members.");
-                                    }
-                                  },
-                                ),
-                              ),
-                              new Visibility(
-                                visible: writtenRegistered,
-                                child: Row(
-                                  children: [
-                                    new Icon(Icons.check_circle, color: Colors.green,),
-                                    new Padding(padding: EdgeInsets.all(2),),
-                                    new Text("Your written team is registered!", style: TextStyle(color: Colors.green),)
-                                  ],
-                                )
-                              )
-                            ],
-                          ),
-                          new Padding(padding: EdgeInsets.all(4),),
-                          Row(
-                            children: [
-                              new Text("Roleplay Event:", style: TextStyle(fontSize: 17),),
-                              new Padding(padding: EdgeInsets.all(4),),
-                              new Visibility(
-                                visible: !roleplayRegistered,
-                                child: new DropdownButton(
-                                  value: selectedRoleplay,
-                                  hint: new Text("Select Roleplay Event"),
-                                  onChanged: (value) {
-                                    setState(() {
-                                      selectedRoleplay = value;
-                                    });
-                                  },
-                                  items: [
-                                    DropdownMenuItem(
-                                      value: "0",
-                                      child: new Text("Select Roleplay Event"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "PFN",
-                                      child: new Text("PFN"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "PBM",
-                                      child: new Text("PBM"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "PHT",
-                                      child: new Text("PHT"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "PMK",
-                                      child: new Text("PMK"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "1",
-                                      child: new Text("Retail Marketing Roleplay"),
-                                      onTap: () {},
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "AAM",
-                                      child: new Text("AAM"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "RMS",
-                                      child: new Text("RMS"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "2",
-                                      child: new Text("Business Law and Ethics Roleplay"),
-                                      onTap: () {},
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "BLTDM",
-                                      child: new Text("BLTDM"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "3",
-                                      child: new Text("Entrepreneurship Roleplay"),
-                                      onTap: () {},
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "ETDM",
-                                      child: new Text("ETDM"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "ENT",
-                                      child: new Text("ENT"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "4",
-                                      child: new Text("Sports Entertainment Roleplay"),
-                                      onTap: () {},
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "SEM",
-                                      child: new Text("SEM"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "STDM",
-                                      child: new Text("STDM"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "5",
-                                      child: new Text("Human Resources Management Roleplay"),
-                                      onTap: () {},
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "HRM",
-                                      child: new Text("HRM"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "6",
-                                      child: new Text("Hospitality Services Roleplay"),
-                                      onTap: () {},
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "QSRM",
-                                      child: new Text("QSRM"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "RFSM",
-                                      child: new Text("RFSM"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "TTDM",
-                                      child: new Text("TTDM"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "HTDM",
-                                      child: new Text("HTDM"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "7",
-                                      child: new Text("Financial Services Roleplay"),
-                                      onTap: () {},
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "ACT",
-                                      child: new Text("ACT"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "BFS",
-                                      child: new Text("BFS"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "FTDM",
-                                      child: new Text("FTDM"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "8",
-                                      child: new Text("Marketing Services Roleplay"),
-                                      onTap: () {},
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "BSM",
-                                      child: new Text("BSM"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "FMS",
-                                      child: new Text("FMS"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "MCS",
-                                      child: new Text("MCS"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "MTDM",
-                                      child: new Text("MTDM"),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              new Visibility(
-                                visible: roleplayRegistered,
-                                child: new Text(selectedRoleplay, style: TextStyle(fontSize: 17)),
-                              ),
-                              new Padding(padding: EdgeInsets.all(4),),
-                              new Tooltip(message: "ID: " + roleplayTeamID, child: new Text("My Team:", style: TextStyle(fontSize: 17),)),
-                              new Padding(padding: EdgeInsets.all(4),),
-                              new Expanded(
-                                child: new Wrap(
-                                  spacing: 8,
-                                  runSpacing: 4,
-                                  children: roleplayTeam.map((e) => new Chip(
-                                      label: new Text(e.firstName + " " + e.lastName, style: TextStyle(color: Colors.white)),
-                                      backgroundColor: mainColor,
-                                      deleteIconColor: Colors.white,
-                                      onDeleted: !roleplayRegistered ? () {
-                                        if (e != currUser) {
-                                          setState(() {
-                                            roleplayTeam.remove(e);
-                                          });
-                                        }
-                                        else {
-                                          alert("You can't remove yourself from your own team!");
-                                        }
-                                      } : null,
-                                  )).toList(),
-                                ),
-                              ),
-                              new Padding(padding: EdgeInsets.all(2),),
-                              new Visibility(
-                                visible: !roleplayRegistered,
-                                child: new IconButton(
-                                  tooltip: "Add Teammate",
-                                  splashRadius: 15,
-                                  icon: Icon(Icons.add, color: Colors.grey,),
-                                  onPressed: () {
-                                    if (roleplayTeam.length < 3) {
-                                      addTeammate("roleplay");
-                                    }
-                                    else {
-                                      alert("Your team already has reached the max of 3 members.");
-                                    }
-                                  },
-                                ),
-                              ),
-                              new Visibility(
-                                  visible: roleplayRegistered,
-                                  child: Row(
-                                    children: [
-                                      new Icon(Icons.check_circle, color: Colors.green,),
-                                      new Padding(padding: EdgeInsets.all(2),),
-                                      new Text("Your roleplay team is registered!", style: TextStyle(color: Colors.green),)
-                                    ],
-                                  )
-                              )
-                            ],
-                          ),
-                          new Padding(padding: EdgeInsets.all(8),),
+                          new Text("Registration for this mock conference has closed, and you are not registered. If you believe this is an error, please contact us.", style: TextStyle(fontSize: 17))
+                        ]
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              new Visibility(
+                visible: currUser.roles.contains("Judge"),
+                child: new Container(
+                  width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                  child: new Card(
+                    child: new Container(
+                      padding: EdgeInsets.all(16),
+                      child: new Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
                           new Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
                             children: [
-                              new FlatButton(
-                                color: mainColor,
-                                textColor: Colors.white,
-                                child: new Text("REGISTER"),
-                                onPressed: () {
-                                  if (selectedWritten == "" || int.tryParse(selectedWritten) != null) {
-                                    alert("Please select a written specific event, rather than choosing the mock conference category.");
-                                  }
-                                  else if (selectedRoleplay == "" || int.tryParse(selectedRoleplay) != null) {
-                                    alert("Please select a roleplay specific event, rather than choosing the mock conference category.");
-                                  }
-                                  else {
-                                    confirmRegistration();
-                                  }
-                                },
-                              )
+                              new Icon(Icons.dashboard),
+                              new Padding(padding: EdgeInsets.all(4)),
+                              new Text("DASHBOARD", style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor),)
                             ],
+                          ),
+                          new Padding(padding: EdgeInsets.only(top: 8, bottom: 16), child: new Divider(color: currDividerColor, height: 8)),
+                          new Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: judgeTeams.map((team) => Container(
+                              padding: EdgeInsets.only(bottom: 8),
+                              width: double.infinity,
+                              child: new Card(
+                                child: new InkWell(
+                                  onTap: () {
+                                    if (team.type == "Written") {
+                                      router.navigateTo(context, "/conferences/${conference.conferenceID}/written/${team.teamID}/judging", transition: TransitionType.fadeIn);
+                                    }
+                                    else {
+                                      router.navigateTo(context, "/conferences/${conference.conferenceID}/roleplay/${team.teamID}/judging", transition: TransitionType.fadeIn);
+                                    }
+                                  },
+                                  child: new Container(
+                                    padding: EdgeInsets.all(16),
+                                    child: Row(
+                                      children: [
+                                        new Expanded(
+                                          child: new Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              new Text("${DateFormat("jm").format(team.startTime)} - ${DateFormat("jm").format(team.startTime.add(Duration(minutes: 10)))}", style: TextStyle(fontSize: 25, color: mainColor)),
+                                              new Padding(padding: EdgeInsets.all(4),),
+                                              new Text("Team ID: ${team.teamID}  •  ${team.event} (${team.type})", style: TextStyle(fontSize: 17),),
+                                              new Padding(padding: EdgeInsets.all(4),),
+                                              new Row(
+                                                children: team.users.map((k) => Container(
+                                                  padding: EdgeInsets.only(right: 8),
+                                                  child: new Chip(
+                                                    label: new Text(k.firstName + " " + k.lastName, style: TextStyle(color: Colors.white)),
+                                                    backgroundColor: mainColor,
+                                                  ),
+                                                )).toList(),
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                        new Icon(Icons.arrow_forward_ios, color: mainColor,)
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            )).toList()
                           )
                         ],
                       ),
@@ -757,7 +595,7 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
                 ),
               ),
               new Visibility(
-                visible: (writtenRegistered && roleplayRegistered) && currUser.roles.contains("Developer"),
+                visible: (writtenRegistered || roleplayRegistered),
                 child: new Container(
                   width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
                   child: new Card(
@@ -777,18 +615,44 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
                           new ListTile(
                             title: new Text("Business Admin Core Exam"),
                             leading: new Text("11:00 AM", style: TextStyle(color: mainColor, fontFamily: "Gotham"),),
-                            trailing: new Text("NOT OPEN", style: TextStyle(color: Colors.grey),),
+                            trailing: new Text(examOpen ? "START NOW" : "NOT OPEN", style: TextStyle(color: examOpen ? mainColor : Colors.grey),),
+                            onTap: examOpen ? () {
+                              router.navigateTo(context, "/conferences/${conference.conferenceID}/testing", replace: true, clearStack: true);
+                            } : null,
                           ),
-                          new ListTile(
-                            title: new Text("Roleplay Presentation – " + selectedRoleplay),
-                            leading: new Text("1:00 PM", style: TextStyle(color: mainColor, fontFamily: "Gotham"),),
-                            trailing: new Icon(Icons.arrow_forward_ios, color: mainColor,),
+                          new Visibility(
+                            visible: writtenTeamID != "" && writtenTime.isBefore(roleplayTime),
+                            child: new ListTile(
+                              title: new Text("Written Presentation – " + selectedWritten),
+                              leading: new Text(DateFormat("jm").format(writtenTime), style: TextStyle(color: mainColor, fontFamily: "Gotham"),),
+                              trailing: new Icon(Icons.arrow_forward_ios, color: mainColor,),
+                              onTap: () {
+                                router.navigateTo(context, "/conferences/${conference.conferenceID}/written", transition: TransitionType.fadeIn);
+                              },
+                            ),
                           ),
-                          new ListTile(
-                            title: new Text("Written Presentation – " + selectedWritten),
-                            leading: new Text("2:45 PM", style: TextStyle(color: mainColor, fontFamily: "Gotham"),),
-                            trailing: new Icon(Icons.arrow_forward_ios, color: mainColor,),
-                          )
+                          new Visibility(
+                            visible: roleplayTeamID != "" ,
+                            child: new ListTile(
+                              title: new Text("Roleplay Presentation – " + selectedRoleplay),
+                              leading: new Text(DateFormat("jm").format(roleplayTime), style: TextStyle(color: mainColor, fontFamily: "Gotham"),),
+                              trailing: new Icon(Icons.arrow_forward_ios, color: mainColor,),
+                              onTap: () {
+                                router.navigateTo(context, "/conferences/${conference.conferenceID}/roleplay", transition: TransitionType.fadeIn);
+                              },
+                            ),
+                          ),
+                          new Visibility(
+                            visible: writtenTeamID != ""  && writtenTime.isAfter(roleplayTime),
+                            child: new ListTile(
+                              title: new Text("Written Presentation – " + selectedWritten),
+                              leading: new Text(DateFormat("jm").format(writtenTime), style: TextStyle(color: mainColor, fontFamily: "Gotham"),),
+                              trailing: new Icon(Icons.arrow_forward_ios, color: mainColor,),
+                              onTap: () {
+                                router.navigateTo(context, "/conferences/${conference.conferenceID}/written", transition: TransitionType.fadeIn);
+                              },
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -796,7 +660,7 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
                 ),
               ),
               new Visibility(
-                visible: (writtenRegistered && roleplayRegistered),
+                visible: (writtenRegistered || roleplayRegistered),
                 child: new Container(
                   width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
                   child: new Card(
@@ -807,9 +671,217 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
                         children: [
                           new Text("You're all set!", style: TextStyle(fontSize: 30, fontFamily: "Montserrat"),),
                           new Padding(padding: EdgeInsets.all(4),),
-                          new Icon(Icons.check_circle_outline, size: 60, color: mainColor,),
+                          Center(
+                            child: Row(
+                              children: [
+                                new Icon(Icons.check_circle_outline, size: 30, color: mainColor,),
+                                new Padding(padding: EdgeInsets.all(4),),
+                                new Text("Register for conference", style: TextStyle(fontSize: 17),)
+                              ],
+                            ),
+                          ),
                           new Padding(padding: EdgeInsets.all(4),),
-                          Container(width: 350, child: Center(child: new Text("You are registered for this conference! Don't forget to turn in your written here by Nov 10. More information will be posted here later.", style: TextStyle(fontSize: 17), textAlign: TextAlign.center,)))
+                          new Visibility(
+                            visible: writtenUrl != "",
+                            child: Center(
+                              child: Row(
+                                children: [
+                                  new Icon(Icons.check_circle_outline, size: 30, color: mainColor,),
+                                  new Padding(padding: EdgeInsets.all(4),),
+                                  new Text("Submit written report", style: TextStyle(fontSize: 17),),
+                                  new Padding(padding: EdgeInsets.all(8),),
+                                  new RaisedButton(
+                                    child: new Text("VIEW SUBMISSION"),
+                                    color: mainColor,
+                                    textColor: Colors.white,
+                                    onPressed: () {
+                                      launch(writtenUrl);
+                                    },
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                          new Visibility(
+                            visible: uploadProgress != 100 && uploadProgress != 0,
+                            child: new Container(
+                                padding: EdgeInsets.all(16.0),
+                                child: new HeartbeatProgressIndicator(
+                                  child: new Image.asset(
+                                    'images/deca-diamond.png',
+                                    height: 20.0,
+                                  ),
+                                )
+                            ),
+                          ),
+                          new OutlineButton(
+                            onPressed: () {
+                              if (writtenUrl != "") alert("Are you sure you want to upload another file? This will overwrite your current submission.");
+                              setState(() {
+                                uploadProgress = 0;
+                              });
+                              _startFilePicker();
+                            },
+                            child: Container(
+                              width: 150,
+                              height: 50,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: <Widget>[
+                                  new Icon(Icons.file_upload),
+                                  new Text("Upload Written"),
+                                ],
+                              ),
+                            ),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
+                          ),
+                          new Padding(padding: EdgeInsets.all(4),),
+                          Container(width: 350, child: Center(child: new Text("You are registered for this conference! Don't forget to turn in your written here by Nov 10, 11:59 pm. Your written report must be a PDF file and less than 25mb in size.", style: TextStyle(fontSize: 17), textAlign: TextAlign.center,))),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              new Padding(padding: EdgeInsets.only(bottom: 8.0)),
+              new Visibility(
+                visible: currUser.roles.contains("Developer") || currUser.roles.contains("Advisor") || currUser.roles.contains("Officer"),
+                // visible: false,
+                child: new Container(
+                  width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                  child: new Card(
+                    child: new Container(
+                      padding: EdgeInsets.all(16),
+                      child: new Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          new Row(
+                            children: [
+                              new Icon(Icons.analytics),
+                              new Padding(padding: EdgeInsets.all(4)),
+                              new Text("REGISTRATION", style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor),)
+                            ],
+                          ),
+                          new Padding(padding: EdgeInsets.only(top: 8, bottom: 16), child: new Divider(color: currDividerColor, height: 8)),
+                          Container(
+                              padding: EdgeInsets.only(top: 8),
+                              width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                              child: new Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Expanded(
+                                    child: new FlatButton(
+                                      child: new Text("USERS (${usersTable.length})", style: TextStyle(fontFamily: "Montserrat", color: activeRegistrationTab == "Users" ? Colors.white : currTextColor)),
+                                      color: activeRegistrationTab == "Users" ? mainColor : null,
+                                      onPressed: () {
+                                        setState(() {
+                                          activeRegistrationTab = "Users";
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: new FlatButton(
+                                      child: new Text("TEAMS (${teamsTable.length})", style: TextStyle(fontFamily: "Montserrat", color: activeRegistrationTab == "Teams" ? Colors.white : currTextColor)),
+                                      color: activeRegistrationTab == "Teams" ? mainColor : null,
+                                      onPressed: () {
+                                        setState(() {
+                                          activeRegistrationTab = "Teams";
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: new FlatButton(
+                                      child: new Text("BREAKDOWN", style: TextStyle(fontFamily: "Montserrat", color: activeRegistrationTab == "Breakdown" ? Colors.white : currTextColor)),
+                                      color: activeRegistrationTab == "Breakdown" ? mainColor : null,
+                                      onPressed: () {
+                                        setState(() {
+                                          activeRegistrationTab = "Breakdown";
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              )
+                          ),
+                          new Padding(padding: EdgeInsets.all(8)),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              new FlatButton(
+                                child: new Text("COPY CSV"),
+                                textColor: mainColor,
+                                onPressed: () {
+                                  exportTeamsCsv();
+                                },
+                              ),
+                            ],
+                          ),
+                          activeRegistrationTab == "Users" ? new Scrollbar(
+                            child: new SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: new DataTable(
+                                columns: [
+                                  DataColumn(label: Text('First Name', style: TextStyle(fontFamily: "Montserrat", fontSize: 17))),
+                                  DataColumn(label: Text('Last Name', style: TextStyle(fontFamily: "Montserrat", fontSize: 17))),
+                                  DataColumn(label: Text('Written Event', style: TextStyle(fontFamily: "Montserrat", fontSize: 17))),
+                                  DataColumn(label: Text(' ', style: TextStyle(fontFamily: "Montserrat", fontSize: 17))),
+                                  DataColumn(label: Text('Roleplay Event', style: TextStyle(fontFamily: "Montserrat", fontSize: 17))),
+                                ],
+                                rows: usersTable.map((e) => DataRow(cells: [
+                                  DataCell(Text(e.user.firstName, style: TextStyle(fontSize: 17))),
+                                  DataCell(Text(e.user.lastName, style: TextStyle(fontSize: 17))),
+                                  DataCell(Text(e.writtenEvent != "" ? e.writtenEvent : "Not Registered", style: TextStyle(fontSize: 17, color: e.writtenEvent != "" ? currTextColor : Colors.red))),
+                                  DataCell(e.writtenUrl != "" ? Tooltip(message: "Written submitted!\n (click to view)", child: new InkWell(onTap: () => launch(writtenUrl), child: Icon(Icons.check_circle, color: mainColor))) : new Container()),
+                                  DataCell(Text(e.roleplayEvent != "" ? e.roleplayEvent : "Not Registered", style: TextStyle(fontSize: 17, color: e.roleplayEvent != "" ? currTextColor : Colors.red))),
+                                ])).toList()
+                              ),
+                            ),
+                          ) : activeRegistrationTab == "Teams" ? new Scrollbar(
+                            child: new SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: new DataTable(
+                                  columns: [
+                                    DataColumn(label: Text('Team ID', style: TextStyle(fontFamily: "Montserrat", fontSize: 17))),
+                                    DataColumn(label: Text('Team Members', style: TextStyle(fontFamily: "Montserrat", fontSize: 17))),
+                                    DataColumn(label: Text('Type', style: TextStyle(fontFamily: "Montserrat", fontSize: 17))),
+                                    DataColumn(label: Text('Event', style: TextStyle(fontFamily: "Montserrat", fontSize: 17))),
+                                    DataColumn(label: Text(' ', style: TextStyle(fontFamily: "Montserrat", fontSize: 17))),
+                                  ],
+                                  rows: teamsTable.map((e) => DataRow(cells: [
+                                    DataCell(Text(e.teamID, style: TextStyle(fontSize: 17))),
+                                    DataCell(Row(
+                                      children: e.users.map((k) => Container(
+                                        padding: EdgeInsets.only(right: 8),
+                                        child: new Chip(
+                                          label: new Text(k.firstName + " " + k.lastName, style: TextStyle(color: Colors.white)),
+                                          backgroundColor: mainColor,
+                                        ),
+                                      )).toList(),
+                                    )),
+                                    DataCell(Text(e.type, style: TextStyle(fontSize: 17))),
+                                    DataCell(Text(e.event, style: TextStyle(fontSize: 17))),
+                                    DataCell(e.writtenUrl != "" ? Tooltip(message: "Written submitted!\n (click to view)", child: new InkWell(onTap: () => launch(writtenUrl), child: Icon(Icons.check_circle, color: mainColor))) : new Text("Written Missing", style: TextStyle(color: Colors.red, fontSize: 17),)),
+                                  ])).toList()
+                              ),
+                            ),
+                          ) : new Container(
+                            child: new Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                new Text("Total Users: ${usersTable.length}", style: TextStyle(fontSize: 17),),
+                                new Text("Total Teams: ${teamsTable.length}", style: TextStyle(fontSize: 17),),
+                                new Padding(padding: EdgeInsets.all(4)),
+                                new Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: eventTotals.entries.map((entry) => new Text(
+                                    "${entry.key}: ${entry.value}", style: TextStyle(fontSize: 17),
+                                  )).toList(),
+                                )
+                              ],
+                            ),
+                          )
                         ],
                       ),
                     ),
@@ -882,14 +954,76 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
                     controller: _controller,
                     physics: NeverScrollableScrollPhysics(),
                     children: [
-                      ConferenceOverviewPage(conference.conferenceID),
+                      Container(
+                          child: new Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Container(
+                                  padding: new EdgeInsets.only(top: 4.0, bottom: 4.0),
+                                  width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                                  child: new Text(
+                                      "RESOURCES",
+                                      style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor)
+                                  )
+                              ),
+                              new InkWell(
+                                onTap: () {
+                                  html.window.open("https://mydeca.org/#/home/announcements", "Alerts");
+                                },
+                                child: new ListTile(
+                                  title: new Text("Announcements", style: TextStyle(color: currTextColor, fontSize: 18),),
+                                  trailing: new Icon(
+                                    Icons.arrow_forward_ios,
+                                    color: mainColor,
+                                  ),
+                                ),
+                              ),
+                              new InkWell(
+                                onTap: () {
+                                  html.window.open(conference.eventsUrl, "Competitive Event Schedule");
+                                },
+                                child: new ListTile(
+                                  title: new Text("Competitive Event Schedule", style: TextStyle(color: currTextColor, fontSize: 18),),
+                                  trailing: new Icon(
+                                    Icons.arrow_forward_ios,
+                                    color: mainColor,
+                                  ),
+                                ),
+                              ),
+                              new InkWell(
+                                onTap: () {
+                                  html.window.open("https://docs.google.com/document/d/1hXVtGV3eb3DJrUKrudHDLG8Ro-G6YS4hhChv0sZpyQk/edit?usp=sharing", "Communication Document");
+                                },
+                                child: new ListTile(
+                                  title: new Text("Communication Document", style: TextStyle(color: currTextColor, fontSize: 18),),
+                                  trailing: new Icon(
+                                    Icons.arrow_forward_ios,
+                                    color: mainColor,
+                                  ),
+                                ),
+                              ),
+                              new InkWell(
+                                onTap: () {
+                                  html.window.open("https://docs.mydeca.org/user/mock-conference", "Documentation");
+                                },
+                                child: new ListTile(
+                                  title: new Text("Documentation", style: TextStyle(color: currTextColor, fontSize: 18),),
+                                  trailing: new Icon(
+                                    Icons.arrow_forward_ios,
+                                    color: mainColor,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          )
+                      ),
                       ConferenceSchedulePage(conference.conferenceID),
                       ConferenceWinnersPage(conference.conferenceID),
                       ConferenceMediaPage(conference.conferenceID)
                     ],
                   )
               ),
-              new Container(height: 100)
+              new Container(height: 50)
             ],
           ),
         ),

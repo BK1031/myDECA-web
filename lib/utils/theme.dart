@@ -12,11 +12,13 @@ Color eventColor = const Color(0xFF0073CE);
 // Role Colors
 Map<String, Color> roleColors = {
   "Member": Color(0xFFfcc415),
+  "Alumni": Color(0xFFffe28a),
   "Officer": Color(0xFFeb5757),
   "President": Color(0xFFA786DD),
   "Advisor": Color(0xFF00CF9E),
   "Bot": Color(0xFF0073CE),
   "Developer": Color(0xFF0073CE),
+  "Judge": Color(0xFFff4ae7)
 };
 
 // LIGHT THEME
