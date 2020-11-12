@@ -4,7 +4,7 @@ import 'package:mydeca_web/models/user.dart';
 
 import '../models/version.dart';
 
-Version appVersion = new Version("1.7.8+1");
+Version appVersion = new Version("1.7.9+1");
 String appStatus = "";
 String appFull = "Version ${appVersion.toString()}";
 
@@ -63,6 +63,21 @@ Map<String, List<List<String>>> writtenRubrics = {
   "Project Management Written Event": [["Statement of the problem and project scope (0 - 10)", "Planning and Organizaiton (0 - 15)", "Description and documentation of the project plan implementation (0 - 10)", "Monitoring and Controlling (0 - 10)", "Evaluation of key metrics, lessons learned, recommendations for future projects (0 - 10)", "Appearance and Word Usage (0 - 5)"], ["Explain the project? (0 - 10)", "Apply project management tools to complete the project? (0 - 10)", "Evaluate project results? (0 - 10)", "Professional standards (organization, clarity and effectiveness of the presentation); effective use of visuals, appearance, poise, confidence, participation of all (0 - 10)"]],
   "Professional Selling Written Event": [["EIB", "IBP", "EIP", "ESB", "EFB", "EBG"]],
   "Integrated Marketing Written Event": [["EIB", "IBP", "EIP", "ESB", "EFB", "EBG"]],
+};
+
+Map<String, List<List<String>>> roleplayRubrics = {
+  "Principles of Finance": [["EIB", "IBP", "EIP", "ESB", "EFB", "EBG"]],
+  "Principles of Business Management and Administration": [["EIB", "IBP", "EIP", "ESB", "EFB", "EBG"]],
+  "Principles of Hospitality and Tourism": [["EIB", "IBP", "EIP", "ESB", "EFB", "EBG"]],
+  "Principles of Marketing": [["EIB", "IBP", "EIP", "ESB", "EFB", "EBG"]],
+  "Retail Marketing Roleplay": [["EIB", "IBP", "EIP", "ESB", "EFB", "EBG"]],
+  "Business Law and Ethics Roleplay": [["Explain the nature of business ethics? (0 - 10)", "Explain the concept of private enterprise? (0 - 10)", "Determine factors affecting business risk? (0 - 10)", "Identify factors affecting a business’s profit? (0 - 10)", "Explain reasons for ethical dilemmas? (0 - 10)", "Recognize and respond to ethical dilemmas? (0 - 10)", "Assess long-term value and impact of actions on others?  (0 - 10)"], ["Reason effectively and use systems thinking? (0 - 6)", "Make judgments and decisions, and solve problems? (0 - 6)", "Communicate clearly and show evidence of collaboration? (0 - 6)", "Show evidence of creativity? (0 - 6)", "Overall impression and responses to the judge’s questions (0 - 6)"]],
+  "Entrepreneurship Roleplay": [["EIB", "IBP", "EIP", "ESB", "EFB", "EBG"]],
+  "Sports Entertainment Roleplay": [["EIB", "IBP", "EIP", "ESB", "EFB", "EBG"]],
+  "Human Resources Management Roleplay": [["EIB", "IBP", "EIP", "ESB", "EFB", "EBG"]],
+  "Hospitality Services Roleplay": [["EIB", "IBP", "EIP", "ESB", "EFB", "EBG"]],
+  "Financial Services Roleplay": [["EIB", "IBP", "EIP", "ESB", "EFB", "EBG"]],
+  "Marketing Services Roleplay": [["EIB", "IBP", "EIP", "ESB", "EFB", "EBG"]],
 };
 
 List<User> writtenTeam = new List();

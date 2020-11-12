@@ -272,14 +272,12 @@ class _MockConferenceWrittenJudgingPageState extends State<MockConferenceWritten
                       child: new Card(
                         child: new Stack(
                           children: [
-                            Expanded(
-                                child: EasyWebView(
-                                    src: writtenUrl,
-                                    onLoaded: () {
-                                      print('$key: Loaded: $writtenUrl');
-                                    },
-                                    key: key
-                                )
+                            EasyWebView(
+                                src: writtenUrl,
+                                onLoaded: () {
+                                  print('$key: Loaded: $writtenUrl');
+                                },
+                                key: key
                             ),
                           ],
                         ),
