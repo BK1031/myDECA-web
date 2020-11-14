@@ -4,7 +4,7 @@ import 'package:mydeca_web/models/user.dart';
 
 import '../models/version.dart';
 
-Version appVersion = new Version("1.7.9+1");
+Version appVersion = new Version("1.8.2+1");
 String appStatus = "";
 String appFull = "Version ${appVersion.toString()}";
 
@@ -32,18 +32,18 @@ Map<String, List<String>> mockConferenceEvents = {
 };
 
 Map<String, List<String>> roleplayPrompts = {
-  "Principles of Finance": ["PFN"],
-  "Principles of Business Management and Administration": ["PBM"],
-  "Principles of Hospitality and Tourism": ["PHT"],
-  "Principles of Marketing": ["PMK"],
-  "Retail Marketing Roleplay": ["AAM", "RMS"],
+  "Principles of Finance": ["https://firebasestorage.googleapis.com/v0/b/mydeca-app.appspot.com/o/2020-VC-Mock%2Froleplays%2FPrinciples%20of%20Finance.pdf?alt=media&token=ae3198a6-f38c-468f-90fa-d944535b1813", "https://firebasestorage.googleapis.com/v0/b/mydeca-app.appspot.com/o/2020-VC-Mock%2Froleplays%2FPrinciples%20of%20Finance%20Judge.pdf?alt=media&token=528ed658-6000-45d7-8725-f14500e4d595"],
+  "Principles of Business Management and Administration": ["https://firebasestorage.googleapis.com/v0/b/mydeca-app.appspot.com/o/2020-VC-Mock%2Froleplays%2FPrinciples%20of%20Business%20Management%20and%20Administration.pdf?alt=media&token=a80de274-2132-499c-b5b5-4ae925ec3fe0", "https://firebasestorage.googleapis.com/v0/b/mydeca-app.appspot.com/o/2020-VC-Mock%2Froleplays%2FPrinciples%20of%20Business%20Management%20and%20Administration%20Judge.pdf?alt=media&token=2c7f7c67-1e06-4135-9971-4832c8a9f35b"],
+  "Principles of Hospitality and Tourism": ["https://firebasestorage.googleapis.com/v0/b/mydeca-app.appspot.com/o/2020-VC-Mock%2Froleplays%2FPrinciples%20of%20Hospitality%20and%20Tourism.pdf?alt=media&token=ced13316-f7f0-4f95-8e12-c0ae8c245c58", "https://firebasestorage.googleapis.com/v0/b/mydeca-app.appspot.com/o/2020-VC-Mock%2Froleplays%2FPrinciples%20of%20Hospitality%20and%20Tourism%20Judge.pdf?alt=media&token=acde608b-2f78-4498-8eb2-bc75e0b984cf"],
+  "Principles of Marketing": ["https://firebasestorage.googleapis.com/v0/b/mydeca-app.appspot.com/o/2020-VC-Mock%2Froleplays%2FPrinciples%20of%20Marketing.pdf?alt=media&token=e54cb17e-e50e-4036-a370-0638e18fd266", "https://firebasestorage.googleapis.com/v0/b/mydeca-app.appspot.com/o/2020-VC-Mock%2Froleplays%2FPrinciples%20of%20Marketing%20Judge.pdf?alt=media&token=36b01384-c330-4c8e-9260-e2ce9648d75c"],
+  "Retail Marketing Roleplay": ["https://firebasestorage.googleapis.com/v0/b/mydeca-app.appspot.com/o/2020-VC-Mock%2Froleplays%2FRetail%20Marketing%20Roleplay.pdf?alt=media&token=e9ff4d10-837e-41f2-ad01-a1e238dee7c7", "https://firebasestorage.googleapis.com/v0/b/mydeca-app.appspot.com/o/2020-VC-Mock%2Froleplays%2FRetail%20Marketing%20Roleplay%20Judge.pdf?alt=media&token=4bd42f61-370a-47d1-ad92-ff1f516071be"],
   "Business Law and Ethics Roleplay": ["https://firebasestorage.googleapis.com/v0/b/mydeca-app.appspot.com/o/2020-VC-Mock%2Froleplays%2FBusiness%20Law%20and%20Ethics%20Roleplay.pdf?alt=media&token=2ad49d4a-5975-4ca6-b480-69a682e27c61", "https://firebasestorage.googleapis.com/v0/b/mydeca-app.appspot.com/o/2020-VC-Mock%2Froleplays%2FBusiness%20Law%20and%20Ethics%20Roleplay%20Judge.pdf?alt=media&token=82121ea3-4f5b-437a-bee1-54e85011db03"],
-  "Entrepreneurship Roleplay": ["ETDM", "ENT"],
-  "Sports Entertainment Roleplay": ["SEM", "STDM"],
-  "Human Resources Management Roleplay": ["HRM"],
-  "Hospitality Services Roleplay": ["QSRM", "RFSM"],
-  "Financial Services Roleplay": ["ACT", "BFS"],
-  "Marketing Services Roleplay": ["BSM", "FMS"]
+  "Entrepreneurship Roleplay": ["https://firebasestorage.googleapis.com/v0/b/mydeca-app.appspot.com/o/2020-VC-Mock%2Froleplays%2FEntrepreneurship%20Roleplay.pdf?alt=media&token=67d9ff12-353d-47ea-a04c-e700de91c3e2", "https://firebasestorage.googleapis.com/v0/b/mydeca-app.appspot.com/o/2020-VC-Mock%2Froleplays%2FEntrepreneurship%20Roleplay%20Judge.pdf?alt=media&token=59985c20-1445-4e64-b9a6-daaae9006fe2"],
+  "Sports Entertainment Roleplay": ["https://firebasestorage.googleapis.com/v0/b/mydeca-app.appspot.com/o/2020-VC-Mock%2Froleplays%2FSports%20Entertainment%20Roleplay.pdf?alt=media&token=594c0697-f1a2-4a2c-ab7d-299938d42c69", "https://firebasestorage.googleapis.com/v0/b/mydeca-app.appspot.com/o/2020-VC-Mock%2Froleplays%2FSports%20Entertainment%20Roleplay%20Judge.pdf?alt=media&token=4f634111-82c4-4294-ba2e-029f667ac223"],
+  "Human Resources Management Roleplay": ["https://firebasestorage.googleapis.com/v0/b/mydeca-app.appspot.com/o/2020-VC-Mock%2Froleplays%2FHuman%20Resources%20Management%20Roleplay.pdf?alt=media&token=48f1e1da-ae45-4ef0-85ea-be4d81de66d6", "https://firebasestorage.googleapis.com/v0/b/mydeca-app.appspot.com/o/2020-VC-Mock%2Froleplays%2FHuman%20Resources%20Management%20Roleplay%20Judge.pdf?alt=media&token=9591e72d-9917-4f61-9c49-e72330d1f288"],
+  "Hospitality Services Roleplay": ["https://firebasestorage.googleapis.com/v0/b/mydeca-app.appspot.com/o/2020-VC-Mock%2Froleplays%2FHospitality%20Services%20Roleplay.pdf?alt=media&token=74b6a6c0-fb3e-4bf6-b46d-1005022c8313", "https://firebasestorage.googleapis.com/v0/b/mydeca-app.appspot.com/o/2020-VC-Mock%2Froleplays%2FHospitality%20Services%20Roleplay%20Judge.pdf?alt=media&token=695e1229-4848-490d-bfd3-04f95a8a1581"],
+  "Financial Services Roleplay": ["https://firebasestorage.googleapis.com/v0/b/mydeca-app.appspot.com/o/2020-VC-Mock%2Froleplays%2FFinancial%20Services%20Roleplay.pdf?alt=media&token=32e8fb64-a502-473b-99a0-d54cda0ed6fc", "https://firebasestorage.googleapis.com/v0/b/mydeca-app.appspot.com/o/2020-VC-Mock%2Froleplays%2FFinancial%20Services%20Roleplay%20Judge.pdf?alt=media&token=4819a1c9-621f-4650-86cb-4d675cd743ff"],
+  "Marketing Services Roleplay": ["https://firebasestorage.googleapis.com/v0/b/mydeca-app.appspot.com/o/2020-VC-Mock%2Froleplays%2FMarketing%20Services%20Roleplay.pdf?alt=media&token=d3d23bcf-c6e9-4296-8126-ce9e00fbef2c", "https://firebasestorage.googleapis.com/v0/b/mydeca-app.appspot.com/o/2020-VC-Mock%2Froleplays%2FMarketing%20Services%20Roleplay%20Judge.pdf?alt=media&token=186c4c33-ba80-45d8-bb2e-2492ae1d0b29"]
 };
 
 Map<String, List<String>> roleplayExams = {
@@ -57,12 +57,12 @@ Map<String, List<String>> roleplayExams = {
 };
 
 Map<String, List<List<String>>> writtenRubrics = {
-  "Business Administration Operations Written Event": [["EIB", "IBP", "EIP", "ESB", "EFB", "EBG"]],
-  "Hospitality/Sports Operations Written Event": [["EIB", "IBP", "EIP", "ESB", "EFB", "EBG"]],
-  "Entrepreneurship Written Event": [["EIB", "IBP", "EIP", "ESB", "EFB", "EBG"]],
+  "Business Administration Operations Written Event": [["Introductions/Overview (0 - 10)", "Problem and Research Methods Used in Study (0 - 10)", "Proposed Strategic Plan (0 - 10)", "Proposed Budget (0 - 10)", "Appearance (0 - 10)"], ["Overall Presentation (0 - 10)", "Describe methods used to the design research study? (0 - 10)", "Describe strategies and approaches for leading change? (0 - 10)", "Describe the nature of budgets? (0 - 10)", "Professional standards (appearance, poise, confidence), presentation technique, effective use of visuals and participation of all (0 - 10)"]],
+  "Hospitality/Sports Operations Written Event": [["Introductions/Overview (0 - 10)", "Problem and Research Methods Used in Study (0 - 10)", "Proposed Strategic Plan (0 - 10)", "Proposed Budget (0 - 10)", "Appearance (0 - 10)"], ["Overall Presentation (0 - 10)", "Describe methods used to the design research study? (0 - 10)", "Describe strategies and approaches for leading change? (0 - 10)", "Describe the nature of budgets? (0 - 10)", "Professional standards (appearance, poise, confidence), presentation technique, effective use of visuals and participation of all (0 - 10)"]],
+  "Entrepreneurship Written Event": [["Problem (0 - 10)", "Solution (0 - 10)", "Financials (0 - 10)", "Conclusion (0 - 10)", "Appearance (0 - 10)"], ["Overall Presentation (0 - 10)", "Assess opportunities for venture creation (0 - 5)", "Determine feasibility of venture ideas (0 - 5)", "Describe market-entry strategies for conducting business internationally (0 - 5)", "Evaluate risk-taking opportunities (0 - 10)", "Describe marketing functions and related activities (0 - 5)", "Determine relationships among total revenue, marginal revenue, output and profit (0 - 5)"]],
   "Project Management Written Event": [["Statement of the problem and project scope (0 - 10)", "Planning and Organizaiton (0 - 15)", "Description and documentation of the project plan implementation (0 - 10)", "Monitoring and Controlling (0 - 10)", "Evaluation of key metrics, lessons learned, recommendations for future projects (0 - 10)", "Appearance and Word Usage (0 - 5)"], ["Explain the project? (0 - 10)", "Apply project management tools to complete the project? (0 - 10)", "Evaluate project results? (0 - 10)", "Professional standards (organization, clarity and effectiveness of the presentation); effective use of visuals, appearance, poise, confidence, participation of all (0 - 10)"]],
-  "Professional Selling Written Event": [["EIB", "IBP", "EIP", "ESB", "EFB", "EBG"]],
-  "Integrated Marketing Written Event": [["EIB", "IBP", "EIP", "ESB", "EFB", "EBG"]],
+  "Professional Selling Written Event": [["No written for this event (leave this blank)"], ["Presented an effective and engaging opening (0 - 7)", "Established relationship with customer/client (0 - 8)", "Communicated understanding of customer/client needs (0 - 8)", "Facilitated customer/client buying decisions (0 - 8)", "Recommended specific product(s)/service(s)/action(s) (0 - 8)", "Demonstrated or explained product(s)/service(s)/action(s) (0 - 8)", "Properly stated features and benefits of product(s)/service(s)/action(s) (0 - 7)", "Prescribed a solution(s) to meet customer/client needs (0 - 8)", "Effectively answered customer/client questions and concerns (0 - 8)", "Effectively closed the sale or ended the consultation (0 - 10)", "The presentation was well-organized and clearly presented; used professional grammar and vocabulary, words were enunciated and pronounced clearly, voice conveyed enthusiasm and volume was appropriate for the situation. (0 - 10)", "Professional appearance, poise and confidence (0 - 10)"]],
+  "Integrated Marketing Written Event": [["The description of the event, product or service, and business is clearly defined (0 - 12)", "Objectives are defined and referenced throughout the campaign (0 - 12)", "The written entry is well-organized, professional, and presented in a logical manner with unifying theme (0 - 6)"], ["The campaign activities are realistic, show evidence of marketing knowledge, and are research based (0 - 12)", "Provides high-quality appropriate and creative samples of key marketing pieces suggested (0 - 12)", "Campaign schedule is cohesive with evidence of creativity/originality and plan is no more than 45 days long (0 - 12)", "The budget is realistic for the campaign and all costs that would be incurred have been considered (0 - 12)", "The target market is clearly analyzed (0 - 10)", "Key metrics are well thought out and appropriate for the campaign (0 - 6)", "Overall performance: professional appearance, poise, confidence, presentation technique, effective use of visuals, professionalism of participants, participation by each participant (0 - 6)"]],
 };
 
 Map<String, List<List<String>>> roleplayRubrics = {

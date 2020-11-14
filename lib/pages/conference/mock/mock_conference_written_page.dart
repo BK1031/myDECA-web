@@ -98,12 +98,17 @@ class _MockConferenceWrittenPageState extends State<MockConferenceWrittenPage> {
                   writtenUrl = value.snapshot.val()["writtenUrl"];
                 });
               }
-              if (value.snapshot.val()["scores"] != null) {
+              else {
                 setState(() {
-                  score = value.snapshot.val()["scores"]["total"];
-                  feedback = value.snapshot.val()["scores"]["feedback"];
+                  writtenUrl = "https://firebasestorage.googleapis.com/v0/b/mydeca-app.appspot.com/o/conferences%2F2020-VC-Mock%2Fwrittens%2Fno-written.png?alt=media&token=82037473-9928-4334-80d8-d1927af25340";
                 });
               }
+              // if (value.snapshot.val()["scores"] != null) {
+              //   setState(() {
+              //     score = value.snapshot.val()["scores"]["total"];
+              //     feedback = value.snapshot.val()["scores"]["feedback"];
+              //   });
+              // }
             });
             fb.database().ref("conferences").child(conference.conferenceID).child("eventSchedule").child(writtenTeamID).once("value").then((value) {
               setState(() {
@@ -205,6 +210,7 @@ class _MockConferenceWrittenPageState extends State<MockConferenceWrittenPage> {
             ),
             new Expanded(
               child: new Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   new Expanded(
                     child: Container(
@@ -213,14 +219,12 @@ class _MockConferenceWrittenPageState extends State<MockConferenceWrittenPage> {
                       child: new Card(
                         child: new Stack(
                           children: [
-                            Expanded(
-                                child: EasyWebView(
-                                    src: writtenUrl,
-                                    onLoaded: () {
-                                      print('$key: Loaded: $writtenUrl');
-                                    },
-                                    key: key
-                                )
+                            EasyWebView(
+                                src: writtenUrl,
+                                onLoaded: () {
+                                  print('$key: Loaded: $writtenUrl');
+                                },
+                                key: key
                             ),
                           ],
                         ),

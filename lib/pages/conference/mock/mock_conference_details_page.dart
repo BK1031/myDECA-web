@@ -44,6 +44,7 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
   bool writtenRegistered = false;
   bool roleplayRegistered = false;
   String selectedRoleplay = "0";
+  String selectedExam = "";
   String selectedWritten = "0";
 
   String writtenTeamID = "";
@@ -60,6 +61,7 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
   List<MockConferenceTeam> teamsTable = new List();
 
   List<MockConferenceTeam> judgeTeams = new List();
+  String judgeRoomUrl = "";
 
   Map<String, int> eventTotals = new Map();
 
@@ -193,6 +195,9 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
                 if (value.snapshot.val()["roleplay"] != null) {
                   setState(() {
                     selectedRoleplay = value.snapshot.val()["roleplay"];
+                    roleplayExams.forEach((key, value) {
+                      if (value.contains(selectedRoleplay)) selectedExam = key;
+                    });
                   });
                   getTeammates("roleplay");
                 }
@@ -204,6 +209,8 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
         else {
           fb.database().ref("conferences").child(conference.conferenceID).child("eventSchedule").onChildAdded.listen((event) {
             if (event.snapshot.val()["judge"] == currUser.userID) {
+              print(event.snapshot.key);
+              judgeRoomUrl = event.snapshot.val()["url"];
               MockConferenceTeam mcTeam = new MockConferenceTeam();
               mcTeam.judge = currUser;
               mcTeam.teamID = event.snapshot.key;
@@ -536,11 +543,24 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
                       child: new Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          new Row(
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              new Icon(Icons.dashboard),
-                              new Padding(padding: EdgeInsets.all(4)),
-                              new Text("DASHBOARD", style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor),)
+                              new Row(
+                                children: [
+                                  new Icon(Icons.dashboard),
+                                  new Padding(padding: EdgeInsets.all(4)),
+                                  new Text("DASHBOARD", style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor),)
+                                ],
+                              ),
+                              new RaisedButton(
+                                child: new Text("JOIN JUDGING ROOM"),
+                                color: mainColor,
+                                textColor: Colors.white,
+                                onPressed: () {
+                                  launch(judgeRoomUrl);
+                                },
+                              ),
                             ],
                           ),
                           new Padding(padding: EdgeInsets.only(top: 8, bottom: 16), child: new Divider(color: currDividerColor, height: 8)),
@@ -623,11 +643,11 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
                           ),
                           new Padding(padding: EdgeInsets.only(top: 8, bottom: 16), child: new Divider(color: currDividerColor, height: 8)),
                           new ListTile(
-                            title: new Text("Business Admin Core Exam"),
+                            title: new Text(selectedExam),
                             leading: new Text("11:00 AM", style: TextStyle(color: mainColor, fontFamily: "Gotham"),),
                             trailing: new Text(examOpen ? "START NOW" : "NOT OPEN", style: TextStyle(color: examOpen ? mainColor : Colors.grey),),
                             onTap: examOpen ? () {
-                              router.navigateTo(context, "/conferences/${conference.conferenceID}/testing", replace: true, clearStack: true);
+                              router.navigateTo(context, "/conferences/${conference.conferenceID}/testing", replace: true, clearStack: true, transition: TransitionType.fadeIn);
                             } : null,
                           ),
                           new Visibility(
@@ -755,8 +775,8 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
               ),
               new Padding(padding: EdgeInsets.only(bottom: 8.0)),
               new Visibility(
-                visible: currUser.roles.contains("Developer") || currUser.roles.contains("Advisor") || currUser.roles.contains("Officer"),
-                // visible: false,
+                // visible: currUser.roles.contains("Developer") || currUser.roles.contains("Advisor") || currUser.roles.contains("Officer"),
+                visible: false,
                 child: new Container(
                   width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
                   child: new Card(
@@ -843,8 +863,8 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
                                   DataCell(Text(e.user.firstName, style: TextStyle(fontSize: 17))),
                                   DataCell(Text(e.user.lastName, style: TextStyle(fontSize: 17))),
                                   DataCell(Text(e.writtenEvent != "" ? e.writtenEvent : "Not Registered", style: TextStyle(fontSize: 17, color: e.writtenEvent != "" ? currTextColor : Colors.red))),
-                                  DataCell(e.writtenUrl != "" ? Tooltip(message: "Written submitted!\n (click to view)", child: new InkWell(onTap: () => launch(writtenUrl), child: Icon(Icons.check_circle, color: mainColor))) : new Container()),
-                                  DataCell(Text(e.roleplayEvent != "" ? e.roleplayEvent : "Not Registered", style: TextStyle(fontSize: 17, color: e.roleplayEvent != "" ? currTextColor : Colors.red))),
+                                  DataCell(e.writtenUrl != "" ? Tooltip(message: "Written submitted!\n (click to view)", child: new InkWell(onTap: () => launch(e.writtenUrl), child: Icon(Icons.check_circle, color: mainColor))) : new Container()),
+                                  DataCell(Text(e.roleplayEvent != "" ? e.roleplayEvent : " . ", style: TextStyle(fontSize: 17, color: e.roleplayEvent != "" ? currTextColor : Colors.red))),
                                 ])).toList()
                               ),
                             ),
@@ -872,7 +892,7 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
                                     )),
                                     DataCell(Text(e.type, style: TextStyle(fontSize: 17))),
                                     DataCell(Text(e.event, style: TextStyle(fontSize: 17))),
-                                    DataCell(e.writtenUrl != "" ? Tooltip(message: "Written submitted!\n (click to view)", child: new InkWell(onTap: () => launch(writtenUrl), child: Icon(Icons.check_circle, color: mainColor))) : new Text("Written Missing", style: TextStyle(color: Colors.red, fontSize: 17),)),
+                                    DataCell(e.writtenUrl != "" ? Tooltip(message: "Written submitted!\n (click to view)", child: new InkWell(onTap: () => launch(e.writtenUrl), child: Icon(Icons.check_circle, color: mainColor))) : new Text("Written Missing", style: TextStyle(color: Colors.red, fontSize: 17),)),
                                   ])).toList()
                               ),
                             ),
@@ -990,18 +1010,6 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
                               ),
                               new InkWell(
                                 onTap: () {
-                                  html.window.open(conference.eventsUrl, "Competitive Event Schedule");
-                                },
-                                child: new ListTile(
-                                  title: new Text("Competitive Event Schedule", style: TextStyle(color: currTextColor, fontSize: 18),),
-                                  trailing: new Icon(
-                                    Icons.arrow_forward_ios,
-                                    color: mainColor,
-                                  ),
-                                ),
-                              ),
-                              new InkWell(
-                                onTap: () {
                                   html.window.open("https://docs.google.com/document/d/1hXVtGV3eb3DJrUKrudHDLG8Ro-G6YS4hhChv0sZpyQk/edit?usp=sharing", "Communication Document");
                                 },
                                 child: new ListTile(
@@ -1018,6 +1026,18 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
                                 },
                                 child: new ListTile(
                                   title: new Text("Documentation", style: TextStyle(color: currTextColor, fontSize: 18),),
+                                  trailing: new Icon(
+                                    Icons.arrow_forward_ios,
+                                    color: mainColor,
+                                  ),
+                                ),
+                              ),
+                              new InkWell(
+                                onTap: () {
+                                  html.window.open("https://us02web.zoom.us/j/9988122118?pwd=d3EzT2sxTE8velJrVWZLckQraHVBZz09", "Support Room");
+                                },
+                                child: new ListTile(
+                                  title: new Text("Support Room", style: TextStyle(color: currTextColor, fontSize: 18),),
                                   trailing: new Icon(
                                     Icons.arrow_forward_ios,
                                     color: mainColor,

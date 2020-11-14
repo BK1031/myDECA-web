@@ -100,6 +100,11 @@ class _MockConferenceWrittenJudgingPageState extends State<MockConferenceWritten
               writtenUrl = value.snapshot.val()["writtenUrl"];
             });
           }
+          else {
+            setState(() {
+              writtenUrl = "https://firebasestorage.googleapis.com/v0/b/mydeca-app.appspot.com/o/conferences%2F2020-VC-Mock%2Fwrittens%2Fno-written.png?alt=media&token=82037473-9928-4334-80d8-d1927af25340";
+            });
+          }
           createScoringForms(mockConferenceEvent);
         });
         fb.database().ref("conferences").child(conference.conferenceID).child("eventSchedule").child(writtenTeamID).once("value").then((value) {
@@ -144,83 +149,87 @@ class _MockConferenceWrittenJudgingPageState extends State<MockConferenceWritten
   }
 
   Future<void> createScoringForms(String event) async {
-    List<List<int>> savedScores;
+    scoringWidgets.clear();
+    scores.clear();
+    List<dynamic> savedScores;
     fb.database().ref("conferences").child(conference.conferenceID).child("teams").child(writtenTeamID).child("scores").once("value").then((value) {
-      if (value.snapshot.val()["feedback"] != null) {
+      if (value.snapshot.val() != null && value.snapshot.val()["feedback"] != null) {
         feedback = value.snapshot.val()["feedback"];
         feedbackController.text = feedback;
       }
-      if (value.snapshot.val()["breakdown"] != null) {
+      if (value.snapshot.val() != null && value.snapshot.val()["breakdown"] != null) {
         print("Retrieving saved scores");
         score = value.snapshot.val()["total"];
         savedScores = value.snapshot.val()["breakdown"];
-
-        print("\n\nSAVED SCORES\n\n" + savedScores.toString() + "\n\n\n\n");
+        print("\nSAVED SCORES\n" + savedScores.toString() + "\n");
+        savedScores.forEach((element) => print(element));
+      }
+      setState(() {
+        scoringWidgets.add(new Text("Written Evaluation:", style: TextStyle(fontSize: 20, color: mainColor),),);
+      });
+      scores.add(new List());
+      for (int i = 0; i < writtenRubrics[event][0].length; i++) {
+        savedScores != null ? scores[0].add(savedScores[0][i]) : scores[0].add(0);
+        setState(() {
+          scoringWidgets.add(new Row(
+              children: [
+                new Expanded(flex: 3, child: new Text(writtenRubrics[event][0][i], style: TextStyle(fontSize: 17))),
+                new Expanded(
+                  flex: 1,
+                  child: new TextField(
+                    controller: TextEditingController()..text=scores[0][i].toString(),
+                    decoration: InputDecoration(hintText: "0"),
+                    textAlign: TextAlign.center,
+                    onChanged: (input) {
+                      print(int.tryParse(input).toString());
+                      if (int.tryParse(input) != null) {
+                        scores[0][i] = int.tryParse(input);
+                      }
+                      else {
+                        scores[0][i] = 0;
+                      }
+                      calculateTotal();
+                    },
+                  ),
+                )
+              ]
+          ));
+        });
+      }
+      setState(() {
+        scoringWidgets.add(new Padding(padding: EdgeInsets.all(4),));
+        scoringWidgets.add(new Text("Presentation Evaluation:", style: TextStyle(fontSize: 20, color: mainColor),),);
+      });
+      scores.add(new List());
+      for (int i = 0; i < writtenRubrics[event][1].length; i++) {
+        savedScores != null ? scores[1].add(savedScores[1][i]) : scores[1].add(0);
+        setState(() {
+          scoringWidgets.add(new Row(
+              children: [
+                new Expanded(flex: 3, child: new Text(writtenRubrics[event][1][i], style: TextStyle(fontSize: 17))),
+                new Expanded(
+                  flex: 1,
+                  child: new TextField(
+                    controller: TextEditingController()..text=scores[1][i].toString(),
+                    decoration: InputDecoration(hintText: "0"),
+                    textAlign: TextAlign.center,
+                    onChanged: (input) {
+                      print(int.tryParse(input).toString());
+                      if (int.tryParse(input) != null) {
+                        scores[1][i] = int.tryParse(input);
+                      }
+                      else {
+                        scores[1][i] = 0;
+                      }
+                      calculateTotal();
+                    },
+                  ),
+                )
+              ]
+          ));
+        });
       }
     });
-    setState(() {
-      scoringWidgets.add(new Text("Written Evaluation:", style: TextStyle(fontSize: 20),),);
-    });
-    scores.add(new List());
-    for (int i = 0; i < writtenRubrics[event][0].length; i++) {
-      scores[0].add(0);
-      setState(() {
-        scoringWidgets.add(new Row(
-            children: [
-              new Expanded(flex: 3, child: new Text(writtenRubrics[event][0][i], style: TextStyle(fontSize: 17))),
-              new Expanded(
-                flex: 1,
-                child: new TextField(
-                  decoration: InputDecoration(hintText: "0"),
-                  textAlign: TextAlign.center,
-                  onChanged: (input) {
-                    print(int.tryParse(input).toString());
-                    if (int.tryParse(input) != null) {
-                      scores[0][i] = int.tryParse(input);
-                    }
-                    else {
-                      scores[0][i] = 0;
-                    }
-                    calculateTotal();
-                  },
-                ),
-              )
-            ]
-        ));
-      });
-    }
-    setState(() {
-      scoringWidgets.add(new Padding(padding: EdgeInsets.all(4),));
-      scoringWidgets.add(new Text("Presentation Evaluation:", style: TextStyle(fontSize: 20),),);
-    });
-    scores.add(new List());
-    for (int i = 0; i < writtenRubrics[event][1].length; i++) {
-      scores[1].add(0);
-      setState(() {
-        scoringWidgets.add(new Row(
-            children: [
-              new Expanded(flex: 3, child: new Text(writtenRubrics[event][1][i], style: TextStyle(fontSize: 17))),
-              new Expanded(
-                flex: 1,
-                child: new TextField(
-                  decoration: InputDecoration(hintText: "0"),
-                  textAlign: TextAlign.center,
-                  onChanged: (input) {
-                    print(int.tryParse(input).toString());
-                    if (int.tryParse(input) != null) {
-                      scores[1][i] = int.tryParse(input);
-                    }
-                    else {
-                      scores[1][i] = 0;
-                    }
-                    calculateTotal();
-                  },
-                ),
-              )
-            ]
-        ));
-      });
-    }
   }
 
   void calculateTotal() {
@@ -264,6 +273,7 @@ class _MockConferenceWrittenJudgingPageState extends State<MockConferenceWritten
             ),
             new Expanded(
               child: new Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   new Expanded(
                     child: Container(
@@ -290,11 +300,13 @@ class _MockConferenceWrittenJudgingPageState extends State<MockConferenceWritten
                         padding: EdgeInsets.only(left: 25, right: 25, top: 8, bottom: 25),
                         child: SingleChildScrollView(
                           child: new Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
                             children: [
                               new Card(
                                 child: new Container(
                                   padding: EdgeInsets.all(16),
                                   child: new Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       new Text(mockConferenceEvent, style: TextStyle(fontFamily: "Montserrat", fontSize: 25),),
@@ -335,6 +347,7 @@ class _MockConferenceWrittenJudgingPageState extends State<MockConferenceWritten
                                 child: new Container(
                                   padding: EdgeInsets.all(16),
                                   child: new Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Row(
@@ -357,7 +370,7 @@ class _MockConferenceWrittenJudgingPageState extends State<MockConferenceWritten
                                         children: scoringWidgets,
                                       ),
                                       new Padding(padding: EdgeInsets.all(8),),
-                                      new Text("Additional Feedback:", style: TextStyle(fontSize: 20),),
+                                      new Text("Additional Feedback:", style: TextStyle(fontSize: 20, color: mainColor),),
                                       new Padding(padding: EdgeInsets.all(4),),
                                       new TextField(
                                         controller: feedbackController,

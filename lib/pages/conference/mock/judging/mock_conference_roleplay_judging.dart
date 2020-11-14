@@ -145,83 +145,87 @@ class _MockConferenceRoleplayJudgingPageState extends State<MockConferenceRolepl
   }
 
   Future<void> createScoringForms(String event) async {
-    List<List<int>> savedScores;
+    scoringWidgets.clear();
+    scores.clear();
+    List<dynamic> savedScores;
     fb.database().ref("conferences").child(conference.conferenceID).child("teams").child(roleplayTeamID).child("scores").once("value").then((value) {
-      if (value.snapshot.val()["feedback"] != null) {
+      if (value.snapshot.val() != null && value.snapshot.val()["feedback"] != null) {
         feedback = value.snapshot.val()["feedback"];
         feedbackController.text = feedback;
       }
-      if (value.snapshot.val()["breakdown"] != null) {
+      if (value.snapshot.val() != null && value.snapshot.val()["breakdown"] != null) {
         print("Retrieving saved scores");
         score = value.snapshot.val()["total"];
         savedScores = value.snapshot.val()["breakdown"];
-
-        print("\n\nSAVED SCORES\n\n" + savedScores.toString() + "\n\n\n\n");
+        print("\nSAVED SCORES\n" + savedScores.toString() + "\n");
+        savedScores.forEach((element) => print(element));
+      }
+      setState(() {
+        scoringWidgets.add(new Text("Key Performance Indicators:", style: TextStyle(fontSize: 20, color: mainColor),),);
+      });
+      scores.add(new List());
+      for (int i = 0; i < roleplayRubrics[event][0].length; i++) {
+        savedScores != null ? scores[0].add(savedScores[0][i]) : scores[0].add(0);
+        setState(() {
+          scoringWidgets.add(new Row(
+              children: [
+                new Expanded(flex: 3, child: new Text(roleplayRubrics[event][0][i], style: TextStyle(fontSize: 17))),
+                new Expanded(
+                  flex: 1,
+                  child: new TextField(
+                    controller: TextEditingController()..text=scores[0][i].toString(),
+                    decoration: InputDecoration(hintText: "0"),
+                    textAlign: TextAlign.center,
+                    onChanged: (input) {
+                      print(int.tryParse(input).toString());
+                      if (int.tryParse(input) != null) {
+                        scores[0][i] = int.tryParse(input);
+                      }
+                      else {
+                        scores[0][i] = 0;
+                      }
+                      calculateTotal();
+                    },
+                  ),
+                )
+              ]
+          ));
+        });
+      }
+      setState(() {
+        scoringWidgets.add(new Padding(padding: EdgeInsets.all(4),));
+        scoringWidgets.add(new Text("21st Century Skills:", style: TextStyle(fontSize: 20, color: mainColor),),);
+      });
+      scores.add(new List());
+      for (int i = 0; i < roleplayRubrics[event][1].length; i++) {
+        savedScores != null ? scores[1].add(savedScores[1][i]) : scores[1].add(0);
+        setState(() {
+          scoringWidgets.add(new Row(
+              children: [
+                new Expanded(flex: 3, child: new Text(roleplayRubrics[event][1][i], style: TextStyle(fontSize: 17))),
+                new Expanded(
+                  flex: 1,
+                  child: new TextField(
+                    controller: TextEditingController()..text=scores[1][i].toString(),
+                    decoration: InputDecoration(hintText: "0"),
+                    textAlign: TextAlign.center,
+                    onChanged: (input) {
+                      print(int.tryParse(input).toString());
+                      if (int.tryParse(input) != null) {
+                        scores[1][i] = int.tryParse(input);
+                      }
+                      else {
+                        scores[1][i] = 0;
+                      }
+                      calculateTotal();
+                    },
+                  ),
+                )
+              ]
+          ));
+        });
       }
     });
-    setState(() {
-      scoringWidgets.add(new Text("Performance Indicators:", style: TextStyle(fontSize: 20),),);
-    });
-    scores.add(new List());
-    for (int i = 0; i < roleplayRubrics[event][0].length; i++) {
-      scores[0].add(0);
-      setState(() {
-        scoringWidgets.add(new Row(
-            children: [
-              new Expanded(flex: 3, child: new Text(roleplayRubrics[event][0][i], style: TextStyle(fontSize: 17))),
-              new Expanded(
-                flex: 1,
-                child: new TextField(
-                  decoration: InputDecoration(hintText: "0"),
-                  textAlign: TextAlign.center,
-                  onChanged: (input) {
-                    print(int.tryParse(input).toString());
-                    if (int.tryParse(input) != null) {
-                      scores[0][i] = int.tryParse(input);
-                    }
-                    else {
-                      scores[0][i] = 0;
-                    }
-                    calculateTotal();
-                  },
-                ),
-              )
-            ]
-        ));
-      });
-    }
-    setState(() {
-      scoringWidgets.add(new Padding(padding: EdgeInsets.all(4),));
-      scoringWidgets.add(new Text("21st Century Skills:", style: TextStyle(fontSize: 20),),);
-    });
-    scores.add(new List());
-    for (int i = 0; i < roleplayRubrics[event][1].length; i++) {
-      scores[1].add(0);
-      setState(() {
-        scoringWidgets.add(new Row(
-            children: [
-              new Expanded(flex: 3, child: new Text(roleplayRubrics[event][1][i], style: TextStyle(fontSize: 17))),
-              new Expanded(
-                flex: 1,
-                child: new TextField(
-                  decoration: InputDecoration(hintText: "0"),
-                  textAlign: TextAlign.center,
-                  onChanged: (input) {
-                    print(int.tryParse(input).toString());
-                    if (int.tryParse(input) != null) {
-                      scores[1][i] = int.tryParse(input);
-                    }
-                    else {
-                      scores[1][i] = 0;
-                    }
-                    calculateTotal();
-                  },
-                ),
-              )
-            ]
-        ));
-      });
-    }
   }
 
   void calculateTotal() {
@@ -358,7 +362,7 @@ class _MockConferenceRoleplayJudgingPageState extends State<MockConferenceRolepl
                                         children: scoringWidgets,
                                       ),
                                       new Padding(padding: EdgeInsets.all(8),),
-                                      new Text("Additional Feedback:", style: TextStyle(fontSize: 20),),
+                                      new Text("Additional Feedback:", style: TextStyle(fontSize: 20, color: mainColor),),
                                       new Padding(padding: EdgeInsets.all(4),),
                                       new TextField(
                                         controller: feedbackController,

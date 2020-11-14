@@ -8,6 +8,7 @@ import 'package:fluro/fluro.dart';
 import 'package:firebase/firebase.dart' as fb;
 import 'package:intl/intl.dart';
 import 'package:mydeca_web/models/conference.dart';
+import 'package:mydeca_web/models/mock_conference_exam.dart';
 import 'package:mydeca_web/models/user.dart';
 import 'package:mydeca_web/navbars/home_navbar.dart';
 import 'package:mydeca_web/navbars/mobile_sidebar.dart';
@@ -34,6 +35,7 @@ class _MockConferenceTestingPageState extends State<MockConferenceTestingPage> {
   Conference conference = Conference.plain();
 
   bool taken = false;
+  int score = 0;
   Stopwatch stopwatch = new Stopwatch();
   DateTime startTime;
   DateTime endTime;
@@ -47,12 +49,13 @@ class _MockConferenceTestingPageState extends State<MockConferenceTestingPage> {
 
   String testUrl = 'https://static.impression.co.uk/2014/05/loading1.gif';
   String solutionUrl = 'https://static.impression.co.uk/2014/05/loading1.gif';
+
   static ValueKey key = ValueKey('key_0');
 
   List<String> myAnswers = new List(50);
-  List<String> correctAnswers = new List();
+  List<dynamic> correctAnswers;
 
-  List<Widget> examForm = new List();
+  List<dynamic> submittedAnswers;
 
   _MockConferenceTestingPageState(String id) {
     conference.conferenceID = id;
@@ -105,6 +108,20 @@ class _MockConferenceTestingPageState extends State<MockConferenceTestingPage> {
                   });
                   print(testUrl);
                 });
+                fb.database().ref("conferences").child(conference.conferenceID).child("examScores").child(currUser.userID).once("value").then((value) {
+                  if (value.snapshot.val() != null) {
+                    print(value.snapshot.val());
+                    setState(() {
+                      taken = true;
+                      score = value.snapshot.val()["score"];
+                      startTime = DateTime.parse(value.snapshot.val()["startTime"]);
+                      endTime = DateTime.parse(value.snapshot.val()["endTime"]);
+                      submittedAnswers = value.snapshot.val()["answers"];
+                    });
+                    print("START TIME: " + startTime.toString());
+                    print("START TIME + " + startTime.toString());
+                  }
+                });
               }
               else {
                 router.navigateTo(context, "/conferences/${conference.conferenceID}", clearStack: true, replace: true, transition: TransitionType.fadeIn);
@@ -112,15 +129,15 @@ class _MockConferenceTestingPageState extends State<MockConferenceTestingPage> {
             });
           }
         });
-        fb.database().ref("conferences").child(conference.conferenceID).child("scores").child("exam").child(currUser.userID).once("value").then((value) {
-          if (value.snapshot.val() != null) {
-            setState(() {
-              taken = true;
-            });
-          }
-        });
       });
     }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    timer.cancel();
+    stopwatch.stop();
   }
 
   void confirmStart() {
@@ -129,7 +146,7 @@ class _MockConferenceTestingPageState extends State<MockConferenceTestingPage> {
         child: new AlertDialog(
           backgroundColor: currCardColor,
           title: new Text("Start Exam", style: TextStyle(color: currTextColor),),
-          content: new Text("Are you sure you want to start the exam now?", style: TextStyle(color: currTextColor)),
+          content: Container(width: 500, child: new Text("Are you sure you want to start the exam now?\n\nOnce you start the exam, you will not be able to leave until you are finished. If you click off the exam, your work will not be saved. Make sure that you have a 45 minute period to take the exam without any distractions.", style: TextStyle(color: currTextColor))),
           actions: [
             new FlatButton(
                 child: new Text("CANCEL"),
@@ -142,41 +159,26 @@ class _MockConferenceTestingPageState extends State<MockConferenceTestingPage> {
                 child: new Text("START"),
                 textColor: mainColor,
                 onPressed: () {
-                  setState(() {
-                    for (int i = 0; i < myAnswers.length; i++) {
-                      examForm.add(new Row(
-                        children: <Widget>[
-                          new Text(
-                            "Question ${i+1}",
-                            style: TextStyle(fontWeight: FontWeight.normal, fontSize: 16.0),
-                          ),
-                          new DropdownButton(
-                            value: myAnswers[i],
-                            items: [
-                              DropdownMenuItem(child: new Text("Select an answer choice"), value: null),
-                              DropdownMenuItem(child: new Text("A"), value: "a"),
-                              DropdownMenuItem(child: new Text("B"), value: "b"),
-                              DropdownMenuItem(child: new Text("C"), value: "c"),
-                              DropdownMenuItem(child: new Text("D"), value: "d"),
-                            ],
-                            onChanged: (value) {
-                              setState(() {
-                                myAnswers[i] = value;
-                              });
-                            },
-                          ),
-                        ],
-                      ));
-                    }
-                  });
-
                   stopwatch.start();
                   startTime = DateTime.now();
                   endTime = startTime.add(Duration(minutes: 45));
-
+                  if (endTime.isAfter(DateTime.parse("2020-11-14 12:00"))) endTime = DateTime.parse("2020-11-14 12:00");
                   timer = new Timer.periodic(const Duration(milliseconds: 500), (timer) {
-                    setState(() {});
-
+                    if (stopwatch.isRunning) {
+                      setState(() {});
+                      if (endTime.difference(DateTime.now()).inMilliseconds < 300000) {
+                        alert("5 minutes left to submit your test!");
+                      }
+                      if (endTime.difference(DateTime.now()).inMilliseconds < 60000) {
+                        alert("1 minute left to submit your test!");
+                      }
+                      if (endTime.difference(DateTime.now()).inMilliseconds < 10000) {
+                        alert("Your test will be automatically submitted in 10 seconds!");
+                      }
+                      if (endTime.difference(DateTime.now()).inMilliseconds < 1000) {
+                        submitExam();
+                      }
+                    }
                   });
 
                   router.pop(context);
@@ -185,6 +187,86 @@ class _MockConferenceTestingPageState extends State<MockConferenceTestingPage> {
           ],
         )
     );
+  }
+
+  // void createExamForm() {
+  //   for (int i = 0; i < myAnswers.length; i++) {
+  //     examForm.add(new Row(
+  //       children: <Widget>[
+  //         new Text(
+  //           "Question ${i+1}",
+  //           style: TextStyle(fontWeight: FontWeight.normal, fontSize: 17.0),
+  //         ),
+  //         new Padding(padding: EdgeInsets.all(4)),
+  //         new DropdownButton(
+  //           value: myAnswers[i],
+  //           items: [
+  //             DropdownMenuItem(child: new Text("Select an answer choice"), value: null),
+  //             DropdownMenuItem(child: new Text("A"), value: "a"),
+  //             DropdownMenuItem(child: new Text("B"), value: "b"),
+  //             DropdownMenuItem(child: new Text("C"), value: "c"),
+  //             DropdownMenuItem(child: new Text("D"), value: "d"),
+  //           ],
+  //           onChanged: (value) {
+  //             print(value);
+  //             setState(() {
+  //               myAnswers[i] = value;
+  //             });
+  //           },
+  //         ),
+  //       ],
+  //     ));
+  //     setState(() {});
+  //   }
+  // }
+
+  void confirmSubmit() {
+    showDialog(
+        context: context,
+        child: new AlertDialog(
+          backgroundColor: currCardColor,
+          title: new Text("Submit Exam", style: TextStyle(color: currTextColor),),
+          content: new Text("Are you sure you want to submit the exam?", style: TextStyle(color: currTextColor)),
+          actions: [
+            new FlatButton(
+                child: new Text("CANCEL"),
+                textColor: mainColor,
+                onPressed: () {
+                  router.pop(context);
+                }
+            ),
+            new FlatButton(
+                child: new Text("SUBMIT"),
+                textColor: mainColor,
+                onPressed: () {
+                  submitExam();
+                  router.pop(context);
+                }
+            )
+          ],
+        )
+    );
+  }
+
+  void submitExam() {
+    stopwatch.stop();
+    timer.cancel();
+    endTime = DateTime.now();
+    score = 0;
+    print(myAnswers);
+    print(correctAnswers);
+    for (int i = 0; i < 50; i++) {
+      if (myAnswers[i] == correctAnswers[i]) score++;
+    }
+    fb.database().ref("conferences").child(conference.conferenceID).child("examScores").child(currUser.userID).set({
+      "score": score,
+      "startTime": startTime.toString(),
+      "endTime": endTime.toString(),
+      "answers": myAnswers
+    });
+    setState(() {
+      taken = true;
+    });
   }
 
   void alert(String alert) {
@@ -217,96 +299,164 @@ class _MockConferenceTestingPageState extends State<MockConferenceTestingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton.extended(label: new Text("SUBMIT"), onPressed: () {},),
+      floatingActionButton: new Visibility(visible: !taken && stopwatch.isRunning, child: FloatingActionButton.extended(label: new Text("SUBMIT"), onPressed: () => confirmSubmit(),)),
       backgroundColor: currBackgroundColor,
-      body: new Container(
-        child: new Row(
+      body: Container(
+        child: Column(
           children: [
-            new Expanded(
-              child: Container(
-                width: MediaQuery.of(context).size.width / 2,
-                padding: EdgeInsets.only(left: 25, top: 25, bottom: 25),
-                child: new Card(
-                  child: new Stack(
-                    children: [
-                      Expanded(
-                        child: EasyWebView(
-                          src: testUrl,
-                          onLoaded: () {
-                            print('$key: Loaded: $testUrl');
-                          },
-                          key: key
-                        )
-                      ),
-                    ],
+            new Visibility(visible: taken || !stopwatch.isRunning, child: HomeNavbar()),
+            Padding(
+              padding: const EdgeInsets.only(left: 25, top: 8.0),
+              child: new Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  new Visibility(
+                    visible: taken || !stopwatch.isRunning,
+                    child: new FlatButton(
+                      child: new Text("Back to ${conference.fullName}", style: TextStyle(color: mainColor, fontSize: 15),),
+                      onPressed: () {
+                        router.navigateTo(context, '/conferences/${conference.conferenceID}', transition: TransitionType.fadeIn);
+                      },
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
             new Expanded(
-              child: new Container(
-                width: MediaQuery.of(context).size.width / 2,
-                padding: EdgeInsets.all(25),
-                child: new Column(
-                  children: [
-                    new Card(
-                      child: new Container(
-                        padding: EdgeInsets.all(16),
-                        child: new Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+              child: new Row(
+                children: [
+                  new Expanded(
+                    child: Container(
+                      width: MediaQuery.of(context).size.width / 2,
+                      padding: EdgeInsets.only(left: 25, top: 8, bottom: 25),
+                      child: new Card(
+                        child: new Stack(
                           children: [
-                            new Text(examName, style: TextStyle(fontFamily: "Montserrat", fontSize: 25),),
-                            new Padding(padding: EdgeInsets.all(4),),
-                            new Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                new Text("${currUser.firstName} ${currUser.lastName}", style: TextStyle(fontSize: 17),),
-                                new Visibility(
-                                    visible: taken,
-                                    child: new Text("Score: ", style: TextStyle(fontSize: 17))
-                                ),
-                                new Visibility(
-                                  visible: !taken && stopwatch.isRunning,
-                                  child: new Text("Time Remaining: ${stopwatch.isRunning ? _printDuration(endTime.difference(DateTime.now())) : ""}", style: TextStyle(fontSize: 17))
-                                )
-                              ],
+                            EasyWebView(
+                              src: testUrl,
+                              onLoaded: () {
+                                print('$key: Loaded: $testUrl');
+                              },
+                              key: key
                             ),
                           ],
                         ),
                       ),
                     ),
-                    new Padding(padding: EdgeInsets.all(4),),
-                    new Visibility(
-                      visible: !taken && !stopwatch.isRunning,
-                      child: new Card(
-                        child: new InkWell(
-                          onTap: () {
-                            confirmStart();
-                          },
-                          child: new Container(
-                            padding: EdgeInsets.all(16),
-                            child: Center(child: new Text("START EXAM", style: TextStyle(fontSize: 17, color: mainColor),)),
+                  ),
+                  new Expanded(
+                    child: new Container(
+                      width: MediaQuery.of(context).size.width / 2,
+                      padding: EdgeInsets.only(left: 25, right: 25, top: 8, bottom: 25),
+                      child: new Column(
+                        children: [
+                          new Card(
+                            child: new Container(
+                              padding: EdgeInsets.all(16),
+                              child: new Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  new Text(examName, style: TextStyle(fontFamily: "Montserrat", fontSize: 25),),
+                                  new Padding(padding: EdgeInsets.all(4),),
+                                  new Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      new Text("${currUser.firstName} ${currUser.lastName}", style: TextStyle(fontSize: 17),),
+                                      new Visibility(
+                                          visible: taken,
+                                          child: new Text("Score: $score/50", style: TextStyle(fontSize: 17, color: mainColor, fontFamily: "Gotham"))
+                                      ),
+                                      new Visibility(
+                                        visible: taken || stopwatch.isRunning,
+                                        child: new Text(stopwatch.isRunning ? "Time Remaining: ${_printDuration(endTime.difference(DateTime.now()))}" : taken ? "Completed in: ${_printDuration(endTime.difference(startTime))}" : "", style: TextStyle(fontSize: 17))
+                                      )
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                    ),
-                    new Visibility(
-                      visible: !taken && stopwatch.isRunning,
-                      child: new Expanded(
-                        child: new Card(
-                          child: new SingleChildScrollView(
-                            padding: EdgeInsets.all(16),
-                            child: new Column(
-                              children: examForm,
+                          new Padding(padding: EdgeInsets.all(4),),
+                          new Visibility(
+                            visible: !taken && !stopwatch.isRunning,
+                            child: new Card(
+                              child: new InkWell(
+                                onTap: () {
+                                  confirmStart();
+                                },
+                                child: new Container(
+                                  padding: EdgeInsets.all(16),
+                                  child: Center(child: new Text("START EXAM", style: TextStyle(fontSize: 17, color: mainColor),)),
+                                ),
+                              ),
+                            ),
+                          ),
+                          new Visibility(
+                            visible: !taken && stopwatch.isRunning,
+                            child: new Expanded(
+                              child: new Card(
+                                child: new SingleChildScrollView(
+                                  padding: EdgeInsets.all(16),
+                                  child: new Column(
+                                    children: List<int>.generate(50, (i) => i + 1).map((e) => new Row(
+                                      children: <Widget>[
+                                        new Text(
+                                          "Question ${e}:",
+                                          style: TextStyle(fontWeight: FontWeight.normal, fontSize: 17.0),
+                                        ),
+                                        new Padding(padding: EdgeInsets.all(8)),
+                                        new DropdownButton(
+                                          value: myAnswers[e-1],
+                                          items: [
+                                            DropdownMenuItem(child: new Text("Select an answer choice"), value: null),
+                                            DropdownMenuItem(child: new Text("A", style: TextStyle(fontSize: 17),), value: "a"),
+                                            DropdownMenuItem(child: new Text("B", style: TextStyle(fontSize: 17)), value: "b"),
+                                            DropdownMenuItem(child: new Text("C", style: TextStyle(fontSize: 17)), value: "c"),
+                                            DropdownMenuItem(child: new Text("D", style: TextStyle(fontSize: 17)), value: "d"),
+                                          ],
+                                          onChanged: (value) {
+                                            print(value);
+                                            setState(() {
+                                              myAnswers[e-1] = value;
+                                            });
+                                          },
+                                        ),
+                                      ],
+                                    )).toList()
+                                  ),
+                                )
+                              ),
+                            ),
+                          ),
+                          new Visibility(
+                            visible: taken,
+                            child: new Expanded(
+                              child: new Card(
+                                  child: new Container(
+                                    width: double.infinity,
+                                    padding: EdgeInsets.all(16),
+                                    child: new Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
+                                        new Text("You finished!", style: TextStyle(fontSize: 30, fontFamily: "Montserrat"),),
+                                        new Padding(padding: EdgeInsets.all(8),),
+                                        new Icon(Icons.check_circle_outline, size: 60, color: mainColor,),
+                                        new Padding(padding: EdgeInsets.all(8),),
+                                        new Text("Check back later here to see solutions for each question.", style: TextStyle(fontSize: 17),)
+                                      ],
+                                    ),
+                                  )
+                              ),
                             ),
                           )
-                        ),
-                      ),
-                    )
-                  ],
-                )
+                        ],
+                      )
+                    ),
+                  )
+                ],
               ),
-            )
+            ),
           ],
         ),
       ),

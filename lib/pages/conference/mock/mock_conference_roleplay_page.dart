@@ -72,7 +72,7 @@ class _MockConferenceRoleplayPageState extends State<MockConferenceRoleplayPage>
       fb.database().ref("users").child(_localStorage["userID"]).once("value").then((value) {
         setState(() {
           currUser = User.fromSnapshot(value.snapshot);
-          writtenTeam.clear();
+          roleplayTeam.clear();
           print(currUser);
         });
         fb.database().ref("conferences").child(conference.conferenceID).once("value").then((value) {
@@ -103,12 +103,12 @@ class _MockConferenceRoleplayPageState extends State<MockConferenceRoleplayPage>
                   });
                 });
               }
-              if (value.snapshot.val()["scores"] != null) {
-                setState(() {
-                  score = value.snapshot.val()["scores"]["total"];
-                  feedback = value.snapshot.val()["scores"]["feedback"];
-                });
-              }
+              // if (value.snapshot.val()["scores"] != null) {
+              //   setState(() {
+              //     score = value.snapshot.val()["scores"]["total"];
+              //     feedback = value.snapshot.val()["scores"]["feedback"];
+              //   });
+              // }
             });
             fb.database().ref("conferences").child(conference.conferenceID).child("eventSchedule").child(roleplayTeamID).once("value").then((value) {
               setState(() {
@@ -154,11 +154,11 @@ class _MockConferenceRoleplayPageState extends State<MockConferenceRoleplayPage>
   }
 
   void getTeammates() {
-    writtenTeam.clear();
+    roleplayTeam.clear();
     fb.database().ref("conferences").child(conference.conferenceID).child("teams").child(roleplayTeamID).child("users").onChildAdded.listen((event) {
       fb.database().ref("users").child(event.snapshot.val()).once("value").then((value) {
         setState(() {
-          writtenTeam.add(new User.fromSnapshot(value.snapshot));
+          roleplayTeam.add(new User.fromSnapshot(value.snapshot));
         });
       });
     });
@@ -303,14 +303,12 @@ class _MockConferenceRoleplayPageState extends State<MockConferenceRoleplayPage>
                             ),
                             new Visibility(
                               visible: !blurPrompt,
-                              child: Expanded(
-                                  child: EasyWebView(
-                                      src: roleplayUrl,
-                                      onLoaded: () {
-                                        print('$key: Loaded: $roleplayUrl');
-                                      },
-                                      key: key
-                                  )
+                              child: EasyWebView(
+                                  src: roleplayUrl,
+                                  onLoaded: () {
+                                    print('$key: Loaded: $roleplayUrl');
+                                  },
+                                  key: key
                               ),
                             ),
                           ],
@@ -351,7 +349,7 @@ class _MockConferenceRoleplayPageState extends State<MockConferenceRoleplayPage>
                                       new Text("Team ID: $roleplayTeamID", style: TextStyle(fontSize: 17)),
                                       new Padding(padding: EdgeInsets.all(4),),
                                       Row(
-                                        children: writtenTeam.map((k) => Container(
+                                        children: roleplayTeam.map((k) => Container(
                                           padding: EdgeInsets.only(right: 8),
                                           child: new Chip(
                                             label: new Text(k.firstName + " " + k.lastName, style: TextStyle(color: Colors.white)),
