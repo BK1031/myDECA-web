@@ -60,6 +60,12 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
   List<MockConferenceUser> usersTable = new List();
   List<MockConferenceTeam> teamsTable = new List();
 
+  String activeTrackingTab = "Log";
+  List<Widget> logWidgetList = new List();
+  List<MockConferenceUser> userTracking = new List();
+  List<MockConferenceTeam> rankTracking = new List();
+  List<Widget> rankDisplayWidgets = new List();
+
   List<MockConferenceTeam> judgeTeams = new List();
   String judgeRoomUrl = "";
 
@@ -87,6 +93,7 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
             conference = new Conference.fromSnapshot(value.snapshot);
           });
         });
+        getUsersTracking();
         fb.database().ref("conferences").child(conference.conferenceID).child("users").onChildAdded.listen((event) {
           MockConferenceUser mcUser = new MockConferenceUser();
           fb.database().ref("users").child(event.snapshot.key).once("value").then((value) async {
@@ -122,7 +129,7 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
             });
           });
         });
-        fb.database().ref("conferences").child(conference.conferenceID).child("teams").onChildAdded.listen((team) {
+        fb.database().ref("conferences").child(conference.conferenceID).child("teams").onChildAdded.listen((team) async {
           MockConferenceTeam mcTeam = new MockConferenceTeam();
           mcTeam.teamID = team.snapshot.key;
           List<String> ids = team.snapshot.val()["users"].keys.toList();
@@ -130,6 +137,13 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
             fb.database().ref("users").child(element).once("value").then((value) {
               mcTeam.users.add(new User.fromSnapshot(value.snapshot));
             });
+          });
+          fb.database().ref("conferences").child(conference.conferenceID).child("eventSchedule").child(mcTeam.teamID).once("value").then((value) {
+            if (value.snapshot.val() != null) {
+              fb.database().ref("users").child(value.snapshot.val()["judge"]).once("value").then((value) {
+                mcTeam.judge = new User.fromSnapshot(value.snapshot);
+              });
+            }
           });
           if (team.snapshot.val()["written"] != null) {
             mcTeam.type = "Written";
@@ -140,8 +154,11 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
                 eventTotals[key] != null ? eventTotals[key]++ : eventTotals[key] = 1;
               }
             });
-            if (value.snapshot.val()["writtenUrl"] != null) {
-              mcTeam.writtenUrl = value.snapshot.val()["writtenUrl"];
+            if (team.snapshot.val()["writtenUrl"] != null) {
+              mcTeam.writtenUrl = team.snapshot.val()["writtenUrl"];
+            }
+            if (team.snapshot.val()["scores"] != null) {
+              mcTeam.score = team.snapshot.val()["scores"]["total"];
             }
           }
           else if (team.snapshot.val()["roleplay"] != null) {
@@ -153,6 +170,9 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
                 eventTotals[key] != null ? eventTotals[key]++ : eventTotals[key] = 1;
               }
             });
+            if (team.snapshot.val()["scores"] != null) {
+              mcTeam.score = team.snapshot.val()["scores"]["total"];
+            }
           }
           setState(() {
             teamsTable.add(mcTeam);
@@ -170,13 +190,15 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
               setState(() {
                 writtenRegistered = true;
                 writtenTeamID = value.snapshot.val()["written"];
+                print(writtenTeamID);
               });
               fb.database().ref("conferences").child(conference.conferenceID).child("teams").child(writtenTeamID).once("value").then((value) {
                 if (value.snapshot.val()["written"] != null) {
                   setState(() {
                     selectedWritten = value.snapshot.val()["written"];
+                    print(selectedWritten);
                   });
-                  getTeammates("written");
+                  // getTeammates("written");
                 }
                 if (value.snapshot.val()["writtenUrl"] != null) {
                   setState(() {
@@ -190,16 +212,18 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
               setState(() {
                 roleplayRegistered = true;
                 roleplayTeamID = value.snapshot.val()["roleplay"];
+                print(roleplayTeamID);
               });
               fb.database().ref("conferences").child(conference.conferenceID).child("teams").child(roleplayTeamID).once("value").then((value) {
                 if (value.snapshot.val()["roleplay"] != null) {
                   setState(() {
                     selectedRoleplay = value.snapshot.val()["roleplay"];
+                    print(selectedRoleplay);
                     roleplayExams.forEach((key, value) {
                       if (value.contains(selectedRoleplay)) selectedExam = key;
                     });
                   });
-                  getTeammates("roleplay");
+                  // getTeammates("roleplay");
                 }
               });
               getSchedule();
@@ -286,6 +310,71 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
         });
       });
     }
+  }
+
+  void getUsersTracking() {
+    userTracking.clear();
+    fb.database().ref("conferences").child(conference.conferenceID).child("users").onChildAdded.listen((event) {
+      MockConferenceUser mcUser = new MockConferenceUser();
+      fb.database().ref("users").child(event.snapshot.key).once("value").then((value) async {
+        mcUser.user = User.fromSnapshot(value.snapshot);
+        if (event.snapshot.val()["written"] != null) {
+          mcUser.writtenTeamID = event.snapshot.val()["written"];
+          await fb.database().ref("conferences").child(conference.conferenceID).child("teams").child(mcUser.writtenTeamID).once("value").then((team) {
+            if (team.snapshot.val()["written"] != null) {
+              mcUser.writtenEvent = team.snapshot.val()["written"];
+              mockConferenceEvents.forEach((key, value) {
+                if (value.contains(mcUser.writtenEvent)) mcUser.writtenEvent += " - $key";
+              });
+              List<String> ids = team.snapshot.val()["users"].keys.toList();
+              ids.forEach((element) {
+                fb.database().ref("users").child(element).once("value").then((value) {
+                  mcUser.writtenTeam.add(new User.fromSnapshot(value.snapshot));
+                });
+              });
+            }
+            if (team.snapshot.val()["writtenUrl"] != null) {
+              mcUser.writtenUrl = team.snapshot.val()["writtenUrl"];
+            }
+            if (team.snapshot.val()["scores"] != null) {
+              mcUser.writtenScore = team.snapshot.val()["scores"]["total"];
+            }
+          });
+        }
+        if (event.snapshot.val()["roleplay"] != null) {
+          mcUser.roleplayTeamID = event.snapshot.val()["roleplay"];
+          await fb.database().ref("conferences").child(conference.conferenceID).child("teams").child(event.snapshot.val()["roleplay"]).once("value").then((team) {
+            if (team.snapshot.val()["roleplay"] != null) {
+              mcUser.roleplayEvent = team.snapshot.val()["roleplay"];
+              roleplayExams.forEach((key, value) {
+                if (value.contains(mcUser.roleplayEvent)) mcUser.testName = key;
+              });
+              mockConferenceEvents.forEach((key, value) {
+                if (value.contains(mcUser.roleplayEvent)) mcUser.roleplayEvent += " - $key";
+              });
+              List<String> ids = team.snapshot.val()["users"].keys.toList();
+              ids.forEach((element) {
+                fb.database().ref("users").child(element).once("value").then((value) {
+                  mcUser.roleplayTeam.add(new User.fromSnapshot(value.snapshot));
+                });
+              });
+            }
+            if (team.snapshot.val()["scores"] != null) {
+              mcUser.roleplayScore = team.snapshot.val()["scores"]["total"];
+            }
+          });
+          await fb.database().ref("conferences").child(conference.conferenceID).child("examScores").child(mcUser.user.userID).once("value").then((value) {
+            if (value.snapshot.val() != null) {
+              mcUser.testScore = value.snapshot.val()["score"];
+            }
+          });
+        }
+        setState(() {
+          userTracking.add(mcUser);
+          userTracking.sort((a, b) => a.user.firstName.compareTo(b.user.firstName));
+        });
+      });
+    });
   }
 
   void alert(String alert) {
@@ -384,6 +473,36 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
         teamsCsv += "${user.firstName} ${user.lastName} - ";
       });
       teamsCsv += ",${element.type},${element.event}\n";
+    });
+    print(teamsCsv);
+    Clipboard.setData(new ClipboardData(text: teamsCsv));
+  }
+
+  void exportUserTrackingCsv() {
+    String teamsCsv = "First Name,Last Name,Email,Written Event,Written Team,Written Score,Roleplay Event,Roleplay Team,Roleplay Score,Test,Test Score\n";
+    userTracking.forEach((element) {
+      teamsCsv += "${element.user.firstName},${element.user.lastName},${element.user.email},${element.writtenEvent},";
+      element.writtenTeam.forEach((user) {
+        teamsCsv += "${user.firstName} ${user.lastName} - ";
+      });
+      teamsCsv += ",${element.writtenScore},${element.roleplayEvent},";
+      element.roleplayTeam.forEach((user) {
+        teamsCsv += "${user.firstName} ${user.lastName} - ";
+      });
+      teamsCsv += ",${element.roleplayScore},${element.testName},${element.testScore}\n";
+    });
+    print(teamsCsv);
+    Clipboard.setData(new ClipboardData(text: teamsCsv));
+  }
+
+  void exportRankings() {
+    String teamsCsv = "Team ID,Judge,Members,Type,Event,Score\n";
+    rankTracking.forEach((element) {
+      teamsCsv += "${element.teamID},${element.judge.firstName} ${element.judge.lastName},";
+      element.users.forEach((user) {
+        teamsCsv += "${user.firstName} ${user.lastName} - ";
+      });
+      teamsCsv += ",${element.type},${element.event},${element.score}\n";
     });
     print(teamsCsv);
     Clipboard.setData(new ClipboardData(text: teamsCsv));
@@ -683,6 +802,17 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
                               },
                             ),
                           ),
+                          new Visibility(
+                            visible: writtenTeamID != ""  && writtenTime.isAtSameMomentAs(roleplayTime),
+                            child: new ListTile(
+                              title: new Text("Written Presentation – " + selectedWritten + " (conflict with roleplay)", style: TextStyle(color: Colors.red)),
+                              leading: new Text(DateFormat("jm").format(writtenTime), style: TextStyle(color: Colors.red, fontFamily: "Gotham"),),
+                              trailing: new Icon(Icons.arrow_forward_ios, color: mainColor,),
+                              onTap: () {
+                                router.navigateTo(context, "/conferences/${conference.conferenceID}/written", transition: TransitionType.fadeIn);
+                              },
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -775,8 +905,156 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
               ),
               new Padding(padding: EdgeInsets.only(bottom: 8.0)),
               new Visibility(
-                // visible: currUser.roles.contains("Developer") || currUser.roles.contains("Advisor") || currUser.roles.contains("Officer"),
-                visible: false,
+                visible: currUser.roles.contains("Developer") || currUser.roles.contains("Advisor") || currUser.roles.contains("Officer"),
+                // visible: false,
+                child: new Container(
+                  width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                  child: new Card(
+                    child: new Container(
+                      padding: EdgeInsets.all(16),
+                      child: new Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          new Row(
+                            children: [
+                              new Icon(Icons.track_changes),
+                              new Padding(padding: EdgeInsets.all(4)),
+                              new Text("CONFERENCE TRACKER", style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor),)
+                            ],
+                          ),
+                          new Padding(padding: EdgeInsets.only(top: 8, bottom: 16), child: new Divider(color: currDividerColor, height: 8)),
+                          Container(
+                              padding: EdgeInsets.only(top: 8),
+                              width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                              child: new Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Expanded(
+                                    child: new FlatButton(
+                                      child: new Text("AUDIT LOG", style: TextStyle(fontFamily: "Montserrat", color: activeTrackingTab == "Log" ? Colors.white : currTextColor)),
+                                      color: activeTrackingTab == "Log" ? mainColor : null,
+                                      onPressed: () {
+                                        setState(() {
+                                          activeTrackingTab = "Log";
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: new FlatButton(
+                                      child: new Text("USERS (${userTracking.length})", style: TextStyle(fontFamily: "Montserrat", color: activeTrackingTab == "User" ? Colors.white : currTextColor)),
+                                      color: activeTrackingTab == "User" ? mainColor : null,
+                                      onPressed: () {
+                                        getUsersTracking();
+                                        setState(() {
+                                          activeTrackingTab = "User";
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              )
+                          ),
+                          new Padding(padding: EdgeInsets.all(8)),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              new FlatButton(
+                                child: new Text("REFRESH"),
+                                textColor: mainColor,
+                                onPressed: () {
+                                  if (activeTrackingTab == "User") {
+                                    getUsersTracking();
+                                  }
+                                }
+                              ),
+                              new FlatButton(
+                                child: new Text("COPY CSV"),
+                                textColor: mainColor,
+                                onPressed: () {
+                                  if (activeTrackingTab == "User") {
+                                    exportUserTrackingCsv();
+                                  }
+                                },
+                              ),
+                            ],
+                          ),
+                          activeTrackingTab == "User" ? new Scrollbar(
+                            child: new SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: new DataTable(
+                                  columns: [
+                                    DataColumn(label: Text('First Name', style: TextStyle(fontFamily: "Montserrat", fontSize: 17))),
+                                    DataColumn(label: Text('Last Name', style: TextStyle(fontFamily: "Montserrat", fontSize: 17))),
+                                    DataColumn(label: Text('Written Event', style: TextStyle(fontFamily: "Montserrat", fontSize: 17))),
+                                    DataColumn(label: Text('Written Team', style: TextStyle(fontFamily: "Montserrat", fontSize: 17))),
+                                    DataColumn(label: Text('Written Score', style: TextStyle(fontFamily: "Montserrat", fontSize: 17))),
+                                    DataColumn(label: Text('Roleplay Event', style: TextStyle(fontFamily: "Montserrat", fontSize: 17))),
+                                    DataColumn(label: Text('Roleplay Team', style: TextStyle(fontFamily: "Montserrat", fontSize: 17))),
+                                    DataColumn(label: Text('Roleplay Score', style: TextStyle(fontFamily: "Montserrat", fontSize: 17))),
+                                    DataColumn(label: Text('Exam Name', style: TextStyle(fontFamily: "Montserrat", fontSize: 17))),
+                                    DataColumn(label: Text('Exam Score', style: TextStyle(fontFamily: "Montserrat", fontSize: 17))),
+                                  ],
+                                  rows: userTracking.map((e) => DataRow(cells: [
+                                    DataCell(Text(e.user.firstName, style: TextStyle(fontSize: 17))),
+                                    DataCell(Text(e.user.lastName, style: TextStyle(fontSize: 17))),
+                                    DataCell(Text(e.writtenEvent != "" ? e.writtenEvent : "Not Registered", style: TextStyle(fontSize: 17, color: e.writtenEvent != "" ? currTextColor : Colors.red))),
+                                    DataCell(Row(
+                                      children: e.writtenTeam.map((k) => Container(
+                                        padding: EdgeInsets.only(right: 8),
+                                        child: new Chip(
+                                          label: new Text(k.firstName + " " + k.lastName, style: TextStyle(color: Colors.white)),
+                                          backgroundColor: mainColor,
+                                        ),
+                                      )).toList(),
+                                    )),
+                                    DataCell(Text("${e.writtenScore}/100", style: TextStyle(fontSize: 17, color: currTextColor))),
+                                    DataCell(Text(e.roleplayEvent != "" ? e.roleplayEvent : "Not Registered", style: TextStyle(fontSize: 17, color: e.roleplayEvent != "" ? currTextColor : Colors.red))),
+                                    DataCell(Row(
+                                      children: e.roleplayTeam.map((k) => Container(
+                                        padding: EdgeInsets.only(right: 8),
+                                        child: new Chip(
+                                          label: new Text(k.firstName + " " + k.lastName, style: TextStyle(color: Colors.white)),
+                                          backgroundColor: mainColor,
+                                        ),
+                                      )).toList(),
+                                    )),
+                                    DataCell(Text("${e.roleplayScore}/100", style: TextStyle(fontSize: 17, color: currTextColor))),
+                                    DataCell(Text(e.testName, style: TextStyle(fontSize: 17))),
+                                    DataCell(Text("${e.testScore}/50", style: TextStyle(fontSize: 17))),
+                                  ])).toList()
+                              ),
+                            ),
+                          ) : activeRegistrationTab == "Ranking" ? new Scrollbar(
+                            child: new Column(
+                              children: rankDisplayWidgets,
+                            ),
+                          ) : new Container(
+                            child: new Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                new Text("Total Users: ${usersTable.length}", style: TextStyle(fontSize: 17),),
+                                new Text("Total Teams: ${teamsTable.length}", style: TextStyle(fontSize: 17),),
+                                new Padding(padding: EdgeInsets.all(4)),
+                                new Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: eventTotals.entries.map((entry) => new Text(
+                                    "${entry.key}: ${entry.value}", style: TextStyle(fontSize: 17),
+                                  )).toList(),
+                                )
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              new Padding(padding: EdgeInsets.only(bottom: 8.0)),
+              new Visibility(
+                visible: currUser.roles.contains("Developer") || currUser.roles.contains("Advisor") || currUser.roles.contains("Officer"),
+                // visible: false,
                 child: new Container(
                   width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
                   child: new Card(
@@ -864,7 +1142,7 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
                                   DataCell(Text(e.user.lastName, style: TextStyle(fontSize: 17))),
                                   DataCell(Text(e.writtenEvent != "" ? e.writtenEvent : "Not Registered", style: TextStyle(fontSize: 17, color: e.writtenEvent != "" ? currTextColor : Colors.red))),
                                   DataCell(e.writtenUrl != "" ? Tooltip(message: "Written submitted!\n (click to view)", child: new InkWell(onTap: () => launch(e.writtenUrl), child: Icon(Icons.check_circle, color: mainColor))) : new Container()),
-                                  DataCell(Text(e.roleplayEvent != "" ? e.roleplayEvent : " . ", style: TextStyle(fontSize: 17, color: e.roleplayEvent != "" ? currTextColor : Colors.red))),
+                                  DataCell(Text(e.roleplayEvent != "" ? e.roleplayEvent : "Not Registered", style: TextStyle(fontSize: 17, color: e.roleplayEvent != "" ? currTextColor : Colors.red))),
                                 ])).toList()
                               ),
                             ),
@@ -892,7 +1170,7 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
                                     )),
                                     DataCell(Text(e.type, style: TextStyle(fontSize: 17))),
                                     DataCell(Text(e.event, style: TextStyle(fontSize: 17))),
-                                    DataCell(e.writtenUrl != "" ? Tooltip(message: "Written submitted!\n (click to view)", child: new InkWell(onTap: () => launch(e.writtenUrl), child: Icon(Icons.check_circle, color: mainColor))) : new Text("Written Missing", style: TextStyle(color: Colors.red, fontSize: 17),)),
+                                    DataCell(e.writtenUrl != "" ? Tooltip(message: "Written submitted!\n (click to view)", child: new InkWell(onTap: () => launch(e.writtenUrl), child: Icon(Icons.check_circle, color: mainColor))) : new Text(" . ", style: TextStyle(color: Colors.red, fontSize: 17),)),
                                   ])).toList()
                               ),
                             ),
@@ -1034,7 +1312,7 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
                               ),
                               new InkWell(
                                 onTap: () {
-                                  html.window.open("https://us02web.zoom.us/j/9988122118?pwd=d3EzT2sxTE8velJrVWZLckQraHVBZz09", "Support Room");
+                                  html.window.open("https://us02web.zoom.us/j/81202379649?pwd=dHFxYjB6YkRyN3pkbTR4OUN4VFlkUT09", "Support Room");
                                 },
                                 child: new ListTile(
                                   title: new Text("Support Room", style: TextStyle(color: currTextColor, fontSize: 18),),

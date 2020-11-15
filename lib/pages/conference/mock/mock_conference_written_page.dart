@@ -50,7 +50,10 @@ class _MockConferenceWrittenPageState extends State<MockConferenceWrittenPage> {
   String eventDesc = "";
 
   int score = -1;
+  List<dynamic> savedScores;
   String feedback = "";
+
+  List<Widget> breakdownWidgets = new List();
 
   _MockConferenceWrittenPageState(String id) {
     conference.conferenceID = id;
@@ -103,12 +106,15 @@ class _MockConferenceWrittenPageState extends State<MockConferenceWrittenPage> {
                   writtenUrl = "https://firebasestorage.googleapis.com/v0/b/mydeca-app.appspot.com/o/conferences%2F2020-VC-Mock%2Fwrittens%2Fno-written.png?alt=media&token=82037473-9928-4334-80d8-d1927af25340";
                 });
               }
-              // if (value.snapshot.val()["scores"] != null) {
-              //   setState(() {
-              //     score = value.snapshot.val()["scores"]["total"];
-              //     feedback = value.snapshot.val()["scores"]["feedback"];
-              //   });
-              // }
+              if (value.snapshot.val()["scores"] != null) {
+                setState(() {
+                  score = value.snapshot.val()["scores"]["total"];
+                  savedScores = value.snapshot.val()["scores"]["breakdown"];
+                  print("\nSAVED SCORES\n" + savedScores.toString() + "\n");
+                  savedScores.forEach((element) => print(element));
+                  createBreakdown(mockConferenceEvent);
+                  feedback = value.snapshot.val()["scores"]["feedback"];
+                });}
             });
             fb.database().ref("conferences").child(conference.conferenceID).child("eventSchedule").child(writtenTeamID).once("value").then((value) {
               setState(() {
@@ -125,6 +131,34 @@ class _MockConferenceWrittenPageState extends State<MockConferenceWrittenPage> {
         });
       });
     }
+  }
+
+  void createBreakdown(String event) {
+    print("CREATING BREAKDOWN FOR $event");
+    setState(() {
+      breakdownWidgets.add(new Text("Written Evaluation:", style: TextStyle(fontSize: 20, color: mainColor),));
+      breakdownWidgets.add(new Padding(padding: EdgeInsets.all(4),));
+    });
+    for (int i = 0; i < writtenRubrics[event][0].length; i++) {
+      print(writtenRubrics[event][0][i]);
+      setState(() {
+        breakdownWidgets.add(new Text("${writtenRubrics[event][0][i]}:  ${savedScores[0][i]}", style: TextStyle(fontSize: 17),));
+      });
+    }
+    setState(() {
+      breakdownWidgets.add(new Padding(padding: EdgeInsets.all(8),));
+      breakdownWidgets.add(new Text("Presentation Evaluation:", style: TextStyle(fontSize: 20, color: mainColor),));
+      breakdownWidgets.add(new Padding(padding: EdgeInsets.all(4),));
+    });
+    for (int i = 0; i < writtenRubrics[event][1].length; i++) {
+      print(writtenRubrics[event][1][i]);
+      setState(() {
+        breakdownWidgets.add(new Text("${writtenRubrics[event][1][i]}:  ${savedScores[1][i]}", style: TextStyle(fontSize: 17),));
+      });
+    }
+    setState(() {
+      breakdownWidgets.add(new Padding(padding: EdgeInsets.all(8),));
+    });
   }
 
   void alert(String alert) {
@@ -164,7 +198,7 @@ class _MockConferenceWrittenPageState extends State<MockConferenceWrittenPage> {
         child: new AlertDialog(
           backgroundColor: currCardColor,
           title: new Text("It looks a little early", style: TextStyle(color: currTextColor),),
-          content: new Text("It looks like you still have some time before your scheduled judging time. Are you sure you want join now?", style: TextStyle(color: currTextColor)),
+          content: Container(width: 500, child: new Text("It looks like you still have some time before your scheduled judging time. Are you sure you want join now?", style: TextStyle(color: currTextColor))),
           actions: [
             new FlatButton(
                 child: new Text("CANCEL"),
@@ -318,7 +352,8 @@ class _MockConferenceWrittenPageState extends State<MockConferenceWrittenPage> {
                                         ],
                                       ),
                                       new Padding(padding: EdgeInsets.all(8),),
-                                      new Visibility(visible: score != -1, child: new Text("Judge Feedback:", style: TextStyle(fontSize: 20),)),
+                                      new Visibility(visible: score != -1, child: new Column(crossAxisAlignment: CrossAxisAlignment.start, children: breakdownWidgets)),
+                                      new Visibility(visible: score != -1, child: new Text("Judge Feedback:", style: TextStyle(fontSize: 20, color: mainColor),)),
                                       new Visibility(visible: score != -1, child: new Padding(padding: EdgeInsets.all(4),)),
                                       new Visibility(visible: score != -1, child: new Text(feedback, style: TextStyle(fontSize: 17),)),
                                       new Visibility(visible: score == -1, child: new Text("Joining Instructions:\n\nWhen you join the zoom room, you will need to send a message similar to the following in the chat so that you can be moved into the correct breakout room for your judge.\n", style: TextStyle(fontSize: 17))),

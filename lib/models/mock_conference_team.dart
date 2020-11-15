@@ -10,5 +10,7 @@ class MockConferenceTeam {
   User judge = User.plain();
   int score;
 
+  int testScore = 0;
+
   List<User> users = new List();
 }

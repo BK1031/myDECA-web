@@ -53,7 +53,10 @@ class _MockConferenceRoleplayPageState extends State<MockConferenceRoleplayPage>
   String eventDesc = "";
 
   int score = -1;
+  List<dynamic> savedScores;
   String feedback = "";
+
+  List<Widget> breakdownWidgets = new List();
 
   Stopwatch stopwatch = new Stopwatch();
   Timer timer;
@@ -103,12 +106,15 @@ class _MockConferenceRoleplayPageState extends State<MockConferenceRoleplayPage>
                   });
                 });
               }
-              // if (value.snapshot.val()["scores"] != null) {
-              //   setState(() {
-              //     score = value.snapshot.val()["scores"]["total"];
-              //     feedback = value.snapshot.val()["scores"]["feedback"];
-              //   });
-              // }
+              if (value.snapshot.val()["scores"] != null) {
+                setState(() {
+                  score = value.snapshot.val()["scores"]["total"];
+                  savedScores = value.snapshot.val()["scores"]["breakdown"];
+                  print("\nSAVED SCORES\n" + savedScores.toString() + "\n");
+                  savedScores.forEach((element) => print(element));
+                  createBreakdown(mockConferenceEvent);
+                  feedback = value.snapshot.val()["scores"]["feedback"];
+                });}
             });
             fb.database().ref("conferences").child(conference.conferenceID).child("eventSchedule").child(roleplayTeamID).once("value").then((value) {
               setState(() {
@@ -171,9 +177,12 @@ class _MockConferenceRoleplayPageState extends State<MockConferenceRoleplayPage>
           backgroundColor: currCardColor,
           title: new Text(
             "It looks a little early", style: TextStyle(color: currTextColor),),
-          content: new Text(
-              "It looks like you still have some time before your scheduled roleplay preperation time. Are you sure you want view your prompt now? You will only get a maximum of 10 minutes to prepare.",
-              style: TextStyle(color: currTextColor)),
+          content: Container(
+            width: 500,
+            child: new Text(
+                "It looks like you still have some time before your scheduled roleplay preparation time. Are you sure you want view your prompt now? You will only get a maximum of 10 minutes to prepare.",
+                style: TextStyle(color: currTextColor)),
+          ),
           actions: [
             new FlatButton(
                 child: new Text("CANCEL"),
@@ -183,7 +192,7 @@ class _MockConferenceRoleplayPageState extends State<MockConferenceRoleplayPage>
                 }
             ),
             new FlatButton(
-                child: new Text("JOIN"),
+                child: new Text("VIEW PROMPT"),
                 textColor: mainColor,
                 onPressed: () {
                   router.pop(context);
@@ -230,7 +239,7 @@ class _MockConferenceRoleplayPageState extends State<MockConferenceRoleplayPage>
         child: new AlertDialog(
           backgroundColor: currCardColor,
           title: new Text("It looks a little early", style: TextStyle(color: currTextColor),),
-          content: new Text("It looks like you still have some time before your scheduled judging time. Are you sure you want join now?", style: TextStyle(color: currTextColor)),
+          content: Container(width: 500, child: new Text("It looks like you still have some time before your scheduled judging time. Are you sure you want join now?", style: TextStyle(color: currTextColor))),
           actions: [
             new FlatButton(
                 child: new Text("CANCEL"),
@@ -259,6 +268,34 @@ class _MockConferenceRoleplayPageState extends State<MockConferenceRoleplayPage>
     return "$twoDigitMinutes:$twoDigitSeconds";
   }
 
+  void createBreakdown(String event) {
+    print("CREATING BREAKDOWN FOR $event");
+    setState(() {
+      breakdownWidgets.add(new Text("Written Evaluation:", style: TextStyle(fontSize: 20, color: mainColor),));
+      breakdownWidgets.add(new Padding(padding: EdgeInsets.all(4),));
+    });
+    for (int i = 0; i < roleplayRubrics[event][0].length; i++) {
+      print(roleplayRubrics[event][0][i]);
+      setState(() {
+        breakdownWidgets.add(new Text("${roleplayRubrics[event][0][i]}:  ${savedScores[0][i]}", style: TextStyle(fontSize: 17),));
+      });
+    }
+    setState(() {
+      breakdownWidgets.add(new Padding(padding: EdgeInsets.all(8),));
+      breakdownWidgets.add(new Text("Presentation Evaluation:", style: TextStyle(fontSize: 20, color: mainColor),));
+      breakdownWidgets.add(new Padding(padding: EdgeInsets.all(4),));
+    });
+    for (int i = 0; i < roleplayRubrics[event][1].length; i++) {
+      print(roleplayRubrics[event][1][i]);
+      setState(() {
+        breakdownWidgets.add(new Text("${roleplayRubrics[event][1][i]}:  ${savedScores[1][i]}", style: TextStyle(fontSize: 17),));
+      });
+    }
+    setState(() {
+      breakdownWidgets.add(new Padding(padding: EdgeInsets.all(8),));
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -283,6 +320,7 @@ class _MockConferenceRoleplayPageState extends State<MockConferenceRoleplayPage>
             ),
             new Expanded(
               child: new Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   new Expanded(
                     child: Container(
@@ -294,11 +332,9 @@ class _MockConferenceRoleplayPageState extends State<MockConferenceRoleplayPage>
                           children: [
                             new Visibility(
                               visible: blurPrompt,
-                              child: Expanded(
-                                  child: Image.asset(
-                                    "images/roleplay-blurred.png",
-                                    fit: BoxFit.contain,
-                                  )
+                              child: Image.asset(
+                                "images/roleplay-blurred.png",
+                                fit: BoxFit.contain,
                               ),
                             ),
                             new Visibility(
@@ -405,9 +441,10 @@ class _MockConferenceRoleplayPageState extends State<MockConferenceRoleplayPage>
                                         ],
                                       ),
                                       new Padding(padding: EdgeInsets.all(8),),
-                                      new Visibility(visible: score != -1, child: new Text("Judge Feedback:", style: TextStyle(fontSize: 20),)),
+                                      new Visibility(visible: score != -1, child: new Column(crossAxisAlignment: CrossAxisAlignment.start, children: breakdownWidgets)),
+                                      new Visibility(visible: score != -1, child: new Text("Judge Feedback:", style: TextStyle(fontSize: 20, color: mainColor),)),
                                       new Visibility(visible: score != -1, child: new Padding(padding: EdgeInsets.all(4),)),
-                                      new Visibility(visible: score != -1, child: new Text("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam egestas est ac efficitur tempus. Donec ac dictum nulla, ut dignissim nibh. Nunc iaculis purus ultrices nunc malesuada euismod.", style: TextStyle(fontSize: 17),)),
+                                      new Visibility(visible: score != -1, child: new Text(feedback, style: TextStyle(fontSize: 17),)),
                                       new Visibility(visible: score == -1 && DateTime.now().isBefore(startTime), child: new Text("Preparation Instructions:\n\nWhen you click on the view prompt button below, the prompt will become visible on the left and the timer for your preparation period will start. You will have until your scheduled presentation time (with a max of 10 minutes) to prepare for your roleplay.\n", style: TextStyle(fontSize: 17))),
                                       new Visibility(visible: (score == -1 && doneViewing) || DateTime.now().isAfter(startTime), child: new Text("Joining Instructions:\n\nWhen you join the zoom room, you will need to send a message similar to the following in the chat so that you can be moved into the correct breakout room for your judge.\n", style: TextStyle(fontSize: 17))),
                                       new Visibility(visible: (score == -1 && doneViewing) || DateTime.now().isAfter(startTime), child: new SelectableText("Team ID: ${roleplayTeamID} [${selectedRoleplay}] ${currUser.firstName} ${currUser.lastName}, Judge: ${judge.firstName} ${judge.lastName} @ ${DateFormat("jm").format(startTime)}", style: TextStyle(fontFamily: "Courier New", fontSize: 17),)),
@@ -419,6 +456,14 @@ class _MockConferenceRoleplayPageState extends State<MockConferenceRoleplayPage>
                                           child: new Center(
                                             child: new Text("Time Remaining: ${stopwatch.isRunning ? _printDuration(endPrepTime.difference(DateTime.now())) : ""}", style: TextStyle(fontSize: 17),),
                                           ),
+                                        ),
+                                      ),
+                                      new Visibility(
+                                        visible: score == -1 && stopwatch.isRunning,
+                                        child: new FlatButton(
+                                          child: new Text("Can't see the prompt? Click here!"),
+                                          onPressed: () => launch(roleplayUrl),
+                                          textColor: mainColor,
                                         ),
                                       ),
                                       new Visibility(

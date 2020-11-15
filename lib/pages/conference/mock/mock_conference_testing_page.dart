@@ -75,13 +75,13 @@ class _MockConferenceTestingPageState extends State<MockConferenceTestingPage> {
             conference = new Conference.fromSnapshot(value.snapshot);
           });
         });
-        fb.database().ref("conferences").child(conference.conferenceID).child("examOpen").once("value").then((event) {
-          print("TEST OPEN: ${event.snapshot.val()}");
-          if (!event.snapshot.val()) {
-            alert("This test has not been opened yet! Please check back again later.");
-            router.navigateTo(context, "/conferences/${conference.conferenceID}", clearStack: true, replace: true, transition: TransitionType.fadeIn);
-          }
-        });
+        // fb.database().ref("conferences").child(conference.conferenceID).child("examOpen").once("value").then((event) {
+        //   print("TEST OPEN: ${event.snapshot.val()}");
+        //   if (!event.snapshot.val()) {
+        //     alert("This test has not been opened yet! Please check back again later.");
+        //     router.navigateTo(context, "/conferences/${conference.conferenceID}", clearStack: true, replace: true, transition: TransitionType.fadeIn);
+        //   }
+        // });
         fb.database().ref("conferences").child(conference.conferenceID).child("users").child(currUser.userID).once("value").then((value) {
           if (value.snapshot.val()["roleplay"] != null) {
             setState(() {
@@ -166,16 +166,16 @@ class _MockConferenceTestingPageState extends State<MockConferenceTestingPage> {
                   timer = new Timer.periodic(const Duration(milliseconds: 500), (timer) {
                     if (stopwatch.isRunning) {
                       setState(() {});
-                      if (endTime.difference(DateTime.now()).inMilliseconds < 300000) {
+                      if (endTime.difference(DateTime.now()).inMilliseconds < 300000 && endTime.difference(DateTime.now()).inMilliseconds > 300000 - 500) {
                         alert("5 minutes left to submit your test!");
                       }
-                      if (endTime.difference(DateTime.now()).inMilliseconds < 60000) {
+                      if (endTime.difference(DateTime.now()).inMilliseconds < 60000 && endTime.difference(DateTime.now()).inMilliseconds > 60000 - 500) {
                         alert("1 minute left to submit your test!");
                       }
-                      if (endTime.difference(DateTime.now()).inMilliseconds < 10000) {
+                      if (endTime.difference(DateTime.now()).inMilliseconds < 10000 && endTime.difference(DateTime.now()).inMilliseconds > 10000 - 500) {
                         alert("Your test will be automatically submitted in 10 seconds!");
                       }
-                      if (endTime.difference(DateTime.now()).inMilliseconds < 1000) {
+                      if (endTime.difference(DateTime.now()).inMilliseconds < 1000 && endTime.difference(DateTime.now()).inMilliseconds > 1000 - 500) {
                         submitExam();
                       }
                     }
@@ -239,8 +239,8 @@ class _MockConferenceTestingPageState extends State<MockConferenceTestingPage> {
                 child: new Text("SUBMIT"),
                 textColor: mainColor,
                 onPressed: () {
-                  submitExam();
                   router.pop(context);
+                  submitExam();
                 }
             )
           ],
@@ -251,22 +251,25 @@ class _MockConferenceTestingPageState extends State<MockConferenceTestingPage> {
   void submitExam() {
     stopwatch.stop();
     timer.cancel();
-    endTime = DateTime.now();
     score = 0;
     print(myAnswers);
     print(correctAnswers);
-    for (int i = 0; i < 50; i++) {
-      if (myAnswers[i] == correctAnswers[i]) score++;
+    try {
+      for (int i = 0; i < 50; i++) {
+        if (myAnswers[i] == null) myAnswers[i] = "0";
+        if (correctAnswers[i] == null) correctAnswers[i] = "0";
+        if (myAnswers[i] == correctAnswers[i]) score++;
+      }
+      fb.database().ref("conferences").child(conference.conferenceID).child("examScores").child(currUser.userID).set({
+        "score": score,
+        "startTime": startTime.toString(),
+        "endTime": DateTime.now().toString(),
+        "answers": myAnswers
+      });
+      html.window.location.reload();
+    } catch (e) {
+      alert("There was an error submitting your test $e");
     }
-    fb.database().ref("conferences").child(conference.conferenceID).child("examScores").child(currUser.userID).set({
-      "score": score,
-      "startTime": startTime.toString(),
-      "endTime": endTime.toString(),
-      "answers": myAnswers
-    });
-    setState(() {
-      taken = true;
-    });
   }
 
   void alert(String alert) {
