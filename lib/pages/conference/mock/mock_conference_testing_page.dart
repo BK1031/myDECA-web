@@ -21,6 +21,8 @@ import 'package:mydeca_web/utils/config.dart';
 import 'package:mydeca_web/utils/theme.dart';
 import 'dart:html' as html;
 
+import 'package:url_launcher/url_launcher.dart';
+
 class MockConferenceTestingPage extends StatefulWidget {
   String id;
   MockConferenceTestingPage(this.id);
@@ -56,6 +58,8 @@ class _MockConferenceTestingPageState extends State<MockConferenceTestingPage> {
   List<dynamic> correctAnswers;
 
   List<dynamic> submittedAnswers;
+
+  List<Widget> answersWidgets = new List();
 
   _MockConferenceTestingPageState(String id) {
     conference.conferenceID = id;
@@ -107,20 +111,21 @@ class _MockConferenceTestingPageState extends State<MockConferenceTestingPage> {
                     correctAnswers = value.snapshot.val()["answers"];
                   });
                   print(testUrl);
-                });
-                fb.database().ref("conferences").child(conference.conferenceID).child("examScores").child(currUser.userID).once("value").then((value) {
-                  if (value.snapshot.val() != null) {
-                    print(value.snapshot.val());
-                    setState(() {
-                      taken = true;
-                      score = value.snapshot.val()["score"];
-                      startTime = DateTime.parse(value.snapshot.val()["startTime"]);
-                      endTime = DateTime.parse(value.snapshot.val()["endTime"]);
-                      submittedAnswers = value.snapshot.val()["answers"];
-                    });
-                    print("START TIME: " + startTime.toString());
-                    print("START TIME + " + startTime.toString());
-                  }
+                  fb.database().ref("conferences").child(conference.conferenceID).child("examScores").child(currUser.userID).once("value").then((value) {
+                    if (value.snapshot.val() != null) {
+                      print(value.snapshot.val());
+                      setState(() {
+                        taken = true;
+                        score = value.snapshot.val()["score"];
+                        startTime = DateTime.parse(value.snapshot.val()["startTime"]);
+                        endTime = DateTime.parse(value.snapshot.val()["endTime"]);
+                        submittedAnswers = value.snapshot.val()["answers"];
+                      });
+                      createAnswersWidgets();
+                      print("START TIME: " + startTime.toString());
+                      print("START TIME + " + startTime.toString());
+                    }
+                  });
                 });
               }
               else {
@@ -138,6 +143,32 @@ class _MockConferenceTestingPageState extends State<MockConferenceTestingPage> {
     super.dispose();
     timer.cancel();
     stopwatch.stop();
+  }
+
+  void createAnswersWidgets() {
+    print(submittedAnswers);
+    print(correctAnswers);
+    setState(() {
+      answersWidgets.add(
+        new FlatButton(child: Text("VIEW EXAM SOLUTIONS"), onPressed: () => launch(solutionUrl), textColor: mainColor,)
+      );
+    });
+    for (int i = 0; i < correctAnswers.length; i++) {
+      setState(() {
+        answersWidgets.add(new ListTile(
+          title: Row(
+            children: [
+              new Text("Question ${i+1}: "),
+              new Padding(padding: EdgeInsets.all(4)),
+              new Text("${submittedAnswers[i] == "0" ? "Not Answered" : submittedAnswers[i].toString().toUpperCase()}", style: TextStyle(fontSize: 17),),
+              new Padding(padding: EdgeInsets.all(4)),
+              new Visibility(visible: submittedAnswers[i] != correctAnswers[i], child: Text("(Correct Answer is ${correctAnswers[i].toString().toUpperCase()})", style: TextStyle(fontSize: 17, color: Colors.red),))
+            ],
+          ),
+          trailing: new Icon(submittedAnswers[i] == correctAnswers[i] ? Icons.check_circle : Icons.remove_circle, color: submittedAnswers[i] == correctAnswers[i] ? Colors.green : Colors.red)
+        ));
+      });
+    }
   }
 
   void confirmStart() {
@@ -180,7 +211,6 @@ class _MockConferenceTestingPageState extends State<MockConferenceTestingPage> {
                       }
                     }
                   });
-
                   router.pop(context);
                 }
             )
@@ -435,19 +465,12 @@ class _MockConferenceTestingPageState extends State<MockConferenceTestingPage> {
                             visible: taken,
                             child: new Expanded(
                               child: new Card(
-                                  child: new Container(
-                                    width: double.infinity,
+                                  child: new SingleChildScrollView(
                                     padding: EdgeInsets.all(16),
                                     child: new Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      children: [
-                                        new Text("You finished!", style: TextStyle(fontSize: 30, fontFamily: "Montserrat"),),
-                                        new Padding(padding: EdgeInsets.all(8),),
-                                        new Icon(Icons.check_circle_outline, size: 60, color: mainColor,),
-                                        new Padding(padding: EdgeInsets.all(8),),
-                                        new Text("Check back later here to see solutions for each question.", style: TextStyle(fontSize: 17),)
-                                      ],
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: answersWidgets
                                     ),
                                   )
                               ),

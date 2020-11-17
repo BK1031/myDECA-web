@@ -437,7 +437,7 @@ class _MockConferenceRoleplayPageState extends State<MockConferenceRoleplayPage>
                                               new Text("Presentation Time: ${DateFormat("MMMd").format(startTime)} (${DateFormat("jm").format(startTime)} - ${DateFormat("jm").format(startTime.add(Duration(minutes: 10)))})", style: TextStyle(fontSize: 20, color: mainColor)),
                                             ],
                                           ),
-                                          new Visibility(visible: score != -1, child: new Text("94/100", style: TextStyle(fontFamily: "Gotham", fontSize: 60, color: mainColor)))
+                                          new Visibility(visible: score != -1, child: new Text("$score/100", style: TextStyle(fontFamily: "Gotham", fontSize: 60, color: mainColor)))
                                         ],
                                       ),
                                       new Padding(padding: EdgeInsets.all(8),),
