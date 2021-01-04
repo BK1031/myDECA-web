@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase/firebase.dart' as fb;
+import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:mydeca_web/models/conference.dart';
 import 'package:mydeca_web/models/user.dart';
 import 'package:mydeca_web/navbars/home_navbar.dart';
@@ -18,6 +19,7 @@ import 'package:mydeca_web/utils/config.dart';
 import 'package:mydeca_web/utils/theme.dart';
 import 'dart:html' as html;
 import 'package:progress_indicators/progress_indicators.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ConferenceDetailsPage extends StatefulWidget {
   String id;
@@ -156,11 +158,13 @@ class _ConferenceDetailsPageState extends State<ConferenceDetailsPage> {
                     Container(
                         padding: EdgeInsets.only(top: 8),
                         width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
-                        child: new Text(
-                          "${conference.desc}",
+                        child: new Linkify(
+                          text: "${conference.desc}",
                           style: TextStyle(fontSize: 17, color: currTextColor),
+                          onOpen: (link) => launch(link.url),
                         )
                     ),
+                    new Padding(padding: EdgeInsets.all(8.0)),
                     Container(
                         width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
                         child: Wrap(

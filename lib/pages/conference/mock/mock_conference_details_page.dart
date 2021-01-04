@@ -633,21 +633,18 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
                   )
               ),
               new Padding(padding: EdgeInsets.only(bottom: 8.0)),
-              new Visibility(
-                visible: !(writtenRegistered || roleplayRegistered) && !currUser.roles.contains("Judge"),
-                child: new Container(
-                  width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
-                  child: new Card(
-                    child: new Container(
-                      padding: EdgeInsets.all(16),
-                      child: new Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          new Text("Sorry, you just missed it!", style: TextStyle(fontFamily: "Montserrat", fontSize: 25),),
-                          new Padding(padding: EdgeInsets.all(4),),
-                          new Text("Registration for this mock conference has closed, and you are not registered. If you believe this is an error, please contact us.", style: TextStyle(fontSize: 17))
-                        ]
-                      ),
+              new Container(
+                width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                child: new Card(
+                  child: new Container(
+                    padding: EdgeInsets.all(16),
+                    child: new Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        new Text("We did it!", style: TextStyle(fontFamily: "Montserrat", fontSize: 25),),
+                        new Padding(padding: EdgeInsets.all(4),),
+                        new Text("We have successfully completed the first DECA Mock Conference at Valley Christian! A huge shout-out to all the students, mentors, and judges who helped to ensure that this was all possible.", style: TextStyle(fontSize: 17))
+                      ]
                     ),
                   ),
                 ),
@@ -684,58 +681,11 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
                           ),
                           new Padding(padding: EdgeInsets.only(top: 8, bottom: 16), child: new Divider(color: currDividerColor, height: 8)),
                           new Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: judgeTeams.map((team) => Container(
-                              padding: EdgeInsets.only(bottom: 8),
-                              width: double.infinity,
-                              child: new Card(
-                                child: new InkWell(
-                                  onTap: () {
-                                    if (team.type == "Written") {
-                                      router.navigateTo(context, "/conferences/${conference.conferenceID}/written/${team.teamID}/judging", transition: TransitionType.fadeIn);
-                                    }
-                                    else {
-                                      router.navigateTo(context, "/conferences/${conference.conferenceID}/roleplay/${team.teamID}/judging", transition: TransitionType.fadeIn);
-                                    }
-                                  },
-                                  child: new Container(
-                                    padding: EdgeInsets.all(16),
-                                    child: Row(
-                                      children: [
-                                        new Expanded(
-                                          child: new Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              new Text("${DateFormat("jm").format(team.startTime)} - ${DateFormat("jm").format(team.startTime.add(Duration(minutes: 10)))}", style: TextStyle(fontSize: 25, color: mainColor)),
-                                              new Padding(padding: EdgeInsets.all(4),),
-                                              new Text("Team ID: ${team.teamID}  •  ${team.event} (${team.type})", style: TextStyle(fontSize: 17),),
-                                              new Padding(padding: EdgeInsets.all(4),),
-                                              new Row(
-                                                children: team.users.map((k) => Container(
-                                                  padding: EdgeInsets.only(right: 8),
-                                                  child: new Chip(
-                                                    label: new Text(k.firstName + " " + k.lastName, style: TextStyle(color: Colors.white)),
-                                                    backgroundColor: mainColor,
-                                                  ),
-                                                )).toList(),
-                                              )
-                                            ],
-                                          ),
-                                        ),
-                                        new Visibility(
-                                          visible: team.score != null,
-                                          child: new Container(
-                                            padding: EdgeInsets.all(16),
-                                            child: new Text("${team.score}/100", style: TextStyle(color: mainColor, fontSize: 25, fontFamily: "Gotham"),),
-                                          ),
-                                        ),
-                                        new Icon(Icons.arrow_forward_ios, color: mainColor,)
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            )).toList()
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              new Text("Thank you for helping judge our first mock conference!", style: TextStyle(fontSize: 40),)
+                            ],
                           )
                         ],
                       ),
@@ -764,7 +714,7 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
                           new ListTile(
                             title: new Text(selectedExam),
                             leading: new Text("11:00 AM", style: TextStyle(color: mainColor, fontFamily: "Gotham"),),
-                            trailing: new Text(examOpen ? "START NOW" : "NOT OPEN", style: TextStyle(color: examOpen ? mainColor : Colors.grey),),
+                            trailing: new Icon(Icons.arrow_forward_ios, color: mainColor,),
                             onTap: examOpen ? () {
                               router.navigateTo(context, "/conferences/${conference.conferenceID}/testing", replace: true, clearStack: true, transition: TransitionType.fadeIn);
                             } : null,
@@ -819,90 +769,90 @@ class _MockConferenceDetailsPageState extends State<MockConferenceDetailsPage> {
                   ),
                 ),
               ),
-              new Visibility(
-                visible: (writtenRegistered || roleplayRegistered),
-                child: new Container(
-                  width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
-                  child: new Card(
-                    child: new Container(
-                      padding: EdgeInsets.all(16),
-                      child: new Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          new Text("You're all set!", style: TextStyle(fontSize: 30, fontFamily: "Montserrat"),),
-                          new Padding(padding: EdgeInsets.all(4),),
-                          Center(
-                            child: Row(
-                              children: [
-                                new Icon(Icons.check_circle_outline, size: 30, color: mainColor,),
-                                new Padding(padding: EdgeInsets.all(4),),
-                                new Text("Register for conference", style: TextStyle(fontSize: 17),)
-                              ],
-                            ),
-                          ),
-                          new Padding(padding: EdgeInsets.all(4),),
-                          new Visibility(
-                            visible: writtenUrl != "",
-                            child: Center(
-                              child: Row(
-                                children: [
-                                  new Icon(Icons.check_circle_outline, size: 30, color: mainColor,),
-                                  new Padding(padding: EdgeInsets.all(4),),
-                                  new Text("Submit written report", style: TextStyle(fontSize: 17),),
-                                  new Padding(padding: EdgeInsets.all(8),),
-                                  new RaisedButton(
-                                    child: new Text("VIEW SUBMISSION"),
-                                    color: mainColor,
-                                    textColor: Colors.white,
-                                    onPressed: () {
-                                      launch(writtenUrl);
-                                    },
-                                  )
-                                ],
-                              ),
-                            ),
-                          ),
-                          new Visibility(
-                            visible: uploadProgress != 100 && uploadProgress != 0,
-                            child: new Container(
-                                padding: EdgeInsets.all(16.0),
-                                child: new HeartbeatProgressIndicator(
-                                  child: new Image.asset(
-                                    'images/deca-diamond.png',
-                                    height: 20.0,
-                                  ),
-                                )
-                            ),
-                          ),
-                          new OutlineButton(
-                            onPressed: () {
-                              if (writtenUrl != "") alert("Are you sure you want to upload another file? This will overwrite your current submission.");
-                              setState(() {
-                                uploadProgress = 0;
-                              });
-                              _startFilePicker();
-                            },
-                            child: Container(
-                              width: 150,
-                              height: 50,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                children: <Widget>[
-                                  new Icon(Icons.file_upload),
-                                  new Text("Upload Written"),
-                                ],
-                              ),
-                            ),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
-                          ),
-                          new Padding(padding: EdgeInsets.all(4),),
-                          Container(width: 350, child: Center(child: new Text("You are registered for this conference! Don't forget to turn in your written here by Nov 10, 11:59 pm. Your written report must be a PDF file and less than 25mb in size.", style: TextStyle(fontSize: 17), textAlign: TextAlign.center,))),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+              // new Visibility(
+              //   visible: (writtenRegistered || roleplayRegistered),
+              //   child: new Container(
+              //     width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+              //     child: new Card(
+              //       child: new Container(
+              //         padding: EdgeInsets.all(16),
+              //         child: new Column(
+              //           crossAxisAlignment: CrossAxisAlignment.center,
+              //           children: [
+              //             new Text("You're all set!", style: TextStyle(fontSize: 30, fontFamily: "Montserrat"),),
+              //             new Padding(padding: EdgeInsets.all(4),),
+              //             Center(
+              //               child: Row(
+              //                 children: [
+              //                   new Icon(Icons.check_circle_outline, size: 30, color: mainColor,),
+              //                   new Padding(padding: EdgeInsets.all(4),),
+              //                   new Text("Register for conference", style: TextStyle(fontSize: 17),)
+              //                 ],
+              //               ),
+              //             ),
+              //             new Padding(padding: EdgeInsets.all(4),),
+              //             new Visibility(
+              //               visible: writtenUrl != "",
+              //               child: Center(
+              //                 child: Row(
+              //                   children: [
+              //                     new Icon(Icons.check_circle_outline, size: 30, color: mainColor,),
+              //                     new Padding(padding: EdgeInsets.all(4),),
+              //                     new Text("Submit written report", style: TextStyle(fontSize: 17),),
+              //                     new Padding(padding: EdgeInsets.all(8),),
+              //                     new RaisedButton(
+              //                       child: new Text("VIEW SUBMISSION"),
+              //                       color: mainColor,
+              //                       textColor: Colors.white,
+              //                       onPressed: () {
+              //                         launch(writtenUrl);
+              //                       },
+              //                     )
+              //                   ],
+              //                 ),
+              //               ),
+              //             ),
+              //             new Visibility(
+              //               visible: uploadProgress != 100 && uploadProgress != 0,
+              //               child: new Container(
+              //                   padding: EdgeInsets.all(16.0),
+              //                   child: new HeartbeatProgressIndicator(
+              //                     child: new Image.asset(
+              //                       'images/deca-diamond.png',
+              //                       height: 20.0,
+              //                     ),
+              //                   )
+              //               ),
+              //             ),
+              //             new OutlineButton(
+              //               onPressed: () {
+              //                 if (writtenUrl != "") alert("Are you sure you want to upload another file? This will overwrite your current submission.");
+              //                 setState(() {
+              //                   uploadProgress = 0;
+              //                 });
+              //                 _startFilePicker();
+              //               },
+              //               child: Container(
+              //                 width: 150,
+              //                 height: 50,
+              //                 child: Row(
+              //                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              //                   children: <Widget>[
+              //                     new Icon(Icons.file_upload),
+              //                     new Text("Upload Written"),
+              //                   ],
+              //                 ),
+              //               ),
+              //               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
+              //             ),
+              //             new Padding(padding: EdgeInsets.all(4),),
+              //             Container(width: 350, child: Center(child: new Text("You are registered for this conference! Don't forget to turn in your written here by Nov 10, 11:59 pm. Your written report must be a PDF file and less than 25mb in size.", style: TextStyle(fontSize: 17), textAlign: TextAlign.center,))),
+              //           ],
+              //         ),
+              //       ),
+              //     ),
+              //   ),
+              // ),
               new Padding(padding: EdgeInsets.only(bottom: 8.0)),
               new Visibility(
                 visible: currUser.roles.contains("Developer") || currUser.roles.contains("Advisor") || currUser.roles.contains("Officer"),

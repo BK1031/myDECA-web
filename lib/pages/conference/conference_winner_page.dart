@@ -117,7 +117,7 @@ class _ConferenceWinnersPageState extends State<ConferenceWinnersPage> {
       );
     }
     else {
-      return Container(
+      return SingleChildScrollView(
         child: new Column(
             children: widgetList
         ),
