@@ -10,7 +10,6 @@ import 'package:mydeca_web/models/user.dart';
 import 'package:mydeca_web/navbars/home_navbar.dart';
 import 'package:mydeca_web/navbars/mobile_sidebar.dart';
 import 'package:mydeca_web/pages/auth/login_page.dart';
-import 'package:mydeca_web/pages/download_page.dart';
 import 'package:mydeca_web/pages/home/advisor/advisor_conference_select.dart';
 import 'package:mydeca_web/pages/home/advisor/send_notification_dialog.dart';
 import 'package:mydeca_web/pages/home/join_group_dialog.dart';
@@ -453,7 +452,7 @@ class _SettingsPageState extends State<SettingsPage> {
         );
       }
       else {
-        return DownloadPage();
+        return Container();
       }
     }
     else {

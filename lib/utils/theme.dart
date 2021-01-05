@@ -51,6 +51,7 @@ final mainTheme = new ThemeData(
             title: TextStyle(
                 fontSize: 20.0,
                 fontFamily: "Gotham",
+                color: Colors.white,
                 fontWeight: FontWeight.bold
             )
         )

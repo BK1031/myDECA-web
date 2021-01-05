@@ -5,6 +5,9 @@ import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase/firebase.dart' as fb;
 import 'package:mydeca_web/models/user.dart';
+import 'package:mydeca_web/utils/button_filled.dart';
+import 'package:mydeca_web/utils/button_flat.dart';
+import 'package:mydeca_web/utils/button_outline.dart';
 import 'package:mydeca_web/utils/config.dart';
 import 'package:mydeca_web/utils/theme.dart';
 
@@ -44,94 +47,131 @@ class _MobileSidebarState extends State<MobileSidebar> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: mainColor,
-      child: new Column(
-        children: [
-          new Container(
-            padding: new EdgeInsets.all(16),
-            child: new Card(
-              elevation: 2.0,
-              child: new Container(
-                color: currCardColor,
-                child: new Column(
+    return new Drawer(
+      child: Scaffold(
+        backgroundColor: mainColor,
+        body: new SafeArea(
+          child: new Container(
+            padding: EdgeInsets.all(8),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Center(
+                  child: new Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      new Padding(padding: EdgeInsets.all(16)),
+                      new ClipRRect(
+                        borderRadius: BorderRadius.all(Radius.circular(100)),
+                        child: new CachedNetworkImage(
+                          imageUrl: currUser.profileUrl,
+                          height: 100,
+                        ),
+                      ),
+                      new Padding(padding: EdgeInsets.all(8)),
+                      new Text(
+                        currUser.firstName + " " + currUser.lastName,
+                        style: TextStyle(color: Colors.white, fontFamily: "Montserrat", fontWeight: FontWeight.bold, fontSize: 25),
+                        textAlign: TextAlign.center,
+                      ),
+                      new FlatButton(
+                        child: new Text("View Profile"),
+                        textColor: Colors.white.withOpacity(0.6),
+                        onPressed: () {
+                          router.pop(context);
+                          Future.delayed(const Duration(milliseconds: 100), () {
+                            router.navigateTo(context, "/profile", transition: TransitionType.nativeModal);
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                new Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Container(
-                      padding: EdgeInsets.all(8),
-                      child: new Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          new Icon(Icons.person),
-                          new Padding(padding: EdgeInsets.all(4)),
-                          new Text("PROFILE", style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor),)
-                        ],
-                      ),
-                    ),
-                    new Container(padding: EdgeInsets.only(top: 8, bottom: 16), child: new Divider(color: currDividerColor, height: 8)),
-                    new ClipRRect(
-                      borderRadius: BorderRadius.all(Radius.circular(100)),
-                      child: new CachedNetworkImage(
-                        imageUrl: currUser.profileUrl,
-                        height: 100,
-                      ),
-                    ),
-                    new Padding(padding: EdgeInsets.all(8)),
-                    new Text(
-                      currUser.firstName + " " + currUser.lastName,
-                      style: TextStyle(fontSize: 25),
-                    ),
-                    new Padding(padding: EdgeInsets.all(8)),
-                    new Wrap(
-                        direction: Axis.horizontal,
-                        children: roleWidgetList
+                    new ListTile(
+                      leading: Icon(Icons.home, color: Colors.white.withOpacity(0.70),),
+                      title: new Text("Home", style: TextStyle(color: Colors.white, fontSize: 17),),
+                      onTap: () {
+                        router.pop(context);
+                        Future.delayed(const Duration(milliseconds: 100), () {
+                          router.navigateTo(context, "/home", transition: TransitionType.fadeIn, replace: true);
+                        });
+                      },
                     ),
                     new ListTile(
-                      leading: new Icon(currUser.emailVerified ? Icons.verified_user : Icons.mail),
-                      title: new Text(currUser.email),
+                      leading: Icon(Icons.notifications, color: Colors.white.withOpacity(0.70),),
+                      title: new Text("Announcements", style: TextStyle(color: Colors.white, fontSize: 17),),
+                      onTap: () {
+                        router.pop(context);
+                        Future.delayed(const Duration(milliseconds: 100), () {
+                          router.navigateTo(context, "/home/announcements", transition: TransitionType.fadeIn, replace: true);
+                        });
+                      },
+                    ),
+                    new ListTile(
+                      leading: Icon(Icons.people, color: Colors.white.withOpacity(0.70),),
+                      title: new Text("Conferences", style: TextStyle(color: Colors.white, fontSize: 17),),
+                      onTap: () {
+                        router.pop(context);
+                        Future.delayed(const Duration(milliseconds: 100), () {
+                          router.navigateTo(context, "/conferences", transition: TransitionType.fadeIn, replace: true);
+                        });
+                      },
+                    ),
+                    new ListTile(
+                      leading: Icon(Icons.event_note, color: Colors.white.withOpacity(0.70),),
+                      title: new Text("Events", style: TextStyle(color: Colors.white, fontSize: 17),),
+                      onTap: () {
+                        router.pop(context);
+                        Future.delayed(const Duration(milliseconds: 100), () {
+                          router.navigateTo(context, "/events", transition: TransitionType.fadeIn, replace: true);
+                        });
+                      },
+                    ),
+                    new ListTile(
+                      leading: Icon(Icons.chat, color: Colors.white.withOpacity(0.70),),
+                      title: new Text("Chat", style: TextStyle(color: Colors.white, fontSize: 17),),
+                      onTap: () {
+                        router.pop(context);
+                        Future.delayed(const Duration(milliseconds: 100), () {
+                          router.navigateTo(context, "/chat", transition: TransitionType.fadeIn, replace: true);
+                        });
+                      },
+                    ),
+                    new ListTile(
+                      leading: Icon(Icons.settings, color: Colors.white.withOpacity(0.70),),
+                      title: new Text("Settings", style: TextStyle(color: Colors.white, fontSize: 17),),
+                      onTap: () {
+                        router.pop(context);
+                        Future.delayed(const Duration(milliseconds: 100), () {
+                          router.navigateTo(context, "/settings", transition: TransitionType.fadeIn, replace: true);
+                        });
+                      },
                     ),
                   ],
                 ),
-              ),
+                new Container(
+                  padding: EdgeInsets.only(right: 16, left: 16),
+                  width: double.infinity,
+                  child: new ButtonFilled(
+                    onPressed: () async {
+                      await fb.auth().signOut();
+                      _localStorage.remove("userID");
+                      router.navigateTo(context, "/", transition: TransitionType.fadeIn, replace: true);
+                    },
+                    padding: EdgeInsets.all(8),
+                    color: Colors.red,
+                    child: new Text("SIGN OUT", style: TextStyle(color: Colors.white),),
+                  ),
+                ),
+              ],
             ),
           ),
-          new Padding(padding: EdgeInsets.all(16.0),),
-          new FlatButton(
-            child: new Text("HOME", style: TextStyle(fontFamily: "Montserrat", color: Colors.white)),
-            onPressed: () {
-              router.navigateTo(context, '/home', transition: TransitionType.fadeIn);
-            },
-          ),
-          new FlatButton(
-            child: new Text("CONFERENCES", style: TextStyle(fontFamily: "Montserrat", color: Colors.white)),
-            onPressed: () {
-              router.navigateTo(context, '/conferences', transition: TransitionType.fadeIn);
-            },
-          ),
-          new FlatButton(
-            child: new Text("EVENTS", style: TextStyle(fontFamily: "Montserrat", color: Colors.white)),
-            onPressed: () {
-              router.navigateTo(context, '/events', transition: TransitionType.fadeIn);
-            },
-          ),
-          new Padding(padding: EdgeInsets.all(4.0),),
-          new ClipRRect(
-            borderRadius: BorderRadius.all(Radius.circular(100)),
-            child: new CachedNetworkImage(
-              imageUrl: "",
-            ),
-          ),
-          new FlatButton(
-            child: new Text("SIGN OUT", style: TextStyle(fontFamily: "Montserrat")),
-            textColor: Colors.white,
-            color: Colors.red,
-            onPressed: () async {
-              await fb.auth().signOut();
-              _localStorage.remove("userID");
-              router.navigateTo(context, "/", transition: TransitionType.fadeIn, replace: true);
-            },
-          ),
-        ],
+        ),
       ),
     );
   }

@@ -25,7 +25,7 @@ class _ManageUserPageState extends State<ManageUserPage> {
   final Storage _localStorage = html.window.localStorage;
   User currUser = User.plain();
 
-  List<Widget> usersWidgetList = new List();
+  List<User> usersList = new List();
   List<Widget> groupsWidgetList = new List();
 
   void manageRolesDialog(User user, User currUser) {
@@ -75,8 +75,36 @@ class _ManageUserPageState extends State<ManageUserPage> {
           currUser = User.fromSnapshot(value.snapshot);
           print(currUser);
         });
-        fb.database().ref("users").onValue.listen((event) {
-          updateUsers();
+        fb.database().ref("users").onChildAdded.listen((event) {
+          User user = new User.fromSnapshot(event.snapshot);
+          if (user.chapter.chapterID == currUser.chapter.chapterID) {
+            setState(() {
+              usersList.add(user);
+              usersList.sort((a, b) => a.firstName.compareTo(b.firstName));
+            });
+          }
+        });
+        fb.database().ref("users").onChildChanged.listen((event) {
+          User user = new User.fromSnapshot(event.snapshot);
+          if (user.chapter.chapterID == currUser.chapter.chapterID) {
+            setState(() {
+              usersList[usersList.indexWhere((element) {
+                return element.userID == user.userID;
+              })] = user;
+              usersList.sort((a, b) => a.firstName.compareTo(b.firstName));
+            });
+          }
+        });
+        fb.database().ref("users").onChildRemoved.listen((event) {
+          User user = new User.fromSnapshot(event.snapshot);
+          if (user.chapter.chapterID == currUser.chapter.chapterID) {
+            setState(() {
+              usersList.removeWhere((element) {
+                return element.userID == user.userID;
+              });
+              usersList.sort((a, b) => a.firstName.compareTo(b.firstName));
+            });
+          }
         });
         fb.database().ref("chapters").child(currUser.chapter.chapterID).child("groups").onValue.listen((event) {
           updateGroups();
@@ -84,76 +112,7 @@ class _ManageUserPageState extends State<ManageUserPage> {
       });
     }
   }
-  
-  void updateUsers() {
-    setState(() {
-      usersWidgetList.clear();
-    });
-    fb.database().ref("users").onChildAdded.listen((event) {
-      User user = new User.fromSnapshot(event.snapshot);
-      if (user.chapter.chapterID == currUser.chapter.chapterID) {
-        // In same chapter
-        List<Widget> rolesList = new List();
-        user.roles.forEach((element) {
-          rolesList.add(new Card(
-            color: roleColors[element],
-            child: new Container(
-              padding: EdgeInsets.only(top: 4, bottom: 4, left: 8, right: 8),
-              child: new Text(element, style: TextStyle(color: Colors.white),),
-            ),
-          ));
-        });
-        setState(() {
-          usersWidgetList.add(new Container(
-            padding: EdgeInsets.only(bottom: 8),
-            child: new InkWell(
-              onTap: () {
-                manageRolesDialog(user, currUser);
-              },
-              child: new Card(
-                child: Container(
-                  padding: EdgeInsets.all(8),
-                  child: new Row(
-                    children: [
-                      new CircleAvatar(
-                        radius: 25,
-                        backgroundColor: roleColors[user.roles.first],
-                        child: new ClipRRect(
-                          borderRadius: new BorderRadius.all(Radius.circular(45)),
-                          child: new CachedNetworkImage(
-                            imageUrl: user.profileUrl,
-                            height: 45,
-                            width: 45,
-                          ),
-                        ),
-                      ),
-                      new Padding(padding: EdgeInsets.all(8),),
-                      new Column(
-                        children: [
-                          new Text(
-                              user.firstName + " " + user.lastName
-                          ),
-                          new Text(
-                              user.email
-                          )
-                        ],
-                      ),
-                      new Padding(padding: EdgeInsets.all(8),),
-                      new Wrap(
-                        direction: Axis.horizontal,
-                        children: rolesList
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ));
-        });
-      }
-    });
-  }
-  
+
   void updateGroups() {
     setState(() {
       groupsWidgetList.clear();
@@ -177,121 +136,310 @@ class _ManageUserPageState extends State<ManageUserPage> {
   @override
   Widget build(BuildContext context) {
     if (_localStorage["userID"] != null) {
-      return new Scaffold(
-        body: Container(
-          child: new SingleChildScrollView(
-            child: new Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                HomeNavbar(),
-                new Padding(padding: EdgeInsets.only(bottom: 16.0)),
-                new Container(
-                  width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
-                  child: new Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      new FlatButton(
-                        child: new Text("Back to Home", style: TextStyle(color: mainColor, fontSize: 15),),
-                        onPressed: () {
-                          router.navigateTo(context, '/home', transition: TransitionType.fadeIn);
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                new Container(
-                  padding: new EdgeInsets.only(top: 4.0, bottom: 4.0),
-                  width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
-                  child: new Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      new Expanded(
-                        flex: 2,
-                        child: new Column(
-                          children: [
-                            new Container(
-                              padding: new EdgeInsets.only(left: 16),
-                              child: new Card(
-                                elevation: 2.0,
-                                child: new Container(
-                                  color: currCardColor,
-                                  padding: new EdgeInsets.all(16),
-                                  child: new Column(
-                                    children: [
-                                      new Row(
-                                        children: [
-                                          new Icon(Icons.person),
-                                          new Padding(padding: EdgeInsets.all(4)),
-                                          new Text("USERS", style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor),)
-                                        ],
-                                      ),
-                                      new Container(padding: EdgeInsets.only(top: 8, bottom: 16), child: new Divider(color: currDividerColor, height: 8)),
-                                      new Column(
-                                        children: usersWidgetList,
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
+      if (MediaQuery.of(context).size.width > 800) {
+        return new Scaffold(
+          body: Container(
+            child: new SingleChildScrollView(
+              child: new Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  HomeNavbar(),
+                  new Padding(padding: EdgeInsets.only(bottom: 16.0)),
+                  new Container(
+                    width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                    child: new Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        new FlatButton(
+                          child: new Text("Back to Home", style: TextStyle(color: mainColor, fontSize: 15),),
+                          onPressed: () {
+                            router.navigateTo(context, '/home', transition: TransitionType.fadeIn);
+                          },
                         ),
-                      ),
-                      new Padding(padding: EdgeInsets.all(8)),
-                      new Expanded(
-                        flex: 1,
-                        child: new Column(
-                          children: [
-                            new Container(
-                              padding: new EdgeInsets.only(right: 16),
-                              child: new Card(
-                                elevation: 2.0,
-                                child: new Container(
-                                  color: currCardColor,
-                                  padding: new EdgeInsets.all(16),
-                                  child: new Column(
-                                    children: [
-                                      new Row(
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        crossAxisAlignment: CrossAxisAlignment.center,
-                                        children: [
-                                          new Icon(Icons.group),
-                                          new Padding(padding: EdgeInsets.all(4)),
-                                          new Text("GROUPS", style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor),)
-                                        ],
-                                      ),
-                                      new Container(padding: EdgeInsets.only(top: 8, bottom: 16), child: new Divider(color: currDividerColor, height: 8)),
-                                      new Column(
-                                        children: groupsWidgetList,
-                                      ),
-                                      new Visibility(
-                                        visible: currUser.roles.contains("Developer") || currUser.roles.contains("Advisor") || currUser.roles.contains("President"),
-                                        child: new Card(
-                                          child: new ListTile(
-                                            onTap: () {
-                                              newGroupDialog(currUser);
-                                            },
-                                            leading: new Icon(Icons.add, color: mainColor,),
-                                            title: new Text("New Group", style: TextStyle(color: mainColor),),
-                                          ),
+                      ],
+                    ),
+                  ),
+                  new Container(
+                    padding: new EdgeInsets.only(top: 4.0, bottom: 4.0),
+                    width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                    child: new Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        new Expanded(
+                          flex: 2,
+                          child: new Column(
+                            children: [
+                              new Container(
+                                padding: new EdgeInsets.only(left: 16),
+                                child: new Card(
+                                  elevation: 2.0,
+                                  child: new Container(
+                                    color: currCardColor,
+                                    padding: new EdgeInsets.all(16),
+                                    child: new Column(
+                                      children: [
+                                        new Row(
+                                          children: [
+                                            new Icon(Icons.person),
+                                            new Padding(padding: EdgeInsets.all(4)),
+                                            new Text("USERS", style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor),)
+                                          ],
                                         ),
-                                      )
-                                    ],
+                                        new Container(padding: EdgeInsets.only(top: 8, bottom: 16), child: new Divider(color: currDividerColor, height: 8)),
+                                        new Column(
+                                          children: usersList.map((user) => new Container(
+                                            padding: EdgeInsets.only(bottom: 4),
+                                            child: new InkWell(
+                                              onTap: () {
+                                                manageRolesDialog(user, currUser);
+                                              },
+                                              child: new Card(
+                                                color: currCardColor,
+                                                child: Container(
+                                                  padding: EdgeInsets.all(8),
+                                                  child: new Row(
+                                                    children: [
+                                                      new Padding(padding: EdgeInsets.all(4),),
+                                                      new CircleAvatar(
+                                                        radius: 25,
+                                                        backgroundColor: roleColors[user.roles.first],
+                                                        child: new ClipRRect(
+                                                          borderRadius: new BorderRadius.all(Radius.circular(45)),
+                                                          child: new CachedNetworkImage(
+                                                            imageUrl: user.profileUrl,
+                                                            height: 45,
+                                                            width: 45,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      new Padding(padding: EdgeInsets.all(8),),
+                                                      new Column(
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        children: [
+                                                          new Text(
+                                                            user.firstName + " " + user.lastName,
+                                                            style: TextStyle(color: currTextColor),
+                                                          ),
+                                                          new Text(
+                                                            user.email,
+                                                            style: TextStyle(color: currTextColor),
+                                                          ),
+                                                          new Padding(padding: EdgeInsets.all(4),),
+                                                          Container(
+                                                            child: new Wrap(
+                                                                direction: Axis.horizontal,
+                                                                children: user.roles.map((role) => new Card(
+                                                                  color: roleColors[role],
+                                                                  child: new Container(
+                                                                    padding: EdgeInsets.only(top: 4, bottom: 4, left: 8, right: 8),
+                                                                    child: new Text(role, style: TextStyle(color: Colors.white),),
+                                                                  ),
+                                                                )).toList()
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          )).toList(),
+                                        )
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      )
-                    ],
-                  ),
-                )
-              ],
+                        new Padding(padding: EdgeInsets.all(8)),
+                        new Expanded(
+                          flex: 1,
+                          child: new Column(
+                            children: [
+                              new Container(
+                                padding: new EdgeInsets.only(right: 16),
+                                child: new Card(
+                                  elevation: 2.0,
+                                  child: new Container(
+                                    color: currCardColor,
+                                    padding: new EdgeInsets.all(16),
+                                    child: new Column(
+                                      children: [
+                                        new Row(
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          children: [
+                                            new Icon(Icons.group),
+                                            new Padding(padding: EdgeInsets.all(4)),
+                                            new Text("GROUPS", style: TextStyle(fontFamily: "Montserrat", fontSize: 20, color: currTextColor),)
+                                          ],
+                                        ),
+                                        new Container(padding: EdgeInsets.only(top: 8, bottom: 16), child: new Divider(color: currDividerColor, height: 8)),
+                                        new Column(
+                                          children: groupsWidgetList,
+                                        ),
+                                        new Visibility(
+                                          visible: currUser.roles.contains("Developer") || currUser.roles.contains("Advisor") || currUser.roles.contains("President"),
+                                          child: new Card(
+                                            child: new ListTile(
+                                              onTap: () {
+                                                newGroupDialog(currUser);
+                                              },
+                                              leading: new Icon(Icons.add, color: mainColor,),
+                                              title: new Text("New Group", style: TextStyle(color: mainColor),),
+                                            ),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                  )
+                ],
+              ),
             ),
           ),
-        ),
-      );
+        );
+      }
+      else {
+        return DefaultTabController(
+          length: 2,
+          child: new Scaffold(
+            appBar: new AppBar(
+              title: new Text(
+                "MANAGE USERS",
+              ),
+            ),
+            body: new Container(
+              color: currBackgroundColor,
+              child: Column(
+                children: [
+                  new Container(
+                    color: currBackgroundColor,
+                    height: 60,
+                    padding: EdgeInsets.only(left: 8, top: 8, right: 8),
+                    child: Card(
+                      color: mainColor,
+                      child: TabBar(
+                        tabs: [
+                          Tab(text: "USERS"),
+                          Tab(text: "GROUPS"),
+                        ],
+                      ),
+                    ),
+                  ),
+                  new Expanded(
+                    child: new TabBarView(
+                      children: [
+                        new Container(
+                          padding: EdgeInsets.only(left: 8, right: 8, top: 8),
+                          child: new SingleChildScrollView(
+                            child: new Column(
+                              children: usersList.map((user) => new Container(
+                                padding: EdgeInsets.only(bottom: 4),
+                                child: new InkWell(
+                                  onTap: () {
+                                    manageRolesDialog(user, currUser);
+                                  },
+                                  child: new Card(
+                                    color: currCardColor,
+                                    child: Container(
+                                      padding: EdgeInsets.all(8),
+                                      child: new Row(
+                                        children: [
+                                          new Padding(padding: EdgeInsets.all(4),),
+                                          new CircleAvatar(
+                                            radius: 25,
+                                            backgroundColor: roleColors[user.roles.first],
+                                            child: new ClipRRect(
+                                              borderRadius: new BorderRadius.all(Radius.circular(45)),
+                                              child: new CachedNetworkImage(
+                                                imageUrl: user.profileUrl,
+                                                height: 45,
+                                                width: 45,
+                                              ),
+                                            ),
+                                          ),
+                                          new Padding(padding: EdgeInsets.all(8),),
+                                          new Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              new Text(
+                                                user.firstName + " " + user.lastName,
+                                                style: TextStyle(color: currTextColor),
+                                              ),
+                                              new Text(
+                                                user.email,
+                                                style: TextStyle(color: currTextColor),
+                                              ),
+                                              new Padding(padding: EdgeInsets.all(4),),
+                                              Container(
+                                                width: MediaQuery.of(context).size.width - 114,
+                                                child: new Wrap(
+                                                    direction: Axis.horizontal,
+                                                    children: user.roles.map((role) => new Card(
+                                                      color: roleColors[role],
+                                                      child: new Container(
+                                                        padding: EdgeInsets.only(top: 4, bottom: 4, left: 8, right: 8),
+                                                        child: new Text(role, style: TextStyle(color: Colors.white),),
+                                                      ),
+                                                    )).toList()
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )).toList(),
+                            ),
+                          ),
+                        ),
+                        new Container(
+                          padding: EdgeInsets.only(left: 8, right: 8, top: 8),
+                          child: new SingleChildScrollView(
+                            child: Column(
+                              children: [
+                                new Column(
+                                  children: groupsWidgetList,
+                                ),
+                                new Visibility(
+                                  visible: currUser.roles.contains("Developer") || currUser.roles.contains("Advisor") || currUser.roles.contains("President"),
+                                  child: new Card(
+                                    color: currCardColor,
+                                    child: new ListTile(
+                                      onTap: () {
+                                        newGroupDialog(currUser);
+                                      },
+                                      leading: new Icon(Icons.add, color: mainColor,),
+                                      title: new Text("New Group", style: TextStyle(color: mainColor),),
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+        );
+      }
     }
     else {
       return LoginPage();

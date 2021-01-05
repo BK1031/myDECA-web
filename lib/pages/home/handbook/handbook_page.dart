@@ -61,6 +61,12 @@ class _HandbookPageState extends State<HandbookPage> {
               updateHandbookView();
             },
           ));
+          if (currUser.groups.contains(event.snapshot.key)) {
+            selectedGroupID = event.snapshot.key;
+            selectedGroup = event.snapshot.val()["name"];
+            height = 0;
+            updateHandbookView();
+          }
         });
       }
     });
@@ -170,163 +176,307 @@ class _HandbookPageState extends State<HandbookPage> {
   @override
   Widget build(BuildContext context) {
     if (_localStorage["userID"] != null) {
-      return new Scaffold(
-        body: Container(
-          child: new SingleChildScrollView(
-            child: new Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                HomeNavbar(),
-                new Padding(padding: EdgeInsets.only(bottom: 16.0)),
-                new Container(
-                  width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
-                  child: new Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      new FlatButton(
-                        child: new Text("Back to Home", style: TextStyle(color: mainColor, fontSize: 15),),
-                        onPressed: () {
-                          router.navigateTo(context, '/home', transition: TransitionType.fadeIn);
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                new Container(
-                  width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
-                  child: new Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      new Card(
-                        elevation: selectedGroupID == "" ? 0 : 1,
-                        color: selectedGroupID == "" ? currCardColor : mainColor,
-                        child: new InkWell(
-                          onTap: () {
-                            if (height == 0) {
-                              setState(() {
-                                height = 250;
-                              });
-                            }
-                            else {
-                              setState(() {
-                                height = 0;
-                              });
-                            }
+      if (MediaQuery.of(context).size.width > 800) {
+        return new Scaffold(
+          body: Container(
+            child: new SingleChildScrollView(
+              child: new Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  HomeNavbar(),
+                  new Padding(padding: EdgeInsets.only(bottom: 16.0)),
+                  new Container(
+                    width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                    child: new Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        new FlatButton(
+                          child: new Text("Back to Home", style: TextStyle(color: mainColor, fontSize: 15),),
+                          onPressed: () {
+                            router.navigateTo(context, '/home', transition: TransitionType.fadeIn);
                           },
-                          child: new ListTile(
-                            title: new Text(selectedGroupID == "" ? "Select Group" : selectedGroup, style: TextStyle(color: selectedGroupID == "" ? mainColor : Colors.white),),
+                        ),
+                      ],
+                    ),
+                  ),
+                  new Container(
+                    width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                    child: new Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        new Card(
+                          elevation: selectedGroupID == "" ? 0 : 1,
+                          color: selectedGroupID == "" ? currCardColor : mainColor,
+                          child: new InkWell(
+                            onTap: () {
+                              if (height == 0) {
+                                setState(() {
+                                  height = 250;
+                                });
+                              }
+                              else {
+                                setState(() {
+                                  height = 0;
+                                });
+                              }
+                            },
+                            child: new ListTile(
+                              title: new Text(selectedGroupID == "" ? "Select Group" : selectedGroup, style: TextStyle(color: selectedGroupID == "" ? mainColor : Colors.white),),
+                            ),
                           ),
                         ),
-                      ),
-                      new AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        height: height,
-                        child: new SingleChildScrollView(
-                          child: new Column(
-                            children: groupsList,
+                        new AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          height: height,
+                          child: new SingleChildScrollView(
+                            child: new Column(
+                              children: groupsList,
+                            ),
                           ),
                         ),
-                      ),
-                      new Visibility(
-                        visible: !hasHandbook,
-                        child: new Container(
-                          padding: EdgeInsets.all(16),
-                          child: new Center(child: Text("No handbook has been added to this group.\nPlease check again later!", style: TextStyle(color: currTextColor, fontSize: 17), textAlign: TextAlign.center,),),
+                        new Visibility(
+                          visible: !hasHandbook,
+                          child: new Container(
+                            padding: EdgeInsets.all(16),
+                            child: new Center(child: Text("No handbook has been added to this group.\nPlease check again later!", style: TextStyle(color: currTextColor, fontSize: 17), textAlign: TextAlign.center,),),
+                          ),
                         ),
-                      ),
-                      new Padding(padding: EdgeInsets.all(4)),
-                      new Column(
-                        children: handbookList.map((handbook) => new Container(
-                            child: new Card(
-                              color: currCardColor,
-                              child: Container(
-                                padding: EdgeInsets.all(16),
-                                child: new Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    new Text(
-                                      "${handbook.user.firstName} – ${handbook.name}",
-                                      style: TextStyle(color: currTextColor, fontSize: 18),
-                                    ),
-                                    Column(
-                                      children: handbook.items.map((item) {
-                                        if (item.timestamp != null) {
-                                          return new ExpansionTile(
-                                            leading: InkWell(
-                                              child: Icon(Icons.check_box, color: mainColor,),
-                                              onTap: () {
-                                                if (currUser.roles.contains("Developer") || currUser.roles.contains("Advisor") || currUser.roles.contains("Officer")) {
-                                                  fb.database().ref("users").child(handbook.user.userID).child("handbooks").child(handbook.handbookID).child(item.index.toString()).remove();
-                                                }
-                                              },
-                                            ),
-                                            title: new Text(item.task, style: TextStyle(color: currTextColor),),
-                                            children: [
-                                              Container(
-                                                padding: EdgeInsets.only(left: 16, top: 8, bottom: 8),
-                                                child: Row(
-                                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                                  children: [
-                                                    new Container(
-                                                      child: new CircleAvatar(
-                                                        radius: 15,
-                                                        backgroundColor: roleColors[item.checkedBy.roles.first],
-                                                        child: new ClipRRect(
-                                                          borderRadius: new BorderRadius.all(Radius.circular(45)),
-                                                          child: new CachedNetworkImage(
-                                                              imageUrl: item.checkedBy.profileUrl,
-                                                              height: 26,
-                                                              width: 26
+                        new Padding(padding: EdgeInsets.all(4)),
+                        new Column(
+                          children: handbookList.map((handbook) => new Container(
+                              child: new Card(
+                                color: currCardColor,
+                                child: Container(
+                                  padding: EdgeInsets.all(16),
+                                  child: new Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      new Text(
+                                        "${handbook.user.firstName} – ${handbook.name}",
+                                        style: TextStyle(color: currTextColor, fontSize: 18),
+                                      ),
+                                      Column(
+                                        children: handbook.items.map((item) {
+                                          if (item.timestamp != null) {
+                                            return new ExpansionTile(
+                                              leading: InkWell(
+                                                child: Icon(Icons.check_box, color: mainColor,),
+                                                onTap: () {
+                                                  if (currUser.roles.contains("Developer") || currUser.roles.contains("Advisor") || currUser.roles.contains("Officer")) {
+                                                    fb.database().ref("users").child(handbook.user.userID).child("handbooks").child(handbook.handbookID).child(item.index.toString()).remove();
+                                                  }
+                                                },
+                                              ),
+                                              title: new Text(item.task, style: TextStyle(color: currTextColor),),
+                                              children: [
+                                                Container(
+                                                  padding: EdgeInsets.only(left: 16, top: 8, bottom: 8),
+                                                  child: Row(
+                                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                                    children: [
+                                                      new Container(
+                                                        child: new CircleAvatar(
+                                                          radius: 15,
+                                                          backgroundColor: roleColors[item.checkedBy.roles.first],
+                                                          child: new ClipRRect(
+                                                            borderRadius: new BorderRadius.all(Radius.circular(45)),
+                                                            child: new CachedNetworkImage(
+                                                                imageUrl: item.checkedBy.profileUrl,
+                                                                height: 26,
+                                                                width: 26
+                                                            ),
                                                           ),
                                                         ),
                                                       ),
-                                                    ),
-                                                    new Padding(padding: EdgeInsets.all(4)),
-                                                    new Container(
-                                                      child: new Text("${item.checkedBy.firstName} ${item.checkedBy.lastName}  |  ", style: TextStyle(color: Colors.grey, fontSize: 16),),
-                                                    ),
-                                                    new Container(
-                                                      child: new Text("${DateFormat().add_MMMd().format(item.timestamp)} @ ${DateFormat().add_jm().format(item.timestamp)}", style: TextStyle(color: Colors.grey, fontSize: 16),),
-                                                    )
-                                                  ],
-                                                ),
-                                              )
-                                            ],
-                                          );
-                                        }
-                                        else {
-                                          return new ListTile(
-                                            leading: Icon(
-                                              Icons.check_box_outline_blank,
-                                              color: darkMode ? Colors.grey : Colors.black54,
-                                            ),
-                                            title: new Text(item.task, style: TextStyle(color: currTextColor),),
-                                            onTap: () {
-                                              if (currUser.roles.contains("Developer") || currUser.roles.contains("Advisor") || currUser.roles.contains("Officer")) {
-                                                fb.database().ref("users").child(handbook.user.userID).child("handbooks").child(handbook.handbookID).child(item.index.toString()).set({
-                                                  "checkedBy": currUser.userID,
-                                                  "date": DateTime.now().toString()
-                                                });
-                                              }
-                                            },
-                                          );
-                                        }
-                                      }).toList(),
-                                    ),
-                                  ],
+                                                      new Padding(padding: EdgeInsets.all(4)),
+                                                      new Container(
+                                                        child: new Text("${item.checkedBy.firstName} ${item.checkedBy.lastName}  |  ", style: TextStyle(color: Colors.grey, fontSize: 16),),
+                                                      ),
+                                                      new Container(
+                                                        child: new Text("${DateFormat().add_MMMd().format(item.timestamp)} @ ${DateFormat().add_jm().format(item.timestamp)}", style: TextStyle(color: Colors.grey, fontSize: 16),),
+                                                      )
+                                                    ],
+                                                  ),
+                                                )
+                                              ],
+                                            );
+                                          }
+                                          else {
+                                            return new ListTile(
+                                              leading: Icon(
+                                                Icons.check_box_outline_blank,
+                                                color: darkMode ? Colors.grey : Colors.black54,
+                                              ),
+                                              title: new Text(item.task, style: TextStyle(color: currTextColor),),
+                                              onTap: () {
+                                                if (currUser.roles.contains("Developer") || currUser.roles.contains("Advisor") || currUser.roles.contains("Officer")) {
+                                                  fb.database().ref("users").child(handbook.user.userID).child("handbooks").child(handbook.handbookID).child(item.index.toString()).set({
+                                                    "checkedBy": currUser.userID,
+                                                    "date": DateTime.now().toString()
+                                                  });
+                                                }
+                                              },
+                                            );
+                                          }
+                                        }).toList(),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            )
-                        )).toList(),
-                      )
-                    ],
+                              )
+                          )).toList(),
+                        )
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
-      );
+        );
+      }
+      else {
+        return Scaffold(
+          appBar: new AppBar(
+            title: new Text(
+              "HANDBOOK",
+            ),
+          ),
+          backgroundColor: currBackgroundColor,
+          body: new Container(
+            padding: EdgeInsets.only(left: 8, top: 8, right: 8),
+            child: new SingleChildScrollView(
+              child: new Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  new Card(
+                    elevation: selectedGroupID == "" ? 0 : 1,
+                    color: selectedGroupID == "" ? currCardColor : mainColor,
+                    child: new InkWell(
+                      onTap: () {
+                        if (height == 0) {
+                          setState(() {
+                            height = 250;
+                          });
+                        }
+                        else {
+                          setState(() {
+                            height = 0;
+                          });
+                        }
+                      },
+                      child: new ListTile(
+                        title: new Text(selectedGroupID == "" ? "Select Group" : selectedGroup, style: TextStyle(color: selectedGroupID == "" ? mainColor : Colors.white),),
+                      ),
+                    ),
+                  ),
+                  new AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    height: height,
+                    child: new SingleChildScrollView(
+                      child: new Column(
+                        children: groupsList,
+                      ),
+                    ),
+                  ),
+                  new Visibility(
+                    visible: !hasHandbook,
+                    child: new Container(
+                      padding: EdgeInsets.all(16),
+                      child: new Center(child: Text("No handbook has been added to this group.\nPlease check again later!", style: TextStyle(color: currTextColor, fontSize: 17), textAlign: TextAlign.center,),),
+                    ),
+                  ),
+                  new Padding(padding: EdgeInsets.all(4)),
+                  new Column(
+                    children: handbookList.map((handbook) => new Container(
+                        child: new Card(
+                          color: currCardColor,
+                          child: Container(
+                            padding: EdgeInsets.all(16),
+                            child: new Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                new Text(
+                                  "${handbook.user.firstName} – ${handbook.name}",
+                                  style: TextStyle(color: currTextColor, fontSize: 18),
+                                ),
+                                Column(
+                                  children: handbook.items.map((item) {
+                                    if (item.timestamp != null) {
+                                      return new ExpansionTile(
+                                        leading: InkWell(
+                                          child: Icon(Icons.check_box, color: mainColor,),
+                                          onTap: () {
+                                            if (currUser.roles.contains("Developer") || currUser.roles.contains("Advisor") || currUser.roles.contains("Officer")) {
+                                              fb.database().ref("users").child(handbook.user.userID).child("handbooks").child(handbook.handbookID).child(item.index.toString()).remove();
+                                            }
+                                          },
+                                        ),
+                                        title: new Text(item.task, style: TextStyle(color: currTextColor),),
+                                        children: [
+                                          Container(
+                                            padding: EdgeInsets.only(left: 16, top: 8, bottom: 8),
+                                            child: Row(
+                                              crossAxisAlignment: CrossAxisAlignment.center,
+                                              children: [
+                                                new Container(
+                                                  child: new CircleAvatar(
+                                                    radius: 15,
+                                                    backgroundColor: roleColors[item.checkedBy.roles.first],
+                                                    child: new ClipRRect(
+                                                      borderRadius: new BorderRadius.all(Radius.circular(45)),
+                                                      child: new CachedNetworkImage(
+                                                          imageUrl: item.checkedBy.profileUrl,
+                                                          height: 26,
+                                                          width: 26
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                new Padding(padding: EdgeInsets.all(4)),
+                                                new Container(
+                                                  child: new Text("${item.checkedBy.firstName} ${item.checkedBy.lastName}  |  ", style: TextStyle(color: Colors.grey, fontSize: 16),),
+                                                ),
+                                                new Container(
+                                                  child: new Text("${DateFormat().add_MMMd().format(item.timestamp)} @ ${DateFormat().add_jm().format(item.timestamp)}", style: TextStyle(color: Colors.grey, fontSize: 16),),
+                                                )
+                                              ],
+                                            ),
+                                          )
+                                        ],
+                                      );
+                                    }
+                                    else {
+                                      return new ListTile(
+                                        leading: Icon(
+                                          Icons.check_box_outline_blank,
+                                          color: darkMode ? Colors.grey : Colors.black54,
+                                        ),
+                                        title: new Text(item.task, style: TextStyle(color: currTextColor),),
+                                        onTap: () {
+                                          if (currUser.roles.contains("Developer") || currUser.roles.contains("Advisor") || currUser.roles.contains("Officer")) {
+                                            fb.database().ref("users").child(handbook.user.userID).child("handbooks").child(handbook.handbookID).child(item.index.toString()).set({
+                                              "checkedBy": currUser.userID,
+                                              "date": DateTime.now().toString()
+                                            });
+                                          }
+                                        },
+                                      );
+                                    }
+                                  }).toList(),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                    )).toList(),
+                  )
+                ],
+              ),
+            ),
+          ),
+        );
+      }
     }
     else {
       return new LoginPage();

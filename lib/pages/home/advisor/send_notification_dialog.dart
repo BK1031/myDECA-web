@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mydeca_web/models/user.dart';
+import 'package:mydeca_web/utils/button_filled.dart';
 import 'package:mydeca_web/utils/config.dart';
 import 'package:mydeca_web/utils/theme.dart';
 import 'package:firebase/firebase.dart' as fb;
@@ -86,7 +87,7 @@ class _SendNotificationDialogState extends State<SendNotificationDialog> {
           children: [
             new Container(
               width: MediaQuery.of(context).size.width,
-              padding: EdgeInsets.all(16.0),
+              padding: EdgeInsets.all(MediaQuery.of(context).size.width > 550 ? 16.0 : 0),
               child: new Column(
                 children: <Widget>[
                   new TextField(
@@ -114,9 +115,9 @@ class _SendNotificationDialogState extends State<SendNotificationDialog> {
                 ],
               ),
             ),
+            Padding(padding: EdgeInsets.all(4.0),),
             new AnimatedContainer(
-              padding: EdgeInsets.all(8),
-              height: verified ? 80 : 0,
+              height: verified ? 70 : 0,
               duration: const Duration(milliseconds: 200),
               child: new Visibility(
                 visible: verified,
@@ -128,7 +129,7 @@ class _SendNotificationDialogState extends State<SendNotificationDialog> {
                       children: [
                         new Icon(Icons.warning, color: Colors.orangeAccent,),
                         new Padding(padding: EdgeInsets.all(4)),
-                        new Text("Your notification will be sent to members from\nALL chapters.", style: TextStyle(color: Colors.orangeAccent),)
+                        new Text("Your notification will be sent\nto members from ALL chapters.", style: TextStyle(color: Colors.orangeAccent),)
                       ],
                     ),
                   ),
@@ -175,7 +176,6 @@ class _SendNotificationDialogState extends State<SendNotificationDialog> {
                 height: visibilityBoxHeight,
                 child: new Scrollbar(
                   child: new ListView(
-                    padding: EdgeInsets.only(right: 16.0, left: 16.0),
                     children: <Widget>[
                       new Text("Only users with the roles selected below will recieve this announcement."),
                       new ListTile(
@@ -243,17 +243,17 @@ class _SendNotificationDialogState extends State<SendNotificationDialog> {
                   ),
                 )
             ),
+            Padding(padding: EdgeInsets.all(4.0),),
             new Container(
               width: MediaQuery.of(context).size.width,
-              height: 75.0,
-              child: new RaisedButton(
+              height: 50.0,
+              child: new ButtonFilled(
                 onPressed: () {
                   publish(alertTitle, alertBody);
                 },
                 color: mainColor,
                 child: new Text("Send Notification".toUpperCase(), style: TextStyle(color: Colors.white, fontSize: 18.0),),
               ),
-              padding: EdgeInsets.all(16.0),
             )
           ],
         ),

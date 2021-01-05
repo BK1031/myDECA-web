@@ -14,7 +14,6 @@ import 'package:mydeca_web/pages/conference/conference_overview_page.dart';
 import 'package:mydeca_web/pages/conference/conference_schedule_page.dart';
 import 'package:mydeca_web/pages/conference/conference_winner_page.dart';
 import 'package:mydeca_web/pages/conference/mock/mock_conference_details_page.dart';
-import 'package:mydeca_web/pages/download_page.dart';
 import 'package:mydeca_web/utils/config.dart';
 import 'package:mydeca_web/utils/theme.dart';
 import 'dart:html' as html;
@@ -288,7 +287,7 @@ class _ConferenceDetailsPageState extends State<ConferenceDetailsPage> {
         }
       }
       else {
-        return DownloadPage();
+        return Container();
       }
     }
     else {

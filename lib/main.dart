@@ -13,7 +13,6 @@ import 'package:mydeca_web/pages/conference/mock/judging/mock_conference_written
 import 'package:mydeca_web/pages/conference/mock/mock_conference_roleplay_page.dart';
 import 'package:mydeca_web/pages/conference/mock/mock_conference_testing_page.dart';
 import 'package:mydeca_web/pages/conference/mock/mock_conference_written_page.dart';
-import 'package:mydeca_web/pages/download_page.dart';
 import 'package:mydeca_web/pages/event/event_details_page.dart';
 import 'package:mydeca_web/pages/event/events_page.dart';
 import 'package:mydeca_web/pages/home/advisor/manage_user_page.dart';
@@ -61,9 +60,6 @@ void main() {
   // HOME ROUTES
   router.define('/', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
     return new OnboardingPage();
-  }));
-  router.define('/download', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
-    return new DownloadPage();
   }));
   router.define('/home', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
     return new HomePage();
@@ -135,11 +131,8 @@ void main() {
   }));
 
   // CHAT ROUTES
-  router.define('/events', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
-    return new EventsPage();
-  }));
-  router.define('/events/details', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
-    return new EventDetailsPage();
+  router.define('/chat', handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
+    return new Container();
   }));
 
   // SETTINGS ROUTES
