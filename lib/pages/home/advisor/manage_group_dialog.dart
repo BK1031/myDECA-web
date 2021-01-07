@@ -137,46 +137,37 @@ class _ManageGroupDialogState extends State<ManageGroupDialog> {
                 ],
               ),
               new Padding(padding: EdgeInsets.all(4)),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      new Text(
-                        name,
-                        style: TextStyle(fontFamily: "Montserrat", fontSize: 22, color: currTextColor),
-                      ),
-                      new Text(
-                        id,
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                    ],
+              new Text(
+                name,
+                style: TextStyle(fontFamily: "Montserrat", fontSize: 22, color: currTextColor),
+              ),
+              new Text(
+                id,
+                style: TextStyle(color: Colors.grey),
+              ),
+              new Padding(padding: EdgeInsets.all(4)),
+              new InkWell(
+                onTap: () {
+                  if (height == 0) {
+                    getHandbooks();
+                    setState(() {
+                      height = 250;
+                    });
+                  }
+                  else {
+                    setState(() {
+                      height = 0;
+                    });
+                  }
+                },
+                child: new Card(
+                  elevation: handbook == "" ? 0 : 1,
+                  color: handbook == "" ? currCardColor : mainColor,
+                  child: new Container(
+                    padding: EdgeInsets.only(top: 4, bottom: 4, left: 8, right: 8),
+                    child: new Text(handbook == "" ? "Select Handbook" : handbook, style: TextStyle(color: handbook == "" ? mainColor : Colors.white),),
                   ),
-                  new InkWell(
-                    onTap: () {
-                      if (height == 0) {
-                        getHandbooks();
-                        setState(() {
-                          height = 250;
-                        });
-                      }
-                      else {
-                        setState(() {
-                          height = 0;
-                        });
-                      }
-                    },
-                    child: new Card(
-                      elevation: handbook == "" ? 0 : 1,
-                      color: handbook == "" ? currCardColor : mainColor,
-                      child: new Container(
-                        padding: EdgeInsets.only(top: 4, bottom: 4, left: 8, right: 8),
-                        child: new Text(handbook == "" ? "Select Handbook" : handbook, style: TextStyle(color: handbook == "" ? mainColor : Colors.white),),
-                      ),
-                    ),
-                  )
-                ],
+                ),
               ),
               new AnimatedContainer(
                 duration: const Duration(milliseconds: 200),

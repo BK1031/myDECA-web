@@ -882,7 +882,7 @@ class _HomePageState extends State<HomePage> {
                                           new Container(padding: EdgeInsets.only(top: 8, bottom: 16), child: new Divider(color: currDividerColor, height: 8, )),
                                           new Visibility(visible: meetingsWidgetList.isEmpty && currentMeetingsWidgetList.isEmpty, child: Padding(
                                             padding: const EdgeInsets.only(bottom: 8.0),
-                                            child: new Text("There are no upcoming events."),
+                                            child: new Text("There are no upcoming meetings."),
                                           )),
                                           new Column(
                                             children: currentMeetingsWidgetList,
@@ -934,7 +934,7 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   new Text(
                     "Welcome back, ${currUser.firstName}",
-                    style: TextStyle(fontFamily: "Montserrat", fontSize: 35, fontWeight: FontWeight.bold, color: currTextColor),
+                    style: TextStyle(fontFamily: "Montserrat", fontSize: 35, fontWeight: FontWeight.normal, color: currTextColor),
                   ),
                   new Padding(padding: EdgeInsets.all(8)),
                   new Visibility(
@@ -982,12 +982,15 @@ class _HomePageState extends State<HomePage> {
                         padding: new EdgeInsets.only(left: 8, top: 8, right: 8),
                         child: new Column(
                           children: [
-                            new Visibility(visible: currentMeetingsWidgetList.isEmpty, child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: new Text("There are no current meetings."),
+                            new Visibility(visible: meetingsWidgetList.isEmpty && currentMeetingsWidgetList.isEmpty, child: Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0),
+                              child: new Text("There are no upcoming meetings."),
                             )),
                             new Column(
                               children: currentMeetingsWidgetList,
+                            ),
+                            new Column(
+                              children: meetingsWidgetList,
                             ),
                             new FlatButton(
                               child: new Text("VIEW ALL MEETINGS"),
@@ -1002,7 +1005,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ),
-                  new Padding(padding: EdgeInsets.all(8)),
+                  new Padding(padding: EdgeInsets.only(top: 8, bottom: 8), child: new Divider(color: currDividerColor, height: 8)),
                   new Container(
                     width: double.infinity,
                     height: 100.0,
