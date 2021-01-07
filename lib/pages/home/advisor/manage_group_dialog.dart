@@ -19,8 +19,8 @@ class _ManageGroupDialogState extends State<ManageGroupDialog> {
   String name = "";
   String handbook = "";
   User currUser;
-  List<Widget> usersWidgetList = new List();
-  List<Widget> handbookWidgetList = new List();
+  List<Widget> usersWidgetList = [];
+  List<Widget> handbookWidgetList = [];
 
   double height = 0;
 
@@ -90,15 +90,18 @@ class _ManageGroupDialogState extends State<ManageGroupDialog> {
                         ),
                       ),
                       new Padding(padding: EdgeInsets.all(8),),
-                      new Column(
-                        children: [
-                          new Text(
-                              user.firstName + " " + user.lastName
-                          ),
-                          new Text(
-                              user.email
-                          )
-                        ],
+                      new Expanded(
+                        child: new Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            new Text(
+                                user.firstName + " " + user.lastName
+                            ),
+                            new Text(
+                                user.email
+                            )
+                          ],
+                        ),
                       ),
                     ],
                   ),
