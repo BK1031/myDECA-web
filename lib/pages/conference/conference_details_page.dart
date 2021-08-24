@@ -24,11 +24,11 @@ class ConferenceDetailsPage extends StatefulWidget {
   String id;
   ConferenceDetailsPage(this.id);
   @override
-  _ConferenceDetailsPageState createState() => _ConferenceDetailsPageState(this.id);
+  _ConferenceDetailsPageState createState() =>
+      _ConferenceDetailsPageState(this.id);
 }
 
 class _ConferenceDetailsPageState extends State<ConferenceDetailsPage> {
-
   PageController _controller = PageController(initialPage: 0);
   int currPage = 0;
   final Storage _localStorage = html.window.localStorage;
@@ -50,12 +50,22 @@ class _ConferenceDetailsPageState extends State<ConferenceDetailsPage> {
   void initState() {
     super.initState();
     if (_localStorage["userID"] != null) {
-      fb.database().ref("users").child(_localStorage["userID"]).once("value").then((value) {
+      fb
+          .database()
+          .ref("users")
+          .child(_localStorage["userID"])
+          .once("value")
+          .then((value) {
         setState(() {
           currUser = User.fromSnapshot(value.snapshot);
           print(currUser);
         });
-        fb.database().ref("conferences").child(conference.conferenceID).once("value").then((value) {
+        fb
+            .database()
+            .ref("conferences")
+            .child(conference.conferenceID)
+            .once("value")
+            .then((value) {
           setState(() {
             conference = new Conference.fromSnapshot(value.snapshot);
           });
@@ -67,21 +77,22 @@ class _ConferenceDetailsPageState extends State<ConferenceDetailsPage> {
   void alert(String alert) {
     showDialog(
         context: context,
-        child: new AlertDialog(
-          backgroundColor: currCardColor,
-          title: new Text("Alert", style: TextStyle(color: currTextColor),),
-          content: new Text(alert, style: TextStyle(color: currTextColor)),
-          actions: [
-            new FlatButton(
-                child: new Text("GOT IT"),
-                textColor: mainColor,
-                onPressed: () {
-                  router.pop(context);
-                }
-            )
-          ],
-        )
-    );
+        builder: (context) => AlertDialog(
+              backgroundColor: currCardColor,
+              title: new Text(
+                "Alert",
+                style: TextStyle(color: currTextColor),
+              ),
+              content: new Text(alert, style: TextStyle(color: currTextColor)),
+              actions: [
+                new FlatButton(
+                    child: new Text("GOT IT"),
+                    textColor: mainColor,
+                    onPressed: () {
+                      router.pop(context);
+                    })
+              ],
+            ));
   }
 
   @override
@@ -90,8 +101,7 @@ class _ConferenceDetailsPageState extends State<ConferenceDetailsPage> {
       if (MediaQuery.of(context).size.width > 600) {
         if (conference.conferenceID.contains("Mock")) {
           return new MockConferenceDetailsPage(conference.conferenceID);
-        }
-        else {
+        } else {
           return new Scaffold(
             body: Container(
               child: new SingleChildScrollView(
@@ -107,7 +117,10 @@ class _ConferenceDetailsPageState extends State<ConferenceDetailsPage> {
                           child: new CachedNetworkImage(
                             placeholder: (context, url) => new Container(
                               child: new GlowingProgressIndicator(
-                                child: new Image.asset('images/deca-diamond.png', height: 75.0,),
+                                child: new Image.asset(
+                                  'images/deca-diamond.png',
+                                  height: 75.0,
+                                ),
                               ),
                             ),
                             imageUrl: conference.imageUrl,
@@ -123,19 +136,28 @@ class _ConferenceDetailsPageState extends State<ConferenceDetailsPage> {
                         ),
                         new Container(
                           height: 350,
-                          width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                          width: (MediaQuery.of(context).size.width > 1300)
+                              ? 1100
+                              : MediaQuery.of(context).size.width - 50,
                           child: new Column(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: <Widget>[
                               new Container(
                                 child: new Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: <Widget>[
                                     new FlatButton(
-                                      child: new Text("Back to Conferences", style: TextStyle(color: mainColor, fontSize: 15),),
+                                      child: new Text(
+                                        "Back to Conferences",
+                                        style: TextStyle(
+                                            color: mainColor, fontSize: 15),
+                                      ),
                                       onPressed: () {
-                                        router.navigateTo(context, '/conferences', transition: TransitionType.fadeIn);
+                                        router.navigateTo(
+                                            context, '/conferences',
+                                            transition: TransitionType.fadeIn);
                                       },
                                     ),
                                   ],
@@ -145,9 +167,11 @@ class _ConferenceDetailsPageState extends State<ConferenceDetailsPage> {
                                   padding: EdgeInsets.all(16),
                                   child: new Text(
                                     "${conference.fullName.toUpperCase()}",
-                                    style: TextStyle(fontFamily: "Montserrat", fontSize: 40, color: Colors.white),
-                                  )
-                              ),
+                                    style: TextStyle(
+                                        fontFamily: "Montserrat",
+                                        fontSize: 40,
+                                        color: Colors.white),
+                                  )),
                             ],
                           ),
                         )
@@ -156,16 +180,19 @@ class _ConferenceDetailsPageState extends State<ConferenceDetailsPage> {
                     new Padding(padding: EdgeInsets.all(8.0)),
                     Container(
                         padding: EdgeInsets.only(top: 8),
-                        width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                        width: (MediaQuery.of(context).size.width > 1300)
+                            ? 1100
+                            : MediaQuery.of(context).size.width - 50,
                         child: new Linkify(
                           text: "${conference.desc}",
                           style: TextStyle(fontSize: 17, color: currTextColor),
                           onOpen: (link) => launch(link.url),
-                        )
-                    ),
+                        )),
                     new Padding(padding: EdgeInsets.all(8.0)),
                     Container(
-                        width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                        width: (MediaQuery.of(context).size.width > 1300)
+                            ? 1100
+                            : MediaQuery.of(context).size.width - 50,
                         child: Wrap(
                           direction: Axis.horizontal,
                           spacing: 8,
@@ -177,10 +204,17 @@ class _ConferenceDetailsPageState extends State<ConferenceDetailsPage> {
                               padding: EdgeInsets.all(16),
                               child: Column(
                                 children: [
-                                  new Icon(Icons.event, size: 80, color: mainColor,),
+                                  new Icon(
+                                    Icons.event,
+                                    size: 80,
+                                    color: mainColor,
+                                  ),
                                   new Text(
                                     "${conference.date}",
-                                    style: TextStyle(fontFamily: "Montserrat",fontSize: 25, color: currTextColor),
+                                    style: TextStyle(
+                                        fontFamily: "Montserrat",
+                                        fontSize: 25,
+                                        color: currTextColor),
                                   ),
                                 ],
                               ),
@@ -193,79 +227,120 @@ class _ConferenceDetailsPageState extends State<ConferenceDetailsPage> {
                                 padding: EdgeInsets.all(16),
                                 child: Column(
                                   children: [
-                                    new Icon(Icons.location_on, size: 80, color: mainColor,),
+                                    new Icon(
+                                      Icons.location_on,
+                                      size: 80,
+                                      color: mainColor,
+                                    ),
                                     new Text(
                                       "${conference.location.toUpperCase()}",
-                                      style: TextStyle(fontFamily: "Montserrat",fontSize: 25, color: currTextColor),
+                                      style: TextStyle(
+                                          fontFamily: "Montserrat",
+                                          fontSize: 25,
+                                          color: currTextColor),
                                     ),
                                   ],
                                 ),
                               ),
                             ),
                           ],
-                        )
-                    ),
+                        )),
                     new Padding(padding: EdgeInsets.only(bottom: 8.0)),
                     Container(
                         padding: EdgeInsets.only(top: 8),
-                        width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                        width: (MediaQuery.of(context).size.width > 1300)
+                            ? 1100
+                            : MediaQuery.of(context).size.width - 50,
                         child: new Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             Expanded(
                               child: new FlatButton(
-                                child: new Text("OVERVIEW", style: TextStyle(fontFamily: "Montserrat", color: currPage == 0 ? Colors.white : currTextColor)),
+                                child: new Text("OVERVIEW",
+                                    style: TextStyle(
+                                        fontFamily: "Montserrat",
+                                        color: currPage == 0
+                                            ? Colors.white
+                                            : currTextColor)),
                                 color: currPage == 0 ? mainColor : null,
                                 onPressed: () {
                                   setState(() {
                                     currPage = 0;
-                                    _controller.animateToPage(0, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+                                    _controller.animateToPage(0,
+                                        duration:
+                                            const Duration(milliseconds: 300),
+                                        curve: Curves.easeOut);
                                   });
                                 },
                               ),
                             ),
                             Expanded(
                               child: new FlatButton(
-                                child: new Text("SCHEDULE", style: TextStyle(fontFamily: "Montserrat", color: currPage == 1 ? Colors.white : currTextColor)),
+                                child: new Text("SCHEDULE",
+                                    style: TextStyle(
+                                        fontFamily: "Montserrat",
+                                        color: currPage == 1
+                                            ? Colors.white
+                                            : currTextColor)),
                                 color: currPage == 1 ? mainColor : null,
                                 onPressed: () {
                                   setState(() {
                                     currPage = 1;
-                                    _controller.animateToPage(1, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+                                    _controller.animateToPage(1,
+                                        duration:
+                                            const Duration(milliseconds: 300),
+                                        curve: Curves.easeOut);
                                   });
                                 },
                               ),
                             ),
                             Expanded(
                               child: new FlatButton(
-                                child: new Text("WINNERS", style: TextStyle(fontFamily: "Montserrat", color: currPage == 2 ? Colors.white : currTextColor)),
+                                child: new Text("WINNERS",
+                                    style: TextStyle(
+                                        fontFamily: "Montserrat",
+                                        color: currPage == 2
+                                            ? Colors.white
+                                            : currTextColor)),
                                 color: currPage == 2 ? mainColor : null,
                                 onPressed: () {
                                   setState(() {
                                     currPage = 2;
-                                    _controller.animateToPage(2, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+                                    _controller.animateToPage(2,
+                                        duration:
+                                            const Duration(milliseconds: 300),
+                                        curve: Curves.easeOut);
                                   });
                                 },
                               ),
                             ),
                             Expanded(
                               child: new FlatButton(
-                                child: new Text("MEDIA", style: TextStyle(fontFamily: "Montserrat", color: currPage == 3 ? Colors.white : currTextColor)),
+                                child: new Text("MEDIA",
+                                    style: TextStyle(
+                                        fontFamily: "Montserrat",
+                                        color: currPage == 3
+                                            ? Colors.white
+                                            : currTextColor)),
                                 color: currPage == 3 ? mainColor : null,
                                 onPressed: () {
                                   setState(() {
                                     currPage = 3;
-                                    _controller.animateToPage(3, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+                                    _controller.animateToPage(3,
+                                        duration:
+                                            const Duration(milliseconds: 300),
+                                        curve: Curves.easeOut);
                                   });
                                 },
                               ),
                             ),
                           ],
-                        )
-                    ),
+                        )),
                     Container(
                         padding: EdgeInsets.only(top: 16),
-                        width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                        width: (MediaQuery.of(context).size.width > 1300)
+                            ? 1100
+                            : MediaQuery.of(context).size.width - 50,
                         height: 500,
                         child: new PageView(
                           controller: _controller,
@@ -276,8 +351,7 @@ class _ConferenceDetailsPageState extends State<ConferenceDetailsPage> {
                             ConferenceWinnersPage(conference.conferenceID),
                             ConferenceMediaPage(conference.conferenceID)
                           ],
-                        )
-                    ),
+                        )),
                     new Container(height: 100)
                   ],
                 ),
@@ -285,12 +359,10 @@ class _ConferenceDetailsPageState extends State<ConferenceDetailsPage> {
             ),
           );
         }
-      }
-      else {
+      } else {
         return Container();
       }
-    }
-    else {
+    } else {
       return LoginPage();
     }
   }

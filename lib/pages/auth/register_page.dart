@@ -23,7 +23,6 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-
   final html.Storage _localStorage = html.window.localStorage;
   List<Chapter> chapterList = new List();
   Widget registerWidget = new Container();
@@ -62,23 +61,24 @@ class _RegisterPageState extends State<RegisterPage> {
   void alert(String alert) {
     showDialog(
         context: context,
-        child: new AlertDialog(
-          backgroundColor: currCardColor,
-          title: new Text("Alert", style: TextStyle(color: currTextColor),),
-          content: new Text(alert, style: TextStyle(color: currTextColor)),
-          actions: [
-            new FlatButton(
-                child: new Text("GOT IT"),
-                textColor: mainColor,
-                onPressed: () {
-                  router.pop(context);
-                }
-            )
-          ],
-        )
-    );
+        builder: (context) => AlertDialog(
+              backgroundColor: currCardColor,
+              title: new Text(
+                "Alert",
+                style: TextStyle(color: currTextColor),
+              ),
+              content: new Text(alert, style: TextStyle(color: currTextColor)),
+              actions: [
+                new FlatButton(
+                    child: new Text("GOT IT"),
+                    textColor: mainColor,
+                    onPressed: () {
+                      router.pop(context);
+                    })
+              ],
+            ));
   }
-  
+
   Future<void> testFileUpload() async {
     File file = new File("images/default-male.png");
     fb.storage().ref("test/test.png").put(file);
@@ -100,7 +100,8 @@ class _RegisterPageState extends State<RegisterPage> {
           selectedChapter = chapterList[i];
           cardHeight = 500;
           chapterExists = true;
-          if (chapterList[i].advisorName != null && chapterList[i].advisorName != "") {
+          if (chapterList[i].advisorName != null &&
+              chapterList[i].advisorName != "") {
             // Advisor already exists for selected chapter
             print("Advisor Exists!");
             advisorExists = true;
@@ -108,11 +109,10 @@ class _RegisterPageState extends State<RegisterPage> {
             registerWidget = new Container(
               width: double.infinity,
               child: new RaisedButton(
-                child: new Text("CREATE ACCOUNT"),
-                textColor: Colors.white,
-                color: mainColor,
-                onPressed: register
-              ),
+                  child: new Text("CREATE ACCOUNT"),
+                  textColor: Colors.white,
+                  color: mainColor,
+                  onPressed: register),
             );
           }
         });
@@ -137,7 +137,9 @@ class _RegisterPageState extends State<RegisterPage> {
             textColor: Colors.white,
             color: mainColor,
             onPressed: () {
-              router.navigateTo(context, '/register/advisor?${selectedChapter.chapterID}?${selectedChapter.advisorCode}', transition: TransitionType.fadeIn);
+              router.navigateTo(context,
+                  '/register/advisor?${selectedChapter.chapterID}?${selectedChapter.advisorCode}',
+                  transition: TransitionType.fadeIn);
             },
           ),
         );
@@ -149,27 +151,31 @@ class _RegisterPageState extends State<RegisterPage> {
     fb.auth().setPersistence("local");
     if (currUser.firstName == "" || currUser.lastName == "") {
       alert("Name cannot be empty!");
-    }
-    else if (currUser.email == "") {
+    } else if (currUser.email == "") {
       alert("Email cannot be empty!");
-    }
-    else if (password != confirmPassword) {
+    } else if (password != confirmPassword) {
       alert("Passwords must match!");
-    }
-    else if (selectedChapter.chapterID == "CC-121212" && !currUser.email.contains("warriorlife.net")) {
-      alert("Please use a warriorlife.net email when registering for this chapter!");
-    }
-    else {
+    } else if (selectedChapter.chapterID == "CC-121212" &&
+        !currUser.email.contains("warriorlife.net")) {
+      alert(
+          "Please use a warriorlife.net email when registering for this chapter!");
+    } else {
       // All good to create account!
       try {
         setState(() {
           registerWidget = new Container(
             child: new HeartbeatProgressIndicator(
-              child: new Image.asset("images/deca-diamong.png", height: 20,),
+              child: new Image.asset(
+                "images/deca-diamong.png",
+                height: 20,
+              ),
             ),
           );
         });
-        await fb.auth().createUserWithEmailAndPassword(currUser.email, password).then((value) async {
+        await fb
+            .auth()
+            .createUserWithEmailAndPassword(currUser.email, password)
+            .then((value) async {
           currUser.userID = value.user.uid;
           currUser.roles.add("Member");
           currUser.chapter = selectedChapter;
@@ -177,8 +183,10 @@ class _RegisterPageState extends State<RegisterPage> {
           print(currUser.chapter.chapterID);
           _localStorage["userID"] = fb.auth().currentUser.uid;
           await fb.database().ref("users").child(currUser.userID).set({
-            "firstName": currUser.firstName.replaceAll(new RegExp(r"\s+\b|\b\s"), ""),
-            "lastName": currUser.lastName.replaceAll(new RegExp(r"\s+\b|\b\s"), ""),
+            "firstName":
+                currUser.firstName.replaceAll(new RegExp(r"\s+\b|\b\s"), ""),
+            "lastName":
+                currUser.lastName.replaceAll(new RegExp(r"\s+\b|\b\s"), ""),
             "email": currUser.email.toLowerCase(),
             "emailVerified": currUser.emailVerified,
             "phone": currUser.phone,
@@ -191,14 +199,26 @@ class _RegisterPageState extends State<RegisterPage> {
           });
           if (currUser.gender == "Female") {
             print("Female pic used");
-            fb.database().ref("users").child(currUser.userID).child("profileUrl").set("https://firebasestorage.googleapis.com/v0/b/mydeca-app.appspot.com/o/default-female.png?alt=media&token=ad2ae077-6927-4209-893a-e394b368538b");
-          }
-          else {
+            fb
+                .database()
+                .ref("users")
+                .child(currUser.userID)
+                .child("profileUrl")
+                .set(
+                    "https://firebasestorage.googleapis.com/v0/b/mydeca-app.appspot.com/o/default-female.png?alt=media&token=ad2ae077-6927-4209-893a-e394b368538b");
+          } else {
             print("Male pic used");
-            fb.database().ref("users").child(currUser.userID).child("profileUrl").set("https://firebasestorage.googleapis.com/v0/b/mydeca-app.appspot.com/o/default-male.png?alt=media&token=5b6b4b1c-649c-46b9-be30-b15d3603e358");
+            fb
+                .database()
+                .ref("users")
+                .child(currUser.userID)
+                .child("profileUrl")
+                .set(
+                    "https://firebasestorage.googleapis.com/v0/b/mydeca-app.appspot.com/o/default-male.png?alt=media&token=5b6b4b1c-649c-46b9-be30-b15d3603e358");
           }
           print("Uploaded profile picture!");
-          router.navigateTo(context, "/home?new", transition: TransitionType.fadeIn, clearStack: true);
+          router.navigateTo(context, "/home?new",
+              transition: TransitionType.fadeIn, clearStack: true);
         });
       } catch (e) {
         print(e);
@@ -212,8 +232,7 @@ class _RegisterPageState extends State<RegisterPage> {
             child: new Text("CREATE ACCOUNT"),
             textColor: Colors.white,
             color: mainColor,
-            onPressed: register
-        ),
+            onPressed: register),
       );
     });
   }
@@ -231,14 +250,23 @@ class _RegisterPageState extends State<RegisterPage> {
             child: new AnimatedContainer(
               duration: const Duration(milliseconds: 300),
               padding: EdgeInsets.all(32.0),
-              width: (MediaQuery.of(context).size.width > 500) ? 500.0 : MediaQuery.of(context).size.width - 25,
+              width: (MediaQuery.of(context).size.width > 500)
+                  ? 500.0
+                  : MediaQuery.of(context).size.width - 25,
               height: cardHeight,
               child: new SingleChildScrollView(
                 child: new Column(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    new Text("REGISTER", style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold, fontFamily: "Gotham"), textAlign: TextAlign.center),
-                    new Padding(padding: EdgeInsets.all(8.0),),
+                    new Text("REGISTER",
+                        style: TextStyle(
+                            fontSize: 40,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: "Gotham"),
+                        textAlign: TextAlign.center),
+                    new Padding(
+                      padding: EdgeInsets.all(8.0),
+                    ),
                     new Visibility(
                       visible: chapterExists,
                       child: new Card(
@@ -247,15 +275,36 @@ class _RegisterPageState extends State<RegisterPage> {
                           child: new Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              new Padding(padding: EdgeInsets.all(4.0),),
-                              new Image.asset("images/deca-diamond.png", height: 50,),
-                              new Padding(padding: EdgeInsets.all(8.0),),
+                              new Padding(
+                                padding: EdgeInsets.all(4.0),
+                              ),
+                              new Image.asset(
+                                "images/deca-diamond.png",
+                                height: 50,
+                              ),
+                              new Padding(
+                                padding: EdgeInsets.all(8.0),
+                              ),
                               new Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  new Text(selectedChapter.name + " DECA", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
-                                  new Text(selectedChapter.city, style: TextStyle(fontSize: 17, fontWeight: FontWeight.w300)),
-                                  new Text("Advisor: " + (selectedChapter.advisorName == null ? "Not Set" : selectedChapter.advisorName), style: TextStyle(fontWeight: FontWeight.w300))
+                                  new Text(
+                                    selectedChapter.name + " DECA",
+                                    style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  new Text(selectedChapter.city,
+                                      style: TextStyle(
+                                          fontSize: 17,
+                                          fontWeight: FontWeight.w300)),
+                                  new Text(
+                                      "Advisor: " +
+                                          (selectedChapter.advisorName == null
+                                              ? "Not Set"
+                                              : selectedChapter.advisorName),
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w300))
                                 ],
                               )
                             ],
@@ -265,8 +314,21 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                     new Row(
                       children: [
-                        new Text(chapterExists ? "Valid Chapter Code!" : "Enter your chapter code below", textAlign: TextAlign.center, style: TextStyle(fontSize: 17, color: chapterExists ? Colors.green : currTextColor)),
-                        new IconButton(icon: Icon(Icons.help), tooltip: "Use the chapter code you recieved from your advisor here.\nIf you do not have a code, contact your advisor.",)
+                        new Text(
+                            chapterExists
+                                ? "Valid Chapter Code!"
+                                : "Enter your chapter code below",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontSize: 17,
+                                color: chapterExists
+                                    ? Colors.green
+                                    : currTextColor)),
+                        new IconButton(
+                          icon: Icon(Icons.help),
+                          tooltip:
+                              "Use the chapter code you recieved from your advisor here.\nIf you do not have a code, contact your advisor.",
+                        )
                       ],
                     ),
                     new TextField(
@@ -278,16 +340,31 @@ class _RegisterPageState extends State<RegisterPage> {
                       textCapitalization: TextCapitalization.characters,
                       onChanged: checkChapterCode,
                     ),
-                    new Visibility(visible: chapterExists, child: new Padding(padding: EdgeInsets.all(8.0))),
                     new Visibility(
-                      visible: chapterExists && !advisorExists,
-                      child: Row(
-                        children: [
-                          new Text(advisorCodeExists ? "Valid Advisor Code!" : "Enter your advisor code below", textAlign: TextAlign.center, style: TextStyle(fontSize: 17, color: advisorCodeExists ? Colors.green : currTextColor),),
-                          new IconButton(icon: Icon(Icons.help), tooltip: "An advisor has not been set for this chapter yet. Please ask your advisor to create their\naccount first. If you are an advisor and have not recieved a code, please reach out to us.",)
-                        ],
-                      )
-                    ),
+                        visible: chapterExists,
+                        child: new Padding(padding: EdgeInsets.all(8.0))),
+                    new Visibility(
+                        visible: chapterExists && !advisorExists,
+                        child: Row(
+                          children: [
+                            new Text(
+                              advisorCodeExists
+                                  ? "Valid Advisor Code!"
+                                  : "Enter your advisor code below",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  fontSize: 17,
+                                  color: advisorCodeExists
+                                      ? Colors.green
+                                      : currTextColor),
+                            ),
+                            new IconButton(
+                              icon: Icon(Icons.help),
+                              tooltip:
+                                  "An advisor has not been set for this chapter yet. Please ask your advisor to create their\naccount first. If you are an advisor and have not recieved a code, please reach out to us.",
+                            )
+                          ],
+                        )),
                     new Visibility(
                       visible: chapterExists && !advisorExists,
                       child: new TextField(
@@ -349,14 +426,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             formatInput: true,
                             hintText: "Phone",
                             initialValue: PhoneNumber(isoCode: "US"),
-                            countries: [
-                              "US",
-                              "CN",
-                              "CA",
-                              "IN",
-                              "JP",
-                              "KR"
-                            ],
+                            countries: ["US", "CN", "CA", "IN", "JP", "KR"],
                           ),
                           new Row(
                             children: <Widget>[
@@ -364,7 +434,9 @@ class _RegisterPageState extends State<RegisterPage> {
                                 flex: 2,
                                 child: new Text(
                                   "Grade",
-                                  style: TextStyle(fontWeight: FontWeight.normal, fontSize: 16.0),
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.normal,
+                                      fontSize: 16.0),
                                 ),
                               ),
                               new Expanded(
@@ -372,10 +444,14 @@ class _RegisterPageState extends State<RegisterPage> {
                                 child: new DropdownButton(
                                   value: currUser.grade,
                                   items: [
-                                    DropdownMenuItem(child: new Text("9"), value: 9),
-                                    DropdownMenuItem(child: new Text("10"), value: 10),
-                                    DropdownMenuItem(child: new Text("11"), value: 11),
-                                    DropdownMenuItem(child: new Text("12"), value: 12),
+                                    DropdownMenuItem(
+                                        child: new Text("9"), value: 9),
+                                    DropdownMenuItem(
+                                        child: new Text("10"), value: 10),
+                                    DropdownMenuItem(
+                                        child: new Text("11"), value: 11),
+                                    DropdownMenuItem(
+                                        child: new Text("12"), value: 12),
                                   ],
                                   onChanged: (value) {
                                     setState(() {
@@ -392,7 +468,9 @@ class _RegisterPageState extends State<RegisterPage> {
                                 flex: 2,
                                 child: new Text(
                                   "Gender",
-                                  style: TextStyle(fontWeight: FontWeight.normal, fontSize: 16.0),
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.normal,
+                                      fontSize: 16.0),
                                 ),
                               ),
                               new Expanded(
@@ -400,10 +478,17 @@ class _RegisterPageState extends State<RegisterPage> {
                                 child: new DropdownButton(
                                   value: currUser.gender,
                                   items: [
-                                    DropdownMenuItem(child: new Text("Male"), value: "Male"),
-                                    DropdownMenuItem(child: new Text("Female"), value: "Female"),
-                                    DropdownMenuItem(child: new Text("Other"), value: "Other"),
-                                    DropdownMenuItem(child: new Text("Prefer not to say"), value: "Opt-Out"),
+                                    DropdownMenuItem(
+                                        child: new Text("Male"), value: "Male"),
+                                    DropdownMenuItem(
+                                        child: new Text("Female"),
+                                        value: "Female"),
+                                    DropdownMenuItem(
+                                        child: new Text("Other"),
+                                        value: "Other"),
+                                    DropdownMenuItem(
+                                        child: new Text("Prefer not to say"),
+                                        value: "Opt-Out"),
                                   ],
                                   onChanged: (value) {
                                     setState(() {
@@ -420,7 +505,9 @@ class _RegisterPageState extends State<RegisterPage> {
                                 flex: 2,
                                 child: new Text(
                                   "Shirt Size",
-                                  style: TextStyle(fontWeight: FontWeight.normal, fontSize: 16.0),
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.normal,
+                                      fontSize: 16.0),
                                 ),
                               ),
                               new Expanded(
@@ -428,10 +515,14 @@ class _RegisterPageState extends State<RegisterPage> {
                                 child: new DropdownButton(
                                   value: currUser.shirtSize,
                                   items: [
-                                    DropdownMenuItem(child: new Text("S"), value: "S"),
-                                    DropdownMenuItem(child: new Text("M"), value: "M"),
-                                    DropdownMenuItem(child: new Text("L"), value: "L"),
-                                    DropdownMenuItem(child: new Text("XL"), value: "XL"),
+                                    DropdownMenuItem(
+                                        child: new Text("S"), value: "S"),
+                                    DropdownMenuItem(
+                                        child: new Text("M"), value: "M"),
+                                    DropdownMenuItem(
+                                        child: new Text("L"), value: "L"),
+                                    DropdownMenuItem(
+                                        child: new Text("XL"), value: "XL"),
                                   ],
                                   onChanged: (value) {
                                     setState(() {
@@ -448,7 +539,9 @@ class _RegisterPageState extends State<RegisterPage> {
                                 flex: 2,
                                 child: new Text(
                                   "Years in DECA",
-                                  style: TextStyle(fontWeight: FontWeight.normal, fontSize: 16.0),
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.normal,
+                                      fontSize: 16.0),
                                 ),
                               ),
                               new Expanded(
@@ -456,11 +549,21 @@ class _RegisterPageState extends State<RegisterPage> {
                                 child: new DropdownButton(
                                   value: currUser.yearsMember,
                                   items: [
-                                    DropdownMenuItem(child: new Text("First Year"), value: 0),
-                                    DropdownMenuItem(child: new Text("Second Year"), value: 1),
-                                    DropdownMenuItem(child: new Text("Third Year"), value: 2),
-                                    DropdownMenuItem(child: new Text("Fourth Year"), value: 3),
-                                    DropdownMenuItem(child: new Text("Fifth Year"), value: 4),
+                                    DropdownMenuItem(
+                                        child: new Text("First Year"),
+                                        value: 0),
+                                    DropdownMenuItem(
+                                        child: new Text("Second Year"),
+                                        value: 1),
+                                    DropdownMenuItem(
+                                        child: new Text("Third Year"),
+                                        value: 2),
+                                    DropdownMenuItem(
+                                        child: new Text("Fourth Year"),
+                                        value: 3),
+                                    DropdownMenuItem(
+                                        child: new Text("Fifth Year"),
+                                        value: 4),
                                   ],
                                   onChanged: (value) {
                                     setState(() {
@@ -500,7 +603,8 @@ class _RegisterPageState extends State<RegisterPage> {
                             text: new TextSpan(
                               children: [
                                 new TextSpan(
-                                  text: "By creating a myDECA account, you agree to our ",
+                                  text:
+                                      "By creating a myDECA account, you agree to our ",
                                   style: new TextStyle(color: Colors.black),
                                 ),
                                 new TextSpan(
@@ -534,10 +638,14 @@ class _RegisterPageState extends State<RegisterPage> {
                     new Visibility(
                       visible: !chapterExists,
                       child: new FlatButton(
-                        child: new Text("Already have an account?", style: TextStyle(fontSize: 17),),
+                        child: new Text(
+                          "Already have an account?",
+                          style: TextStyle(fontSize: 17),
+                        ),
                         textColor: mainColor,
                         onPressed: () {
-                          router.navigateTo(context, "/login", transition: TransitionType.fadeIn);
+                          router.navigateTo(context, "/login",
+                              transition: TransitionType.fadeIn);
                         },
                       ),
                     )

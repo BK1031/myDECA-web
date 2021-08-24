@@ -15,14 +15,12 @@ import 'package:mydeca_web/utils/theme.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-
 class RegisterAdvisorPage extends StatefulWidget {
   @override
   _RegisterAdvisorPageState createState() => _RegisterAdvisorPageState();
 }
 
 class _RegisterAdvisorPageState extends State<RegisterAdvisorPage> {
-
   final Storage _localStorage = html.window.localStorage;
   List<Chapter> chapterList = new List();
   Widget registerWidget = new Container();
@@ -47,40 +45,47 @@ class _RegisterAdvisorPageState extends State<RegisterAdvisorPage> {
           child: new Text("CREATE ACCOUNT"),
           textColor: Colors.white,
           color: mainColor,
-          onPressed: register
-      ),
+          onPressed: register),
     );
   }
 
   void alert(String alert) {
     showDialog(
         context: context,
-        child: new AlertDialog(
-          backgroundColor: currCardColor,
-          title: new Text("Alert", style: TextStyle(color: currTextColor),),
-          content: new Text(alert, style: TextStyle(color: currTextColor)),
-          actions: [
-            new FlatButton(
-                child: new Text("GOT IT"),
-                textColor: mainColor,
-                onPressed: () {
-                  router.pop(context);
-                }
-            )
-          ],
-        )
-    );
+        builder: (context) => AlertDialog(
+              backgroundColor: currCardColor,
+              title: new Text(
+                "Alert",
+                style: TextStyle(color: currTextColor),
+              ),
+              content: new Text(alert, style: TextStyle(color: currTextColor)),
+              actions: [
+                new FlatButton(
+                    child: new Text("GOT IT"),
+                    textColor: mainColor,
+                    onPressed: () {
+                      router.pop(context);
+                    })
+              ],
+            ));
   }
 
   void checkCodes() {
-    fb.database().ref("chapters").child(html.window.location.toString().split("?")[1]).once("value").then((value) {
-      if (value.snapshot != null && value.snapshot.val()["advisorCode"] == html.window.location.toString().split("?")[2]) {
+    fb
+        .database()
+        .ref("chapters")
+        .child(html.window.location.toString().split("?")[1])
+        .once("value")
+        .then((value) {
+      if (value.snapshot != null &&
+          value.snapshot.val()["advisorCode"] ==
+              html.window.location.toString().split("?")[2]) {
         // Chapter and Advisor code exists
         print("Chapter and Advisor code exists");
-      }
-      else {
+      } else {
         print("Invalid Chapter and Advisor code exists");
-        router.navigateTo(context, "/register", transition: TransitionType.fadeIn);
+        router.navigateTo(context, "/register",
+            transition: TransitionType.fadeIn);
       }
     });
   }
@@ -89,24 +94,27 @@ class _RegisterAdvisorPageState extends State<RegisterAdvisorPage> {
     fb.auth().setPersistence("local");
     if (currUser.firstName == "" || currUser.lastName == "") {
       alert("Name cannot be empty!");
-    }
-    else if (currUser.email == "") {
+    } else if (currUser.email == "") {
       alert("Email cannot be empty!");
-    }
-    else if (password != confirmPassword) {
+    } else if (password != confirmPassword) {
       alert("Passwords must match!");
-    }
-    else {
+    } else {
       // All good to create account!
       try {
         setState(() {
           registerWidget = new Container(
             child: new HeartbeatProgressIndicator(
-              child: new Image.asset("images/deca-diamond.png", height: 20,),
+              child: new Image.asset(
+                "images/deca-diamond.png",
+                height: 20,
+              ),
             ),
           );
         });
-        await fb.auth().createUserWithEmailAndPassword(currUser.email, password).then((value) async {
+        await fb
+            .auth()
+            .createUserWithEmailAndPassword(currUser.email, password)
+            .then((value) async {
           currUser.userID = value.user.uid;
           currUser.roles.add("Advisor");
           currUser.chapter = selectedChapter;
@@ -114,8 +122,10 @@ class _RegisterAdvisorPageState extends State<RegisterAdvisorPage> {
           print(currUser.chapter.chapterID);
           _localStorage["userID"] = fb.auth().currentUser.uid;
           await fb.database().ref("users").child(currUser.userID).set({
-            "firstName": currUser.firstName.replaceAll(new RegExp(r"\s+\b|\b\s"), ""),
-            "lastName": currUser.lastName.replaceAll(new RegExp(r"\s+\b|\b\s"), ""),
+            "firstName":
+                currUser.firstName.replaceAll(new RegExp(r"\s+\b|\b\s"), ""),
+            "lastName":
+                currUser.lastName.replaceAll(new RegExp(r"\s+\b|\b\s"), ""),
             "email": currUser.email,
             "emailVerified": currUser.emailVerified,
             "phone": currUser.phone,
@@ -126,17 +136,34 @@ class _RegisterAdvisorPageState extends State<RegisterAdvisorPage> {
             "shirtSize": currUser.shirtSize,
             "chapterID": html.window.location.toString().split("?")[1],
           });
-          await fb.database().ref("chapters").child(html.window.location.toString().split("?")[1]).child("advisor").set("${currUser.firstName} ${currUser.lastName}");
+          await fb
+              .database()
+              .ref("chapters")
+              .child(html.window.location.toString().split("?")[1])
+              .child("advisor")
+              .set("${currUser.firstName} ${currUser.lastName}");
           if (currUser.gender == "Female") {
             print("Female pic used");
-            fb.database().ref("users").child(currUser.userID).child("profileUrl").set("https://firebasestorage.googleapis.com/v0/b/mydeca-app.appspot.com/o/default-female.png?alt=media&token=ad2ae077-6927-4209-893a-e394b368538b");
-          }
-          else {
+            fb
+                .database()
+                .ref("users")
+                .child(currUser.userID)
+                .child("profileUrl")
+                .set(
+                    "https://firebasestorage.googleapis.com/v0/b/mydeca-app.appspot.com/o/default-female.png?alt=media&token=ad2ae077-6927-4209-893a-e394b368538b");
+          } else {
             print("Male pic used");
-            fb.database().ref("users").child(currUser.userID).child("profileUrl").set("https://firebasestorage.googleapis.com/v0/b/mydeca-app.appspot.com/o/default-male.png?alt=media&token=5b6b4b1c-649c-46b9-be30-b15d3603e358");
+            fb
+                .database()
+                .ref("users")
+                .child(currUser.userID)
+                .child("profileUrl")
+                .set(
+                    "https://firebasestorage.googleapis.com/v0/b/mydeca-app.appspot.com/o/default-male.png?alt=media&token=5b6b4b1c-649c-46b9-be30-b15d3603e358");
           }
           print("Uploaded profile picture!");
-          router.navigateTo(context, "/home?new", transition: TransitionType.fadeIn, clearStack: true);
+          router.navigateTo(context, "/home?new",
+              transition: TransitionType.fadeIn, clearStack: true);
         });
       } catch (e) {
         print(e);
@@ -150,8 +177,7 @@ class _RegisterAdvisorPageState extends State<RegisterAdvisorPage> {
             child: new Text("CREATE ACCOUNT"),
             textColor: Colors.white,
             color: mainColor,
-            onPressed: register
-        ),
+            onPressed: register),
       );
     });
   }
@@ -169,15 +195,30 @@ class _RegisterAdvisorPageState extends State<RegisterAdvisorPage> {
             child: new AnimatedContainer(
               duration: const Duration(milliseconds: 300),
               padding: EdgeInsets.all(32.0),
-              width: (MediaQuery.of(context).size.width > 500) ? 500.0 : MediaQuery.of(context).size.width - 25,
+              width: (MediaQuery.of(context).size.width > 500)
+                  ? 500.0
+                  : MediaQuery.of(context).size.width - 25,
               height: 600,
               child: new SingleChildScrollView(
                 child: new Column(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    new Text("REGISTER", style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold, fontFamily: "Gotham"), textAlign: TextAlign.center),
-                    new Padding(padding: EdgeInsets.all(8.0),),
-                    new Text("Welcome advisor, we are excited to have you onboard!", textAlign: TextAlign.center, style: TextStyle(fontSize: 17, color: chapterExists ? Colors.green : currTextColor)),
+                    new Text("REGISTER",
+                        style: TextStyle(
+                            fontSize: 40,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: "Gotham"),
+                        textAlign: TextAlign.center),
+                    new Padding(
+                      padding: EdgeInsets.all(8.0),
+                    ),
+                    new Text(
+                        "Welcome advisor, we are excited to have you onboard!",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 17,
+                            color:
+                                chapterExists ? Colors.green : currTextColor)),
                     new TextField(
                       decoration: InputDecoration(
                         icon: new Icon(Icons.person),
@@ -223,14 +264,7 @@ class _RegisterAdvisorPageState extends State<RegisterAdvisorPage> {
                       formatInput: true,
                       hintText: "Phone",
                       initialValue: PhoneNumber(isoCode: "US"),
-                      countries: [
-                        "US",
-                        "CN",
-                        "CA",
-                        "IN",
-                        "JP",
-                        "KR"
-                      ],
+                      countries: ["US", "CN", "CA", "IN", "JP", "KR"],
                     ),
                     new Row(
                       children: <Widget>[
@@ -238,7 +272,8 @@ class _RegisterAdvisorPageState extends State<RegisterAdvisorPage> {
                           flex: 2,
                           child: new Text(
                             "Gender",
-                            style: TextStyle(fontWeight: FontWeight.normal, fontSize: 16.0),
+                            style: TextStyle(
+                                fontWeight: FontWeight.normal, fontSize: 16.0),
                           ),
                         ),
                         new Expanded(
@@ -246,10 +281,15 @@ class _RegisterAdvisorPageState extends State<RegisterAdvisorPage> {
                           child: new DropdownButton(
                             value: currUser.gender,
                             items: [
-                              DropdownMenuItem(child: new Text("Male"), value: "Male"),
-                              DropdownMenuItem(child: new Text("Female"), value: "Female"),
-                              DropdownMenuItem(child: new Text("Other"), value: "Other"),
-                              DropdownMenuItem(child: new Text("Prefer not to say"), value: "Opt-Out"),
+                              DropdownMenuItem(
+                                  child: new Text("Male"), value: "Male"),
+                              DropdownMenuItem(
+                                  child: new Text("Female"), value: "Female"),
+                              DropdownMenuItem(
+                                  child: new Text("Other"), value: "Other"),
+                              DropdownMenuItem(
+                                  child: new Text("Prefer not to say"),
+                                  value: "Opt-Out"),
                             ],
                             onChanged: (value) {
                               setState(() {
@@ -266,7 +306,8 @@ class _RegisterAdvisorPageState extends State<RegisterAdvisorPage> {
                           flex: 2,
                           child: new Text(
                             "Shirt Size",
-                            style: TextStyle(fontWeight: FontWeight.normal, fontSize: 16.0),
+                            style: TextStyle(
+                                fontWeight: FontWeight.normal, fontSize: 16.0),
                           ),
                         ),
                         new Expanded(
@@ -274,10 +315,14 @@ class _RegisterAdvisorPageState extends State<RegisterAdvisorPage> {
                           child: new DropdownButton(
                             value: currUser.shirtSize,
                             items: [
-                              DropdownMenuItem(child: new Text("S"), value: "S"),
-                              DropdownMenuItem(child: new Text("M"), value: "M"),
-                              DropdownMenuItem(child: new Text("L"), value: "L"),
-                              DropdownMenuItem(child: new Text("XL"), value: "XL"),
+                              DropdownMenuItem(
+                                  child: new Text("S"), value: "S"),
+                              DropdownMenuItem(
+                                  child: new Text("M"), value: "M"),
+                              DropdownMenuItem(
+                                  child: new Text("L"), value: "L"),
+                              DropdownMenuItem(
+                                  child: new Text("XL"), value: "XL"),
                             ],
                             onChanged: (value) {
                               setState(() {
@@ -317,7 +362,8 @@ class _RegisterAdvisorPageState extends State<RegisterAdvisorPage> {
                       text: new TextSpan(
                         children: [
                           new TextSpan(
-                            text: "By creating a myDECA account, you agree to our ",
+                            text:
+                                "By creating a myDECA account, you agree to our ",
                             style: new TextStyle(color: Colors.black),
                           ),
                           new TextSpan(

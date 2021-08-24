@@ -20,7 +20,6 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-
   final Storage _localStorage = html.window.localStorage;
 
   String _email;
@@ -35,8 +34,7 @@ class _LoginPageState extends State<LoginPage> {
           child: new Text("LOGIN"),
           textColor: Colors.white,
           color: mainColor,
-          onPressed: login
-      ),
+          onPressed: login),
     );
   }
 
@@ -48,21 +46,22 @@ class _LoginPageState extends State<LoginPage> {
   void alert(String alert) {
     showDialog(
         context: context,
-        child: new AlertDialog(
-          backgroundColor: currCardColor,
-          title: new Text("Alert", style: TextStyle(color: currTextColor),),
-          content: new Text(alert, style: TextStyle(color: currTextColor)),
-          actions: [
-            new FlatButton(
-                child: new Text("GOT IT"),
-                textColor: mainColor,
-                onPressed: () {
-                  router.pop(context);
-                }
-            )
-          ],
-        )
-    );
+        builder: (context) => AlertDialog(
+              backgroundColor: currCardColor,
+              title: new Text(
+                "Alert",
+                style: TextStyle(color: currTextColor),
+              ),
+              content: new Text(alert, style: TextStyle(color: currTextColor)),
+              actions: [
+                new FlatButton(
+                    child: new Text("GOT IT"),
+                    textColor: mainColor,
+                    onPressed: () {
+                      router.pop(context);
+                    })
+              ],
+            ));
   }
 
   Future<void> login() async {
@@ -72,17 +71,23 @@ class _LoginPageState extends State<LoginPage> {
         setState(() {
           loginWidget = new Container(
             child: new HeartbeatProgressIndicator(
-              child: new Image.asset("images/deca-diamond.png", height: 20,),
+              child: new Image.asset(
+                "images/deca-diamond.png",
+                height: 20,
+              ),
             ),
           );
         });
-        await fb.auth().signInWithEmailAndPassword(_email, _password).then((value) async {
+        await fb
+            .auth()
+            .signInWithEmailAndPassword(_email, _password)
+            .then((value) async {
           print(fb.auth().currentUser.uid);
           _localStorage["userID"] = fb.auth().currentUser.uid;
           if (html.window.location.toString().contains("login")) {
-            router.navigateTo(context, "/home", transition: TransitionType.fadeIn, clearStack: true);
-          }
-          else {
+            router.navigateTo(context, "/home",
+                transition: TransitionType.fadeIn, clearStack: true);
+          } else {
             html.window.location.reload();
           }
         });
@@ -98,8 +103,7 @@ class _LoginPageState extends State<LoginPage> {
             child: new Text("LOGIN"),
             textColor: Colors.white,
             color: mainColor,
-            onPressed: login
-        ),
+            onPressed: login),
       );
     });
   }
@@ -117,13 +121,22 @@ class _LoginPageState extends State<LoginPage> {
             child: new AnimatedContainer(
               duration: const Duration(milliseconds: 300),
               padding: EdgeInsets.all(32.0),
-              width: (MediaQuery.of(context).size.width > 500) ? 500.0 : MediaQuery.of(context).size.width - 25,
+              width: (MediaQuery.of(context).size.width > 500)
+                  ? 500.0
+                  : MediaQuery.of(context).size.width - 25,
               child: new SingleChildScrollView(
                 child: new Column(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    new Text("LOGIN", style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold, fontFamily: "Gotham"), textAlign: TextAlign.center),
-                    new Padding(padding: EdgeInsets.all(8.0),),
+                    new Text("LOGIN",
+                        style: TextStyle(
+                            fontSize: 40,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: "Gotham"),
+                        textAlign: TextAlign.center),
+                    new Padding(
+                      padding: EdgeInsets.all(8.0),
+                    ),
                     new TextField(
                       decoration: InputDecoration(
                         icon: new Icon(Icons.email),
@@ -153,10 +166,14 @@ class _LoginPageState extends State<LoginPage> {
                     loginWidget,
                     new Padding(padding: EdgeInsets.all(8.0)),
                     new FlatButton(
-                      child: new Text("Don't have an account?", style: TextStyle(fontSize: 17),),
+                      child: new Text(
+                        "Don't have an account?",
+                        style: TextStyle(fontSize: 17),
+                      ),
                       textColor: mainColor,
                       onPressed: () {
-                        router.navigateTo(context, "/register", transition: TransitionType.fadeIn);
+                        router.navigateTo(context, "/register",
+                            transition: TransitionType.fadeIn);
                       },
                     )
                   ],

@@ -15,7 +15,6 @@ class BetaPage extends StatefulWidget {
 }
 
 class _BetaPageState extends State<BetaPage> {
-
   final Storage _localStorage = html.window.localStorage;
   List<Widget> chaptersList = new List();
 
@@ -29,11 +28,11 @@ class _BetaPageState extends State<BetaPage> {
       print("User logged! Redirect to home");
       _localStorage["userID"] = fb.auth().currentUser.uid;
       router.navigateTo(context, "/home", transition: TransitionType.fadeIn);
-    }
-    else {
+    } else {
       print("User not logged! Redirect to register");
       _localStorage.remove("userID");
-      router.navigateTo(context, '/register', transition: TransitionType.materialFullScreenDialog);
+      router.navigateTo(context, '/register',
+          transition: TransitionType.materialFullScreenDialog);
     }
   }
 
@@ -49,15 +48,33 @@ class _BetaPageState extends State<BetaPage> {
               child: new Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  new Padding(padding: EdgeInsets.all(4.0),),
-                  new Image.asset("images/deca-diamond.png", height: 50,),
-                  new Padding(padding: EdgeInsets.all(8.0),),
+                  new Padding(
+                    padding: EdgeInsets.all(4.0),
+                  ),
+                  new Image.asset(
+                    "images/deca-diamond.png",
+                    height: 50,
+                  ),
+                  new Padding(
+                    padding: EdgeInsets.all(8.0),
+                  ),
                   new Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      new Text(event.snapshot.val()["name"] + " DECA", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
-                      new Text(event.snapshot.val()["city"], style: TextStyle(fontSize: 17, fontWeight: FontWeight.w300)),
-                      new Text("Advisor: " + (event.snapshot.val()["advisor"] == null ? "Not Set" : event.snapshot.val()["advisor"]), style: TextStyle(fontWeight: FontWeight.w300))
+                      new Text(
+                        event.snapshot.val()["name"] + " DECA",
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                      new Text(event.snapshot.val()["city"],
+                          style: TextStyle(
+                              fontSize: 17, fontWeight: FontWeight.w300)),
+                      new Text(
+                          "Advisor: " +
+                              (event.snapshot.val()["advisor"] == null
+                                  ? "Not Set"
+                                  : event.snapshot.val()["advisor"]),
+                          style: TextStyle(fontWeight: FontWeight.w300))
                     ],
                   )
                 ],
@@ -70,73 +87,71 @@ class _BetaPageState extends State<BetaPage> {
   }
 
   void addChapter() {
-    showDialog(context: context, child: new AlertDialog(
-      backgroundColor: currCardColor,
-      title: new Text("Chapter Beta Interest"),
-      content: Container(
-        width: 400,
-        child: new Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            new Text("Thank you for expressing interest in joining our beta! Please fill out the form below with either an officer or advisor's info, and we will get in contact soon."),
-            new TextField(
-              decoration: InputDecoration(
-                labelText: "School Name",
-                  hintText: "E.g. Valley Christian High School"
+    showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+              backgroundColor: currCardColor,
+              title: new Text("Chapter Beta Interest"),
+              content: Container(
+                width: 400,
+                child: new Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    new Text(
+                        "Thank you for expressing interest in joining our beta! Please fill out the form below with either an officer or advisor's info, and we will get in contact soon."),
+                    new TextField(
+                      decoration: InputDecoration(
+                          labelText: "School Name",
+                          hintText: "E.g. Valley Christian High School"),
+                      onChanged: (input) {
+                        newSchool = input;
+                      },
+                    ),
+                    new TextField(
+                      decoration: InputDecoration(
+                          labelText: "Contact Name",
+                          hintText: "E.g. Kashyap Chaturvedula"),
+                      onChanged: (input) {
+                        newContact = input;
+                      },
+                    ),
+                    new TextField(
+                      decoration: InputDecoration(
+                          labelText: "Contact Email",
+                          hintText: "E.g. kashyap@gmail.com"),
+                      onChanged: (input) {
+                        contactEmail = input;
+                      },
+                    ),
+                    new TextField(
+                      decoration: InputDecoration(
+                          labelText: "Contact Role", hintText: "E.g. Officer"),
+                      onChanged: (input) {
+                        contactRole = input;
+                      },
+                    ),
+                  ],
+                ),
               ),
-              onChanged: (input) {
-                newSchool = input;
-              },
-            ),
-            new TextField(
-              decoration: InputDecoration(
-                labelText: "Contact Name",
-                  hintText: "E.g. Kashyap Chaturvedula"
-              ),
-              onChanged: (input) {
-                newContact = input;
-              },
-            ),
-            new TextField(
-              decoration: InputDecoration(
-                labelText: "Contact Email",
-                hintText: "E.g. kashyap@gmail.com"
-              ),
-              onChanged: (input) {
-                contactEmail = input;
-              },
-            ),
-            new TextField(
-              decoration: InputDecoration(
-                labelText: "Contact Role",
-                  hintText: "E.g. Officer"
-              ),
-              onChanged: (input) {
-                contactRole = input;
-              },
-            ),
-          ],
-        ),
-      ),
-      actions: [
-        new FlatButton(
-          child: new Text("CANCEL"),
-          onPressed: () => router.pop(context),
-        ),
-        new FlatButton(
-          child: new Text("SUBMIT"),
-          onPressed: () {
-            fb.database().ref("beta-requests").push().set({
-              "school": newSchool,
-              "name": newContact,
-              "email": contactEmail,
-              "role": contactRole
-            });
-            router.pop(context);
-          },
-        )
-      ],
-    ));
+              actions: [
+                new FlatButton(
+                  child: new Text("CANCEL"),
+                  onPressed: () => router.pop(context),
+                ),
+                new FlatButton(
+                  child: new Text("SUBMIT"),
+                  onPressed: () {
+                    fb.database().ref("beta-requests").push().set({
+                      "school": newSchool,
+                      "name": newContact,
+                      "email": contactEmail,
+                      "role": contactRole
+                    });
+                    router.pop(context);
+                  },
+                )
+              ],
+            ));
   }
 
   @override
@@ -171,42 +186,52 @@ class _BetaPageState extends State<BetaPage> {
                                 child: Column(
                                   children: [
                                     Container(
-                                      padding: EdgeInsets.only(left: 64, right: 64),
+                                      padding:
+                                          EdgeInsets.only(left: 64, right: 64),
                                       child: new Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
                                         children: [
                                           new FlatButton(
-                                            child: new Text("Copyright © 2020 Equinox Initiative"),
+                                            child: new Text(
+                                                "Copyright © 2020 Equinox Initiative"),
                                             textColor: Colors.white,
-                                            onPressed: () => launch("https://equinox.bk1031.dev"),
+                                            onPressed: () => launch(
+                                                "https://equinox.bk1031.dev"),
                                           ),
                                           new Row(
                                             children: [
                                               new FlatButton(
-                                                child: new Text("v${appVersion.toString()}"),
+                                                child: new Text(
+                                                    "v${appVersion.toString()}"),
                                                 textColor: Colors.white,
                                                 onPressed: () {},
                                               ),
                                               new FlatButton(
                                                 child: new Text("Docs"),
                                                 textColor: Colors.white,
-                                                onPressed: () => launch("https://docs.mydeca.org"),
+                                                onPressed: () => launch(
+                                                    "https://docs.mydeca.org"),
                                               ),
                                               new FlatButton(
                                                 child: new Text("Terms"),
                                                 textColor: Colors.white,
-                                                onPressed: () => launch("https://docs.mydeca.org/tos"),
+                                                onPressed: () => launch(
+                                                    "https://docs.mydeca.org/tos"),
                                               ),
                                               new FlatButton(
                                                 child: new Text("Privacy"),
                                                 textColor: Colors.white,
-                                                onPressed: () => launch("https://docs.mydeca.org/privacy"),
+                                                onPressed: () => launch(
+                                                    "https://docs.mydeca.org/privacy"),
                                               ),
                                               new FlatButton(
                                                 child: new Text("Status"),
                                                 textColor: Colors.white,
-                                                onPressed: () => launch("https://status.bk1031.dev"),
+                                                onPressed: () => launch(
+                                                    "https://status.bk1031.dev"),
                                               ),
                                             ],
                                           )
@@ -219,7 +244,9 @@ class _BetaPageState extends State<BetaPage> {
                             ],
                           ),
                           Container(
-                            width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                            width: (MediaQuery.of(context).size.width > 1300)
+                                ? 1100
+                                : MediaQuery.of(context).size.width - 50,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -227,15 +254,29 @@ class _BetaPageState extends State<BetaPage> {
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
                                     Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Row(
                                           children: [
                                             new RaisedButton(
-                                              padding: EdgeInsets.only(left: 16, top: 8, bottom: 8, right: 16),
+                                              padding: EdgeInsets.only(
+                                                  left: 16,
+                                                  top: 8,
+                                                  bottom: 8,
+                                                  right: 16),
                                               elevation: 0.0,
-                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
-                                              child: new Text("ADD YOUR CHAPTER", style: TextStyle(fontFamily: "Montserrat", fontWeight: FontWeight.bold, fontSize: 25),),
+                                              shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.all(
+                                                          Radius.circular(8))),
+                                              child: new Text(
+                                                "ADD YOUR CHAPTER",
+                                                style: TextStyle(
+                                                    fontFamily: "Montserrat",
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 25),
+                                              ),
                                               color: mainColor,
                                               textColor: Colors.white,
                                               onPressed: () {
@@ -244,17 +285,21 @@ class _BetaPageState extends State<BetaPage> {
                                             ),
                                           ],
                                         ),
-                                        new Padding(padding: EdgeInsets.all(100)),
+                                        new Padding(
+                                            padding: EdgeInsets.all(100)),
                                       ],
                                     ),
                                   ],
                                 ),
                                 new Container(
                                     child: new Text(
-                                      "These chapters already have",
-                                      style: TextStyle(fontFamily: "Montserrat", fontWeight: FontWeight.bold, fontSize: 50, color: Colors.white),
-                                    )
-                                ),
+                                  "These chapters already have",
+                                  style: TextStyle(
+                                      fontFamily: "Montserrat",
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 50,
+                                      color: Colors.white),
+                                )),
                                 new Container(
                                   child: new Column(
                                     children: chaptersList,
@@ -263,20 +308,35 @@ class _BetaPageState extends State<BetaPage> {
                                 new Padding(padding: EdgeInsets.all(50)),
                                 new Container(
                                     child: Center(
-                                      child: new Text(
-                                        "Don't see your chapter?",
-                                        style: TextStyle(fontFamily: "Montserrat", fontWeight: FontWeight.bold, fontSize: 40, color: Colors.white),
-                                      ),
-                                    )
-                                ),
+                                  child: new Text(
+                                    "Don't see your chapter?",
+                                    style: TextStyle(
+                                        fontFamily: "Montserrat",
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 40,
+                                        color: Colors.white),
+                                  ),
+                                )),
                                 new Padding(padding: EdgeInsets.all(16)),
                                 new Container(
                                   child: Center(
                                     child: new RaisedButton(
-                                      padding: EdgeInsets.only(left: 16, top: 8, bottom: 8, right: 16),
+                                      padding: EdgeInsets.only(
+                                          left: 16,
+                                          top: 8,
+                                          bottom: 8,
+                                          right: 16),
                                       elevation: 0.0,
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
-                                      child: new Text("JOIN NOW", style: TextStyle(fontFamily: "Montserrat", fontWeight: FontWeight.bold, fontSize: 25),),
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(8))),
+                                      child: new Text(
+                                        "JOIN NOW",
+                                        style: TextStyle(
+                                            fontFamily: "Montserrat",
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 25),
+                                      ),
                                       color: mainColor,
                                       textColor: Colors.white,
                                       onPressed: () {
@@ -303,28 +363,31 @@ class _BetaPageState extends State<BetaPage> {
                           children: <Widget>[
                             new Container(
                                 child: Row(
-                                  children: [
-                                    new Image.asset(
-                                      "images/deca-logo.png",
-                                      color: Colors.white,
-                                      fit: BoxFit.fitHeight,
-                                      height: 60,
-                                    ),
-                                  ],
-                                )
-                            ),
+                              children: [
+                                new Image.asset(
+                                  "images/deca-logo.png",
+                                  color: Colors.white,
+                                  fit: BoxFit.fitHeight,
+                                  height: 60,
+                                ),
+                              ],
+                            )),
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: <Widget>[
                                 new OutlineButton(
                                     highlightElevation: 6.0,
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2.0)),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(2.0)),
                                     borderSide: BorderSide(color: Colors.grey),
-                                    child: new Text("GET STARTED", style: TextStyle(fontFamily: "Montserrat", letterSpacing: 1)),
+                                    child: new Text("GET STARTED",
+                                        style: TextStyle(
+                                            fontFamily: "Montserrat",
+                                            letterSpacing: 1)),
                                     textColor: Colors.white,
                                     color: mainColor,
-                                    onPressed: getStarted
-                                ),
+                                    onPressed: getStarted),
                               ],
                             ),
                           ],
@@ -338,8 +401,7 @@ class _BetaPageState extends State<BetaPage> {
           ),
         ),
       );
-    }
-    else {
+    } else {
       return new Scaffold(
         backgroundColor: mainColor.withOpacity(0.2),
         body: new Container(
@@ -356,28 +418,30 @@ class _BetaPageState extends State<BetaPage> {
                     children: <Widget>[
                       new Container(
                           child: Row(
-                            children: [
-                              new Image.asset(
-                                "images/deca-logo.png",
-                                color: Colors.white,
-                                fit: BoxFit.fitHeight,
-                                height: 40,
-                              ),
-                            ],
-                          )
-                      ),
+                        children: [
+                          new Image.asset(
+                            "images/deca-logo.png",
+                            color: Colors.white,
+                            fit: BoxFit.fitHeight,
+                            height: 40,
+                          ),
+                        ],
+                      )),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: <Widget>[
                           new OutlineButton(
                               highlightElevation: 6.0,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2.0)),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(2.0)),
                               borderSide: BorderSide(color: Colors.grey),
-                              child: new Text("GET STARTED", style: TextStyle(fontFamily: "Montserrat", letterSpacing: 1)),
+                              child: new Text("GET STARTED",
+                                  style: TextStyle(
+                                      fontFamily: "Montserrat",
+                                      letterSpacing: 1)),
                               textColor: Colors.white,
                               color: mainColor,
-                              onPressed: getStarted
-                          ),
+                              onPressed: getStarted),
                         ],
                       ),
                     ],
@@ -390,12 +454,15 @@ class _BetaPageState extends State<BetaPage> {
                   alignment: Alignment.topCenter,
                 ),
                 new Container(
-                  padding: EdgeInsets.all(8),
-                  child: new Text(
-                    "These chapters already have",
-                    style: TextStyle(fontFamily: "Montserrat", fontWeight: FontWeight.bold, fontSize: 30, color: Colors.white),
-                  )
-                ),
+                    padding: EdgeInsets.all(8),
+                    child: new Text(
+                      "These chapters already have",
+                      style: TextStyle(
+                          fontFamily: "Montserrat",
+                          fontWeight: FontWeight.bold,
+                          fontSize: 30,
+                          color: Colors.white),
+                    )),
                 new Container(
                   padding: EdgeInsets.all(8),
                   child: new Column(
@@ -405,19 +472,30 @@ class _BetaPageState extends State<BetaPage> {
                 new Padding(padding: EdgeInsets.all(50)),
                 new Container(
                     child: Center(
-                      child: new Text(
-                        "Don't see your chapter?",
-                        style: TextStyle(fontFamily: "Montserrat", fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),
-                      ),
-                    )
-                ),
+                  child: new Text(
+                    "Don't see your chapter?",
+                    style: TextStyle(
+                        fontFamily: "Montserrat",
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                        color: Colors.white),
+                  ),
+                )),
                 new Container(
                   child: Center(
                     child: new RaisedButton(
-                      padding: EdgeInsets.only(left: 16, top: 8, bottom: 8, right: 16),
+                      padding: EdgeInsets.only(
+                          left: 16, top: 8, bottom: 8, right: 16),
                       elevation: 0.0,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
-                      child: new Text("JOIN NOW", style: TextStyle(fontFamily: "Montserrat", fontWeight: FontWeight.bold, fontSize: 18),),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(8))),
+                      child: new Text(
+                        "JOIN NOW",
+                        style: TextStyle(
+                            fontFamily: "Montserrat",
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18),
+                      ),
                       color: mainColor,
                       textColor: Colors.white,
                       onPressed: () {
@@ -438,9 +516,11 @@ class _BetaPageState extends State<BetaPage> {
                           direction: Axis.horizontal,
                           children: [
                             new FlatButton(
-                              child: new Text("Copyright © 2020 Equinox Initiative"),
+                              child: new Text(
+                                  "Copyright © 2020 Equinox Initiative"),
                               textColor: Colors.white,
-                              onPressed: () => launch("https://equinox.bk1031.dev"),
+                              onPressed: () =>
+                                  launch("https://equinox.bk1031.dev"),
                             ),
                             new FlatButton(
                               child: new Text("v${appVersion.toString()}"),
@@ -450,22 +530,26 @@ class _BetaPageState extends State<BetaPage> {
                             new FlatButton(
                               child: new Text("Docs"),
                               textColor: Colors.white,
-                              onPressed: () => launch("https://docs.mydeca.org"),
+                              onPressed: () =>
+                                  launch("https://docs.mydeca.org"),
                             ),
                             new FlatButton(
                               child: new Text("Terms"),
                               textColor: Colors.white,
-                              onPressed: () => launch("https://docs.mydeca.org/tos"),
+                              onPressed: () =>
+                                  launch("https://docs.mydeca.org/tos"),
                             ),
                             new FlatButton(
                               child: new Text("Privacy"),
                               textColor: Colors.white,
-                              onPressed: () => launch("https://docs.mydeca.org/privacy"),
+                              onPressed: () =>
+                                  launch("https://docs.mydeca.org/privacy"),
                             ),
                             new FlatButton(
                               child: new Text("Status"),
                               textColor: Colors.white,
-                              onPressed: () => launch("https://status.bk1031.dev"),
+                              onPressed: () =>
+                                  launch("https://status.bk1031.dev"),
                             ),
                           ],
                         ),
