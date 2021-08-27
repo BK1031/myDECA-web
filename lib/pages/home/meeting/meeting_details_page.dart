@@ -25,11 +25,10 @@ class MeetingDetailsPage extends StatefulWidget {
 }
 
 class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
-
   final Storage _localStorage = html.window.localStorage;
   Meeting meeting = new Meeting();
   User currUser = User.plain();
-
+  bool pressedB = false;
   bool editing = false;
 
   TextEditingController nameController = new TextEditingController();
@@ -39,12 +38,24 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
   void initState() {
     super.initState();
     if (_localStorage["userID"] != null) {
-      fb.database().ref("users").child(_localStorage["userID"]).once("value").then((value) {
+      fb
+          .database()
+          .ref("users")
+          .child(_localStorage["userID"])
+          .once("value")
+          .then((value) {
         setState(() {
           currUser = User.fromSnapshot(value.snapshot);
         });
         if (html.window.location.toString().contains("?id=")) {
-          fb.database().ref("chapters").child(currUser.chapter.chapterID).child("meetings").child(html.window.location.toString().split("?id=")[1]).once("value").then((value) {
+          fb
+              .database()
+              .ref("chapters")
+              .child(currUser.chapter.chapterID)
+              .child("meetings")
+              .child(html.window.location.toString().split("?id=")[1])
+              .once("value")
+              .then((value) {
             setState(() {
               meeting = new Meeting.fromSnapshot(value.snapshot);
               nameController.text = meeting.name;
@@ -68,14 +79,20 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                 HomeNavbar(),
                 new Padding(padding: EdgeInsets.only(bottom: 16.0)),
                 new Container(
-                  width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                  width: (MediaQuery.of(context).size.width > 1300)
+                      ? 1100
+                      : MediaQuery.of(context).size.width - 50,
                   child: new Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       new FlatButton(
-                        child: new Text("Back to Meetings", style: TextStyle(color: mainColor, fontSize: 15),),
+                        child: new Text(
+                          "Back to Meetings",
+                          style: TextStyle(color: mainColor, fontSize: 15),
+                        ),
                         onPressed: () {
-                          router.navigateTo(context, '/home/meetings', transition: TransitionType.fadeIn);
+                          router.navigateTo(context, '/home/meetings',
+                              transition: TransitionType.fadeIn);
                         },
                       ),
                     ],
@@ -85,10 +102,15 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                   visible: !editing,
                   child: Container(
                     padding: EdgeInsets.all(16),
-                    width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                    width: (MediaQuery.of(context).size.width > 1300)
+                        ? 1100
+                        : MediaQuery.of(context).size.width - 50,
                     child: new Text(
                       meeting.name,
-                      style: TextStyle(fontFamily: "Montserrat", fontSize: 30, color: currTextColor),
+                      style: TextStyle(
+                          fontFamily: "Montserrat",
+                          fontSize: 30,
+                          color: currTextColor),
                     ),
                   ),
                 ),
@@ -96,7 +118,9 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                   visible: editing,
                   child: Container(
                     padding: EdgeInsets.all(16),
-                    width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                    width: (MediaQuery.of(context).size.width > 1300)
+                        ? 1100
+                        : MediaQuery.of(context).size.width - 50,
                     child: new TextField(
                       controller: nameController,
                       maxLines: 1,
@@ -106,51 +130,62 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                         });
                       },
                       decoration: InputDecoration(
-                          labelText: "Meeting Name",
-                          border: InputBorder.none
-                      ),
-                      style: TextStyle(fontFamily: "Montserrat", fontSize: 30, color: currTextColor),
+                          labelText: "Meeting Name", border: InputBorder.none),
+                      style: TextStyle(
+                          fontFamily: "Montserrat",
+                          fontSize: 30,
+                          color: currTextColor),
                     ),
                   ),
                 ),
                 Container(
-                  padding: EdgeInsets.only(left: 16),
-                  width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
-                  child: Row(
-                    children: [
-                      new Visibility(
-                        visible: DateTime.now().isAfter(meeting.startTime) && DateTime.now().isBefore(meeting.endTime),
-                        child: new Tooltip(
-                          message: "This meeting is currently ongoing",
-                          child: new Card(
-                            color: mainColor,
-                            child: new Container(
-                              padding: EdgeInsets.only(left: 8, top: 4, bottom: 4, right: 8),
-                              child: new Text("LIVE", style: TextStyle(fontSize: 18, color: Colors.white),),
+                    padding: EdgeInsets.only(left: 16),
+                    width: (MediaQuery.of(context).size.width > 1300)
+                        ? 1100
+                        : MediaQuery.of(context).size.width - 50,
+                    child: Row(
+                      children: [
+                        new Visibility(
+                          visible: DateTime.now().isAfter(meeting.startTime) &&
+                              DateTime.now().isBefore(meeting.endTime),
+                          child: new Tooltip(
+                            message: "This meeting is currently ongoing",
+                            child: new Card(
+                              color: mainColor,
+                              child: new Container(
+                                padding: EdgeInsets.only(
+                                    left: 8, top: 4, bottom: 4, right: 8),
+                                child: new Text(
+                                  "LIVE",
+                                  style: TextStyle(
+                                      fontSize: 18, color: Colors.white),
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      new Visibility(
-                        visible: currUser.roles.contains("Developer") || currUser.roles.contains("Advisor") || currUser.roles.contains("Officer"),
-                        child: new FlatButton(
-                          child: new Text("EDIT MEETING"),
-                          textColor: mainColor,
-                          onPressed: () {
-                            setState(() {
-                              editing = true;
-                            });
-                          },
-                        )
-                      )
-                    ],
-                  )
-                ),
+                        new Visibility(
+                            visible: currUser.roles.contains("Developer") ||
+                                currUser.roles.contains("Advisor") ||
+                                currUser.roles.contains("Officer"),
+                            child: new FlatButton(
+                              child: new Text("EDIT MEETING"),
+                              textColor: mainColor,
+                              onPressed: () {
+                                setState(() {
+                                  editing = true;
+                                });
+                              },
+                            ))
+                      ],
+                    )),
                 new Visibility(
                   visible: !editing,
                   child: Container(
                       padding: EdgeInsets.only(left: 16, top: 16, right: 16),
-                      width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                      width: (MediaQuery.of(context).size.width > 1300)
+                          ? 1100
+                          : MediaQuery.of(context).size.width - 50,
                       height: 1000,
                       child: new Column(
                         children: [
@@ -211,22 +246,44 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                                     onTap: () => launch(meeting.url),
                                     child: new Text(
                                       meeting.url,
-                                      style: TextStyle(fontSize: 17, color: mainColor),
+                                      style: TextStyle(
+                                          fontSize: 17, color: mainColor),
                                     ),
                                   ),
                                 ),
                               ),
                             ],
                           ),
+                          Row(children: [
+                            Container(
+                              padding: EdgeInsets.only(top: 8),
+                              child: RaisedButton(
+                                  child: (pressedB
+                                      ? new Text('Attended')
+                                      : new Text("Not Present")),
+                                  textColor:
+                                      (pressedB ? Colors.white : Colors.blue),
+                                  color:
+                                      (pressedB ? Colors.blue : Colors.white),
+                                  onPressed: () => {
+                                        setState(() {
+                                          if (!pressedB) {
+                                            pressedB = true;
+                                          }
+                                        })
+                                      }),
+                            ),
+                          ])
                         ],
-                      )
-                  ),
+                      )),
                 ),
                 new Visibility(
                   visible: editing,
                   child: Container(
                       padding: EdgeInsets.only(left: 16, top: 16, right: 16),
-                      width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                      width: (MediaQuery.of(context).size.width > 1300)
+                          ? 1100
+                          : MediaQuery.of(context).size.width - 50,
                       child: new Column(
                         children: [
                           Row(
@@ -250,14 +307,16 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                                     final date = await showDatePicker(
                                         context: context,
                                         firstDate: DateTime(1900),
-                                        initialDate: currentValue ?? DateTime.now(),
+                                        initialDate:
+                                            currentValue ?? DateTime.now(),
                                         lastDate: DateTime(2100));
                                     if (date != null) {
                                       final time = await showTimePicker(
-                                        initialEntryMode: TimePickerEntryMode.input,
+                                        initialEntryMode:
+                                            TimePickerEntryMode.input,
                                         context: context,
-                                        initialTime:
-                                        TimeOfDay.fromDateTime(currentValue ?? DateTime.now()),
+                                        initialTime: TimeOfDay.fromDateTime(
+                                            currentValue ?? DateTime.now()),
                                       );
                                       return DateTimeField.combine(date, time);
                                     } else {
@@ -289,14 +348,16 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                                     final date = await showDatePicker(
                                         context: context,
                                         firstDate: DateTime(1900),
-                                        initialDate: currentValue ?? DateTime.now(),
+                                        initialDate:
+                                            currentValue ?? DateTime.now(),
                                         lastDate: DateTime(2100));
                                     if (date != null) {
                                       final time = await showTimePicker(
-                                        initialEntryMode: TimePickerEntryMode.input,
+                                        initialEntryMode:
+                                            TimePickerEntryMode.input,
                                         context: context,
-                                        initialTime:
-                                        TimeOfDay.fromDateTime(currentValue ?? DateTime.now()),
+                                        initialTime: TimeOfDay.fromDateTime(
+                                            currentValue ?? DateTime.now()),
                                       );
                                       return DateTimeField.combine(date, time);
                                     } else {
@@ -314,8 +375,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                               child: new TextField(
                                 controller: urlController,
                                 decoration: InputDecoration(
-                                    hintText: "Meeting URL (optional)"
-                                ),
+                                    hintText: "Meeting URL (optional)"),
                                 onChanged: (input) {
                                   meeting.url = input;
                                 },
@@ -323,14 +383,15 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                             ),
                           ),
                         ],
-                      )
-                  ),
+                      )),
                 ),
                 new Visibility(
                     visible: editing,
                     child: Container(
                         padding: EdgeInsets.all(16),
-                        width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                        width: (MediaQuery.of(context).size.width > 1300)
+                            ? 1100
+                            : MediaQuery.of(context).size.width - 50,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -341,8 +402,18 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                                 setState(() {
                                   editing = false;
                                 });
-                                fb.database().ref("chapters").child(currUser.chapter.chapterID).child("meetings").child(html.window.location.toString().split("?id=")[1]).remove();
-                                router.navigateTo(context, "/home/meetings", transition: TransitionType.fadeIn, replace: true);
+                                fb
+                                    .database()
+                                    .ref("chapters")
+                                    .child(currUser.chapter.chapterID)
+                                    .child("meetings")
+                                    .child(html.window.location
+                                        .toString()
+                                        .split("?id=")[1])
+                                    .remove();
+                                router.navigateTo(context, "/home/meetings",
+                                    transition: TransitionType.fadeIn,
+                                    replace: true);
                               },
                             ),
                             Row(
@@ -354,7 +425,10 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                                     setState(() {
                                       editing = false;
                                     });
-                                    router.navigateTo(context, "/home/meetings/details?id=${html.window.location.toString().split("?id=")[1]}", transition: TransitionType.fadeIn, replace: true);
+                                    router.navigateTo(context,
+                                        "/home/meetings/details?id=${html.window.location.toString().split("?id=")[1]}",
+                                        transition: TransitionType.fadeIn,
+                                        replace: true);
                                   },
                                 ),
                                 new RaisedButton(
@@ -362,7 +436,15 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                                   textColor: Colors.white,
                                   color: mainColor,
                                   onPressed: () {
-                                    fb.database().ref("chapters").child(currUser.chapter.chapterID).child("meetings").child(html.window.location.toString().split("?id=")[1]).set({
+                                    fb
+                                        .database()
+                                        .ref("chapters")
+                                        .child(currUser.chapter.chapterID)
+                                        .child("meetings")
+                                        .child(html.window.location
+                                            .toString()
+                                            .split("?id=")[1])
+                                        .set({
                                       "name": meeting.name,
                                       "startTime": meeting.startTime.toString(),
                                       "endTime": meeting.endTime.toString(),
@@ -371,22 +453,22 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                                     setState(() {
                                       editing = false;
                                     });
-                                    router.navigateTo(context, "/home/meetings/details?id=${html.window.location.toString().split("?id=")[1]}", transition: TransitionType.fadeIn, replace: true);
+                                    router.navigateTo(context,
+                                        "/home/meetings/details?id=${html.window.location.toString().split("?id=")[1]}",
+                                        transition: TransitionType.fadeIn,
+                                        replace: true);
                                   },
                                 )
                               ],
                             ),
                           ],
-                        )
-                    )
-                ),
+                        ))),
               ],
             ),
           ),
         ),
       );
-    }
-    else {
+    } else {
       return LoginPage();
     }
   }
