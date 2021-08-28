@@ -255,23 +255,28 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                             ],
                           ),
                           Row(children: [
-                            Container(
-                              padding: EdgeInsets.only(top: 8),
-                              child: RaisedButton(
-                                  child: (pressedB
-                                      ? new Text('Attended')
-                                      : new Text("Not Present")),
-                                  textColor:
-                                      (pressedB ? Colors.white : Colors.blue),
-                                  color:
-                                      (pressedB ? Colors.blue : Colors.white),
-                                  onPressed: () => {
-                                        setState(() {
-                                          if (!pressedB) {
-                                            pressedB = true;
-                                          }
-                                        })
-                                      }),
+                            Visibility(
+                              visible:
+                                  DateTime.now().isAfter(meeting.startTime) &&
+                                      DateTime.now().isBefore(meeting.endTime),
+                              child: Container(
+                                padding: EdgeInsets.only(top: 8),
+                                child: RaisedButton(
+                                    child: (pressedB
+                                        ? new Text('Attended')
+                                        : new Text("Not Present")),
+                                    textColor:
+                                        (pressedB ? Colors.white : Colors.blue),
+                                    color:
+                                        (pressedB ? Colors.blue : Colors.white),
+                                    onPressed: () => {
+                                          setState(() {
+                                            if (!pressedB) {
+                                              pressedB = true;
+                                            }
+                                          })
+                                        }),
+                              ),
                             ),
                           ])
                         ],
