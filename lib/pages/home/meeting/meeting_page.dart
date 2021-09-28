@@ -38,6 +38,7 @@ class CurrMeeting extends StatefulWidget {
 
 class _CurrMeeting extends State<CurrMeeting> {
   bool pressedB = false;
+  String dropdownValue = "Not Present";
   @override
   Widget build(BuildContext context) {
     return new Container(
@@ -77,22 +78,42 @@ class _CurrMeeting extends State<CurrMeeting> {
                         visible: DateTime.now().isAfter(widget.stime) &&
                             DateTime.now().isBefore(widget.etime),
                         child: Container(
-                          padding: EdgeInsets.only(top: 8),
-                          child: RaisedButton(
-                              child: (pressedB
-                                  ? new Text('Attended')
-                                  : new Text("Not Present")),
-                              textColor:
-                                  (pressedB ? Colors.white : Colors.blue),
-                              color: (pressedB ? Colors.blue : Colors.white),
-                              onPressed: () => {
-                                    setState(() {
-                                      if (!pressedB) {
-                                        pressedB = true;
-                                      }
-                                    })
-                                  }),
-                        ),
+                            padding: EdgeInsets.only(left: 8),
+                            child: DropdownButton<String>(
+                              value: dropdownValue,
+                              icon: const Icon(Icons.arrow_downward),
+                              iconSize: 24,
+                              elevation: 16,
+                              style: TextStyle(
+                                  color: (dropdownValue == "Not Present"
+                                      ? Colors.red
+                                      : Colors.blue)),
+                              underline: Container(
+                                height: 2,
+                                color: (dropdownValue == "Not Present"
+                                    ? Colors.redAccent
+                                    : Colors.blueAccent),
+                              ),
+                              onChanged: (String newValue) {
+                                setState(() {
+                                  if (dropdownValue == 'Not Present') {
+                                    dropdownValue = newValue;
+                                  }
+                                });
+                              },
+                              items: <String>[
+                                'Football Stadium',
+                                'G106',
+                                'G107',
+                                'G110',
+                                'Not Present'
+                              ].map<DropdownMenuItem<String>>((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }).toList(),
+                            )),
                       ),
                     ])
                   ]),
