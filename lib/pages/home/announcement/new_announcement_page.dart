@@ -25,7 +25,6 @@ class NewAnnouncementPage extends StatefulWidget {
 }
 
 class _NewAnnouncementPageState extends State<NewAnnouncementPage> {
-
   final Storage _localStorage = html.window.localStorage;
   Announcement announcement = new Announcement.plain();
 
@@ -41,7 +40,12 @@ class _NewAnnouncementPageState extends State<NewAnnouncementPage> {
   void initState() {
     super.initState();
     if (_localStorage["userID"] != null) {
-      fb.database().ref("users").child(_localStorage["userID"]).once("value").then((value) {
+      fb
+          .database()
+          .ref("users")
+          .child(_localStorage["userID"])
+          .once("value")
+          .then((value) {
         setState(() {
           currUser = User.fromSnapshot(value.snapshot);
           announcement.author = currUser;
@@ -56,12 +60,14 @@ class _NewAnnouncementPageState extends State<NewAnnouncementPage> {
         barrierDismissible: false,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: new Text("Select Target", style: TextStyle(color: currTextColor),),
+            title: new Text(
+              "Select Target",
+              style: TextStyle(color: currTextColor),
+            ),
             backgroundColor: currCardColor,
             content: new AnnouncementConfirmDialog(announcement),
           );
-        }
-    );
+        });
   }
 
   @override
@@ -75,12 +81,11 @@ class _NewAnnouncementPageState extends State<NewAnnouncementPage> {
             if (fb.auth().currentUser != null) {
               if (announcement.title != "" && announcement.desc != "") {
                 confirmDialog();
+              } else {
+                html.window.alert(
+                    "Please make sure that you fill out all the fields!");
               }
-              else {
-                html.window.alert("Please make sure that you fill out all the fields!");
-              }
-            }
-            else {
+            } else {
               html.window.alert("AuthToken expired. Please login again.");
             }
           },
@@ -93,14 +98,20 @@ class _NewAnnouncementPageState extends State<NewAnnouncementPage> {
                 HomeNavbar(),
                 new Padding(padding: EdgeInsets.only(bottom: 16.0)),
                 new Container(
-                  width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                  width: (MediaQuery.of(context).size.width > 1300)
+                      ? 1100
+                      : MediaQuery.of(context).size.width - 50,
                   child: new Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       new FlatButton(
-                        child: new Text("Back to Announcements", style: TextStyle(color: mainColor, fontSize: 15),),
+                        child: new Text(
+                          "Back to Announcements",
+                          style: TextStyle(color: mainColor, fontSize: 15),
+                        ),
                         onPressed: () {
-                          router.navigateTo(context, '/home/announcements', transition: TransitionType.fadeIn);
+                          router.navigateTo(context, '/home/announcements',
+                              transition: TransitionType.fadeIn);
                         },
                       ),
                     ],
@@ -108,7 +119,9 @@ class _NewAnnouncementPageState extends State<NewAnnouncementPage> {
                 ),
                 Container(
                   padding: EdgeInsets.all(16),
-                  width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                  width: (MediaQuery.of(context).size.width > 1300)
+                      ? 1100
+                      : MediaQuery.of(context).size.width - 50,
                   child: new TextField(
                     maxLines: 1,
                     onChanged: (input) {
@@ -117,10 +130,12 @@ class _NewAnnouncementPageState extends State<NewAnnouncementPage> {
                       });
                     },
                     decoration: InputDecoration(
-                      labelText: "Announcement Title",
-                      border: InputBorder.none
-                    ),
-                    style: TextStyle(fontFamily: "Montserrat", fontSize: 30, color: currTextColor),
+                        labelText: "Announcement Title",
+                        border: InputBorder.none),
+                    style: TextStyle(
+                        fontFamily: "Montserrat",
+                        fontSize: 30,
+                        color: currTextColor),
                   ),
                 ),
 //                Container(
@@ -134,14 +149,19 @@ class _NewAnnouncementPageState extends State<NewAnnouncementPage> {
 //                ),
                 new Container(
                   padding: EdgeInsets.only(left: 16, right: 16),
-                  width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                  width: (MediaQuery.of(context).size.width > 1300)
+                      ? 1100
+                      : MediaQuery.of(context).size.width - 50,
                   child: new Row(
                     children: [
                       new CircleAvatar(
                         radius: 25,
-                        backgroundColor: announcement.author.roles.length != 0 ? roleColors[announcement.author.roles.first] : currTextColor,
+                        backgroundColor: announcement.author.roles.length != 0
+                            ? roleColors[announcement.author.roles.first]
+                            : currTextColor,
                         child: new ClipRRect(
-                          borderRadius: new BorderRadius.all(Radius.circular(45)),
+                          borderRadius:
+                              new BorderRadius.all(Radius.circular(45)),
                           child: new CachedNetworkImage(
                             imageUrl: announcement.author.profileUrl,
                             height: 45,
@@ -157,15 +177,18 @@ class _NewAnnouncementPageState extends State<NewAnnouncementPage> {
                           textAlign: TextAlign.start,
                           style: TextStyle(
                               fontSize: 20.0,
-                              color: announcement.author.roles.length != 0 ? roleColors[announcement.author.roles.first] : currTextColor
-                          ),
+                              color: announcement.author.roles.length != 0
+                                  ? roleColors[announcement.author.roles.first]
+                                  : currTextColor),
                         ),
                       ),
                       new Padding(padding: EdgeInsets.all(4)),
                       new Visibility(
                         visible: currUser.roles.contains("Developer"),
                         child: new Tooltip(
-                          message: announcement.official ? "Official DECA Communication" : "",
+                          message: announcement.official
+                              ? "Official DECA Communication"
+                              : "",
                           child: new InkWell(
                             onTap: () {
                               setState(() {
@@ -173,10 +196,19 @@ class _NewAnnouncementPageState extends State<NewAnnouncementPage> {
                               });
                             },
                             child: new Card(
-                              color: announcement.official ? mainColor : Colors.grey,
+                              color: announcement.official
+                                  ? mainColor
+                                  : Colors.grey,
                               child: new Container(
-                                padding: EdgeInsets.only(top: 4, bottom: 4, left: 8, right: 8),
-                                child: new Text(announcement.official ? "✓  VERIFIED" : "UNOFFICIAL", style: TextStyle(color: Colors.white, fontSize: 16),),
+                                padding: EdgeInsets.only(
+                                    top: 4, bottom: 4, left: 8, right: 8),
+                                child: new Text(
+                                  announcement.official
+                                      ? "✓  VERIFIED"
+                                      : "UNOFFICIAL",
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 16),
+                                ),
                               ),
                             ),
                           ),
@@ -190,14 +222,20 @@ class _NewAnnouncementPageState extends State<NewAnnouncementPage> {
                       new Padding(padding: EdgeInsets.all(8)),
                       new IconButton(
                         tooltip: "Toggle Preview",
-                        icon: new Icon(previewWidth == 0 ? Icons.visibility_off : Icons.visibility),
+                        icon: new Icon(previewWidth == 0
+                            ? Icons.visibility_off
+                            : Icons.visibility),
                         color: Colors.grey,
                         onPressed: () {
                           setState(() {
                             if (previewWidth == 0) {
-                              previewWidth = (MediaQuery.of(context).size.width > 1300) ? 1100 / 2 : (MediaQuery.of(context).size.width - 50) / 2;
-                            }
-                            else {
+                              previewWidth =
+                                  (MediaQuery.of(context).size.width > 1300)
+                                      ? 1100 / 2
+                                      : (MediaQuery.of(context).size.width -
+                                              50) /
+                                          2;
+                            } else {
                               previewWidth = 0;
                             }
                           });
@@ -208,7 +246,9 @@ class _NewAnnouncementPageState extends State<NewAnnouncementPage> {
                 ),
                 Container(
                     padding: EdgeInsets.only(top: 16),
-                    width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                    width: (MediaQuery.of(context).size.width > 1300)
+                        ? 1100
+                        : MediaQuery.of(context).size.width - 50,
                     height: 1000,
                     child: new Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -225,7 +265,8 @@ class _NewAnnouncementPageState extends State<NewAnnouncementPage> {
                               },
                               decoration: InputDecoration(
                                 border: InputBorder.none,
-                                hintText: '# Heading\n\nWrite your announcement here, markdown is supported!',
+                                hintText:
+                                    '# Heading\n\nWrite your announcement here, markdown is supported!',
                               ),
                             ),
                           ),
@@ -237,21 +278,19 @@ class _NewAnnouncementPageState extends State<NewAnnouncementPage> {
                             data: announcement.desc,
                             selectable: true,
                             styleSheet: markdownStyle,
-                            onTapLink: (url) {
+                            onTapLink: (url, a, b) {
                               launch(url);
                             },
                           ),
                         ),
                       ],
-                    )
-                ),
+                    )),
               ],
             ),
           ),
         ),
       );
-    }
-    else {
+    } else {
       return LoginPage();
     }
   }

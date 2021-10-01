@@ -376,7 +376,7 @@ class _HomePageState extends State<HomePage> {
             backgroundColor: currCardColor,
             content: new AdvisorConferenceSelect(user),
             actions: [
-              new FlatButton(
+              new TextButton(
                 child: new Text("DONE"),
                 onPressed: () {
                   router.pop(context);
@@ -441,7 +441,7 @@ class _HomePageState extends State<HomePage> {
             backgroundColor: currCardColor,
             content: new JoinGroupDialog(user),
             actions: [
-              new FlatButton(
+              new TextButton(
                 child: new Text("DONE"),
                 onPressed: () {
                   router.pop(context);

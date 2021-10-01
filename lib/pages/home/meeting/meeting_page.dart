@@ -122,10 +122,10 @@ class _CurrMeeting extends State<CurrMeeting> {
                   visible: widget.url != "",
                   child: Container(
                     padding: EdgeInsets.only(left: 8, right: 8),
-                    child: new RaisedButton(
+                    child: new ElevatedButton(
                       child: new Text("JOIN"),
-                      textColor: Colors.white,
-                      color: mainColor,
+                      style: ElevatedButton.styleFrom(
+                          primary: mainColor, onPrimary: Colors.white),
                       onPressed: () {
                         launch(widget.url);
                       },
@@ -331,7 +331,7 @@ class _MeetingPageState extends State<MeetingPage> {
                   child: new Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      new FlatButton(
+                      new TextButton(
                         child: new Text(
                           "Back to Home",
                           style: TextStyle(color: mainColor, fontSize: 15),

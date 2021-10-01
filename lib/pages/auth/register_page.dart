@@ -108,10 +108,12 @@ class _RegisterPageState extends State<RegisterPage> {
             cardHeight = MediaQuery.of(context).size.height - 64;
             registerWidget = new Container(
               width: double.infinity,
-              child: new RaisedButton(
+              child: new ElevatedButton(
                   child: new Text("CREATE ACCOUNT"),
-                  textColor: Colors.white,
-                  color: mainColor,
+                  style: ElevatedButton.styleFrom(
+                    primary: mainColor,
+                    onPrimary: Colors.white,
+                  ),
                   onPressed: register),
             );
           }
@@ -132,10 +134,12 @@ class _RegisterPageState extends State<RegisterPage> {
         advisorCodeExists = true;
         registerWidget = new Container(
           width: double.infinity,
-          child: new RaisedButton(
+          child: new ElevatedButton(
             child: new Text("NEXT"),
-            textColor: Colors.white,
-            color: mainColor,
+            style: ElevatedButton.styleFrom(
+              primary: mainColor,
+              onPrimary: Colors.white,
+            ),
             onPressed: () {
               router.navigateTo(context,
                   '/register/advisor?${selectedChapter.chapterID}?${selectedChapter.advisorCode}',

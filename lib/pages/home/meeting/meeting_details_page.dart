@@ -85,7 +85,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                   child: new Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      new FlatButton(
+                      new TextButton(
                         child: new Text(
                           "Back to Meetings",
                           style: TextStyle(color: mainColor, fontSize: 15),

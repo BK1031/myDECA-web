@@ -16,14 +16,13 @@ import 'dart:html' as html;
 
 import 'package:url_launcher/url_launcher.dart';
 
-
 class AnnouncementDetailsPage extends StatefulWidget {
   @override
-  _AnnouncementDetailsPageState createState() => _AnnouncementDetailsPageState();
+  _AnnouncementDetailsPageState createState() =>
+      _AnnouncementDetailsPageState();
 }
 
 class _AnnouncementDetailsPageState extends State<AnnouncementDetailsPage> {
-
   final Storage _localStorage = html.window.localStorage;
   Announcement announcement = new Announcement.plain();
   int unreadAnnounce = 0;
@@ -36,34 +35,60 @@ class _AnnouncementDetailsPageState extends State<AnnouncementDetailsPage> {
   void initState() {
     super.initState();
     if (_localStorage["userID"] != null) {
-      fb.database().ref("users").child(_localStorage["userID"]).once("value").then((value) {
+      fb
+          .database()
+          .ref("users")
+          .child(_localStorage["userID"])
+          .once("value")
+          .then((value) {
         setState(() {
           currUser = User.fromSnapshot(value.snapshot);
           print(currUser);
         });
         // Check for id
         if (html.window.location.toString().contains("?id=")) {
-          fb.database().ref("announcements").child(html.window.location.toString().split("?id=")[1]).once("value").then((value) {
+          fb
+              .database()
+              .ref("announcements")
+              .child(html.window.location.toString().split("?id=")[1])
+              .once("value")
+              .then((value) {
             if (value.snapshot.val() != null) {
               print("Official Announcement");
               setState(() {
                 announcement = new Announcement.fromSnapshot(value.snapshot);
                 announcement.official = true;
               });
-              fb.database().ref("users").child(announcement.author.userID).once("value").then((value) {
+              fb
+                  .database()
+                  .ref("users")
+                  .child(announcement.author.userID)
+                  .once("value")
+                  .then((value) {
                 setState(() {
                   announcement.author = new User.fromSnapshot(value.snapshot);
-              });
+                });
                 print("Announcement by " + announcement.author.toString());
               });
-            }
-            else {
+            } else {
               print("Chapter Announcement");
-              fb.database().ref("chapters").child(currUser.chapter.chapterID).child("announcements").child(html.window.location.toString().split("?id=")[1]).once("value").then((value) {
+              fb
+                  .database()
+                  .ref("chapters")
+                  .child(currUser.chapter.chapterID)
+                  .child("announcements")
+                  .child(html.window.location.toString().split("?id=")[1])
+                  .once("value")
+                  .then((value) {
                 setState(() {
                   announcement = new Announcement.fromSnapshot(value.snapshot);
                 });
-                fb.database().ref("users").child(announcement.author.userID).once("value").then((value) {
+                fb
+                    .database()
+                    .ref("users")
+                    .child(announcement.author.userID)
+                    .once("value")
+                    .then((value) {
                   setState(() {
                     announcement.author = new User.fromSnapshot(value.snapshot);
                   });
@@ -72,10 +97,16 @@ class _AnnouncementDetailsPageState extends State<AnnouncementDetailsPage> {
               });
             }
           });
-          fb.database().ref("users").child(currUser.userID).child("announcements").child(html.window.location.toString().split("?id=")[1]).set(DateTime.now().toString());
-        }
-        else {
-          router.navigateTo(context, "/home/announcements", transition: TransitionType.fadeIn);
+          fb
+              .database()
+              .ref("users")
+              .child(currUser.userID)
+              .child("announcements")
+              .child(html.window.location.toString().split("?id=")[1])
+              .set(DateTime.now().toString());
+        } else {
+          router.navigateTo(context, "/home/announcements",
+              transition: TransitionType.fadeIn);
         }
       });
     }
@@ -93,14 +124,20 @@ class _AnnouncementDetailsPageState extends State<AnnouncementDetailsPage> {
                 HomeNavbar(),
                 new Padding(padding: EdgeInsets.only(bottom: 16.0)),
                 new Container(
-                  width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                  width: (MediaQuery.of(context).size.width > 1300)
+                      ? 1100
+                      : MediaQuery.of(context).size.width - 50,
                   child: new Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       new FlatButton(
-                        child: new Text("Back to Announcements", style: TextStyle(color: mainColor, fontSize: 15),),
+                        child: new Text(
+                          "Back to Announcements",
+                          style: TextStyle(color: mainColor, fontSize: 15),
+                        ),
                         onPressed: () {
-                          router.navigateTo(context, '/home/announcements', transition: TransitionType.fadeIn);
+                          router.navigateTo(context, '/home/announcements',
+                              transition: TransitionType.fadeIn);
                         },
                       ),
                     ],
@@ -108,23 +145,33 @@ class _AnnouncementDetailsPageState extends State<AnnouncementDetailsPage> {
                 ),
                 Container(
                   padding: EdgeInsets.all(16),
-                  width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                  width: (MediaQuery.of(context).size.width > 1300)
+                      ? 1100
+                      : MediaQuery.of(context).size.width - 50,
                   child: new Text(
                     announcement.title,
-                    style: TextStyle(fontFamily: "Montserrat", fontSize: 40, color: currTextColor),
+                    style: TextStyle(
+                        fontFamily: "Montserrat",
+                        fontSize: 40,
+                        color: currTextColor),
                     textAlign: TextAlign.start,
                   ),
                 ),
                 new Container(
                   padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
-                  width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                  width: (MediaQuery.of(context).size.width > 1300)
+                      ? 1100
+                      : MediaQuery.of(context).size.width - 50,
                   child: new Row(
                     children: [
                       new CircleAvatar(
                         radius: 25,
-                        backgroundColor: announcement.author.roles.length != 0 ? roleColors[announcement.author.roles.first] : currTextColor,
+                        backgroundColor: announcement.author.roles.length != 0
+                            ? roleColors[announcement.author.roles.first]
+                            : currTextColor,
                         child: new ClipRRect(
-                          borderRadius: new BorderRadius.all(Radius.circular(45)),
+                          borderRadius:
+                              new BorderRadius.all(Radius.circular(45)),
                           child: new CachedNetworkImage(
                             imageUrl: announcement.author.profileUrl,
                             height: 45,
@@ -140,8 +187,9 @@ class _AnnouncementDetailsPageState extends State<AnnouncementDetailsPage> {
                           textAlign: TextAlign.start,
                           style: TextStyle(
                               fontSize: 20.0,
-                              color: announcement.author.roles.length != 0 ? roleColors[announcement.author.roles.first] : currTextColor
-                          ),
+                              color: announcement.author.roles.length != 0
+                                  ? roleColors[announcement.author.roles.first]
+                                  : currTextColor),
                         ),
                       ),
                       new Padding(padding: EdgeInsets.all(4)),
@@ -152,8 +200,13 @@ class _AnnouncementDetailsPageState extends State<AnnouncementDetailsPage> {
                           child: new Card(
                             color: mainColor,
                             child: new Container(
-                              padding: EdgeInsets.only(top: 4, bottom: 4, left: 8, right: 8),
-                              child: new Text("✓  VERIFIED", style: TextStyle(color: Colors.white, fontSize: 16),),
+                              padding: EdgeInsets.only(
+                                  top: 4, bottom: 4, left: 8, right: 8),
+                              child: new Text(
+                                "✓  VERIFIED",
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 16),
+                              ),
                             ),
                           ),
                         ),
@@ -167,14 +220,16 @@ class _AnnouncementDetailsPageState extends State<AnnouncementDetailsPage> {
                   ),
                 ),
                 new Container(
-                  height: MediaQuery.of(context).size.height * 2/3,
-                  width: (MediaQuery.of(context).size.width > 1300) ? 1100 : MediaQuery.of(context).size.width - 50,
+                  height: MediaQuery.of(context).size.height * 2 / 3,
+                  width: (MediaQuery.of(context).size.width > 1300)
+                      ? 1100
+                      : MediaQuery.of(context).size.width - 50,
                   child: new Markdown(
                     data: announcement.desc,
                     controller: controller,
                     selectable: true,
                     styleSheet: markdownStyle,
-                    onTapLink: (url) {
+                    onTapLink: (String url, String a, String b) {
                       launch(url);
                     },
                   ),
@@ -184,8 +239,7 @@ class _AnnouncementDetailsPageState extends State<AnnouncementDetailsPage> {
           ),
         ),
       );
-    }
-    else {
+    } else {
       return LoginPage();
     }
   }
