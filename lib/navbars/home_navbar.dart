@@ -13,7 +13,6 @@ class HomeNavbar extends StatefulWidget {
 }
 
 class _HomeNavbarState extends State<HomeNavbar> {
-
   final Storage _localStorage = html.window.localStorage;
 
   @override
@@ -27,73 +26,90 @@ class _HomeNavbarState extends State<HomeNavbar> {
         children: <Widget>[
           new Container(
               child: Row(
-                children: [
-                  new Image.asset(
-                    "images/deca-diamond.png",
-                    color: mainColor,
-                    fit: BoxFit.fitHeight,
-                    height: 60,
-                  ),
-                  new Padding(padding: EdgeInsets.all(4)),
-                  new Text(
-                    "my",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 65,
-                    ),
-                  ),
-                  new Text(
-                    "DECA",
-                    style: TextStyle(
-                        fontFamily: "Gotham",
-                        color: Colors.white,
-                        fontSize: 65
-                    ),
-                  )
-                ],
+            children: [
+              new Image.asset(
+                "images/deca-diamond.png",
+                color: mainColor,
+                fit: BoxFit.fitHeight,
+                height: 60,
+              ),
+              new Padding(padding: EdgeInsets.all(4)),
+              new Text(
+                "my",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 65,
+                ),
+              ),
+              new Text(
+                "DECA",
+                style: TextStyle(
+                    fontFamily: "Gotham", color: Colors.white, fontSize: 65),
               )
-          ),
+            ],
+          )),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               new FlatButton(
-                child: new Text("HOME", style: TextStyle(fontFamily: "Montserrat", color: Colors.white)),
-                padding: EdgeInsets.only(left: 20, top: 16, bottom: 16, right: 20),
+                child: new Text("HOME",
+                    style: TextStyle(
+                        fontFamily: "Montserrat", color: Colors.white)),
+                padding:
+                    EdgeInsets.only(left: 20, top: 16, bottom: 16, right: 20),
                 onPressed: () {
-                  router.navigateTo(context, '/home', transition: TransitionType.fadeIn);
+                  router.navigateTo(context, '/home',
+                      transition: TransitionType.fadeIn);
                 },
               ),
               new FlatButton(
-                child: new Text("CONFERENCES", style: TextStyle(fontFamily: "Montserrat", color: Colors.white)),
-                padding: EdgeInsets.only(left: 20, top: 16, bottom: 16, right: 20),
+                child: new Text("CONFERENCES",
+                    style: TextStyle(
+                        fontFamily: "Montserrat", color: Colors.white)),
+                padding:
+                    EdgeInsets.only(left: 20, top: 16, bottom: 16, right: 20),
                 onPressed: () {
-                  router.navigateTo(context, '/conferences', transition: TransitionType.fadeIn);
+                  router.navigateTo(context, '/conferences',
+                      transition: TransitionType.fadeIn);
                 },
               ),
               new FlatButton(
-                child: new Text("EVENTS", style: TextStyle(fontFamily: "Montserrat", color: Colors.white)),
-                padding: EdgeInsets.only(left: 20, top: 16, bottom: 16, right: 20),
+                child: new Text("EVENTS",
+                    style: TextStyle(
+                        fontFamily: "Montserrat", color: Colors.white)),
+                padding:
+                    EdgeInsets.only(left: 20, top: 16, bottom: 16, right: 20),
                 onPressed: () {
-                  router.navigateTo(context, '/events', transition: TransitionType.fadeIn);
+                  router.navigateTo(context, '/events',
+                      transition: TransitionType.fadeIn);
                 },
               ),
               new FlatButton(
-                child: new Text("CHAT", style: TextStyle(fontFamily: "Montserrat", color: Colors.white)),
-                padding: EdgeInsets.only(left: 20, top: 16, bottom: 16, right: 20),
+                child: new Text("CHAT",
+                    style: TextStyle(
+                        fontFamily: "Montserrat", color: Colors.white)),
+                padding:
+                    EdgeInsets.only(left: 20, top: 16, bottom: 16, right: 20),
                 onPressed: () {
-                  router.navigateTo(context, '/chat', transition: TransitionType.fadeIn);
+                  router.navigateTo(context, '/chat',
+                      transition: TransitionType.fadeIn);
                 },
               ),
-              new Padding(padding: EdgeInsets.all(4.0),),
+              new Padding(
+                padding: EdgeInsets.all(4.0),
+              ),
               new FlatButton(
-                child: new Text("SIGN OUT", style: TextStyle(fontFamily: "Montserrat")),
+                child: new Text("SIGN OUT",
+                    style: TextStyle(fontFamily: "Montserrat")),
                 textColor: Colors.white,
-                padding: EdgeInsets.only(left: 20, top: 16, bottom: 16, right: 20),
+                padding:
+                    EdgeInsets.only(left: 20, top: 16, bottom: 16, right: 20),
                 color: Colors.red,
                 onPressed: () async {
                   await fb.auth().signOut();
                   _localStorage.remove("userID");
-                  router.navigateTo(context, "/", transition: TransitionType.fadeIn, replace: true);
+                  router.navigateTo(context, "/",
+                      transition: TransitionType.fadeIn, replace: true);
                 },
               ),
             ],

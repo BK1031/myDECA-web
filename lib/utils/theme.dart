@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:flutter/src/painting/text_style.dart' as ts;
 
 bool darkMode = false;
 bool darkAppBar = false;
@@ -47,24 +48,11 @@ final mainTheme = new ThemeData(
     accentColor: currAccentColor,
     fontFamily: "Source Sans Pro",
     appBarTheme: new AppBarTheme(
-<<<<<<< Updated upstream
-        textTheme: TextTheme(
-            subtitle1: TextStyle(
-                fontSize: 20.0,
-                fontFamily: "Gotham",
-                color: Colors.white,
-                fontWeight: FontWeight.bold
-            )
-        )
-    )
-);
-=======
         titleTextStyle: TextStyle(
             fontSize: 20.0,
             fontFamily: "Gotham",
             color: Colors.white,
             fontWeight: FontWeight.bold)));
->>>>>>> Stashed changes
 
 final markdownStyle = MarkdownStyleSheet(
   h1: TextStyle(

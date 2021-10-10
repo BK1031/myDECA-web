@@ -15,6 +15,7 @@ import 'package:mydeca_web/pages/auth/login_page.dart';
 import 'package:mydeca_web/pages/home/announcement/announcement_confirm_dialog.dart';
 import 'package:mydeca_web/utils/config.dart';
 import 'package:mydeca_web/utils/theme.dart';
+import 'package:flutter/src/painting/text_style.dart' as ts;
 import 'dart:html' as html;
 
 import 'package:url_launcher/url_launcher.dart';
@@ -106,7 +107,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                       new TextButton(
                         child: new Text(
                           "Back to Meetings",
-                          style: TextStyle(color: mainColor, fontSize: 15),
+                          style: ts.TextStyle(color: mainColor, fontSize: 15),
                         ),
                         onPressed: () {
                           router.navigateTo(context, '/home/meetings',
@@ -125,7 +126,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                         : MediaQuery.of(context).size.width - 50,
                     child: new Text(
                       meeting.name,
-                      style: TextStyle(
+                      style: ts.TextStyle(
                           fontFamily: "Montserrat",
                           fontSize: 30,
                           color: currTextColor),
@@ -149,7 +150,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                       },
                       decoration: InputDecoration(
                           labelText: "Meeting Name", border: InputBorder.none),
-                      style: TextStyle(
+                      style: ts.TextStyle(
                           fontFamily: "Montserrat",
                           fontSize: 30,
                           color: currTextColor),
@@ -175,7 +176,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                                     left: 8, top: 4, bottom: 4, right: 8),
                                 child: new Text(
                                   "LIVE",
-                                  style: TextStyle(
+                                  style: ts.TextStyle(
                                       fontSize: 18, color: Colors.white),
                                 ),
                               ),
@@ -215,7 +216,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                                 padding: EdgeInsets.only(right: 8),
                                 child: new Text(
                                   "Start Time:",
-                                  style: TextStyle(fontSize: 18),
+                                  style: ts.TextStyle(fontSize: 18),
                                 ),
                               ),
                               new Expanded(
@@ -223,7 +224,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                                   padding: EdgeInsets.only(right: 8),
                                   child: new Text(
                                     DateFormat().format(meeting.startTime),
-                                    style: TextStyle(fontSize: 18),
+                                    style: ts.TextStyle(fontSize: 18),
                                   ),
                                 ),
                               ),
@@ -235,7 +236,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                                 padding: EdgeInsets.only(right: 8),
                                 child: new Text(
                                   "End Time:",
-                                  style: TextStyle(fontSize: 18),
+                                  style: ts.TextStyle(fontSize: 18),
                                 ),
                               ),
                               new Expanded(
@@ -243,7 +244,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                                   padding: EdgeInsets.only(right: 8),
                                   child: new Text(
                                     DateFormat().format(meeting.endTime),
-                                    style: TextStyle(fontSize: 18),
+                                    style: ts.TextStyle(fontSize: 18),
                                   ),
                                 ),
                               ),
@@ -256,7 +257,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                                 padding: EdgeInsets.only(right: 8),
                                 child: new Text(
                                   "Meeting URL:",
-                                  style: TextStyle(fontSize: 18),
+                                  style: ts.TextStyle(fontSize: 18),
                                 ),
                               ),
                               new Expanded(
@@ -266,7 +267,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                                     onTap: () => launch(meeting.url),
                                     child: new Text(
                                       meeting.url,
-                                      style: TextStyle(
+                                      style: ts.TextStyle(
                                           fontSize: 17, color: mainColor),
                                     ),
                                   ),
@@ -286,7 +287,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                                   icon: const Icon(Icons.arrow_downward),
                                   iconSize: 24,
                                   elevation: 16,
-                                  style: TextStyle(
+                                  style: ts.TextStyle(
                                       color: (dropdownValue == "Not Present"
                                           ? Colors.red
                                           : Colors.blue)),
@@ -351,7 +352,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                                 padding: EdgeInsets.only(right: 8),
                                 child: new Text(
                                   "Start Time",
-                                  style: TextStyle(fontSize: 18),
+                                  style: ts.TextStyle(fontSize: 18),
                                 ),
                               ),
                               new Expanded(
@@ -392,7 +393,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                                 padding: EdgeInsets.only(right: 8),
                                 child: new Text(
                                   "End Time",
-                                  style: TextStyle(fontSize: 18),
+                                  style: ts.TextStyle(fontSize: 18),
                                 ),
                               ),
                               new Expanded(
