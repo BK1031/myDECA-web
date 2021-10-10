@@ -278,7 +278,7 @@ class _NewAnnouncementPageState extends State<NewAnnouncementPage> {
                             data: announcement.desc,
                             selectable: true,
                             styleSheet: markdownStyle,
-                            onTapLink: (url, a, b) {
+                            onTapLink: (text, url, title) {
                               launch(url);
                             },
                           ),

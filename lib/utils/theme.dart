@@ -48,7 +48,7 @@ final mainTheme = new ThemeData(
     fontFamily: "Source Sans Pro",
     appBarTheme: new AppBarTheme(
         textTheme: TextTheme(
-            title: TextStyle(
+            subtitle1: TextStyle(
                 fontSize: 20.0,
                 fontFamily: "Gotham",
                 color: Colors.white,

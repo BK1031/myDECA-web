@@ -341,9 +341,9 @@ class _MockConferenceWrittenPageState extends State<MockConferenceWrittenPage> {
                           children: [
                             EasyWebView(
                                 src: writtenUrl,
-                                onLoaded: () {
-                                  print('$key: Loaded: $writtenUrl');
-                                },
+                                ///onLoaded: () {
+                                ///  print('$key: Loaded: $writtenUrl');
+                                ///},
                                 key: key),
                           ],
                         ),

@@ -229,7 +229,7 @@ class _AnnouncementDetailsPageState extends State<AnnouncementDetailsPage> {
                     controller: controller,
                     selectable: true,
                     styleSheet: markdownStyle,
-                    onTapLink: (String url, String a, String b) {
+                    onTapLink: (text, url, title) {
                       launch(url);
                     },
                   ),

@@ -372,9 +372,9 @@ class _MockConferenceRoleplayJudgingPageState
                           children: [
                             EasyWebView(
                                 src: roleplayUrl,
-                                onLoaded: () {
-                                  print('$key: Loaded: $roleplayUrl');
-                                },
+                                ///onLoaded: () {
+                                ///  print('$key: Loaded: $roleplayUrl');
+                                ///},
                                 key: key),
                           ],
                         ),

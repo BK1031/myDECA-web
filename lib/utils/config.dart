@@ -8,7 +8,7 @@ Version appVersion = new Version("2.0.1+1");
 String appStatus = "";
 String appFull = "Version ${appVersion.toString()}";
 
-final router = new Router();
+final router = new FluroRouter();
 
 Map<String, List<String>> mockConferenceEvents = {
   "Business Administration Operations Written Event": ["BOR", "BMOR", "FOR"],

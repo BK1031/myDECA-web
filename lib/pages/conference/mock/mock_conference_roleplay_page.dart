@@ -427,9 +427,9 @@ class _MockConferenceRoleplayPageState
                               visible: !blurPrompt,
                               child: EasyWebView(
                                   src: roleplayUrl,
-                                  onLoaded: () {
-                                    print('$key: Loaded: $roleplayUrl');
-                                  },
+                                  ///onLoaded: () {
+                                  ///  print('$key: Loaded: $roleplayUrl');
+                                  ///},
                                   key: key),
                             ),
                           ],

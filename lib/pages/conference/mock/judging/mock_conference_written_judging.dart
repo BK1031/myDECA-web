@@ -377,9 +377,9 @@ class _MockConferenceWrittenJudgingPageState
                           children: [
                             EasyWebView(
                                 src: writtenUrl,
-                                onLoaded: () {
-                                  print('$key: Loaded: $writtenUrl');
-                                },
+                                ///onLoaded: () {
+                                ///  print('$key: Loaded: $writtenUrl');
+                                ///},
                                 key: key),
                           ],
                         ),
