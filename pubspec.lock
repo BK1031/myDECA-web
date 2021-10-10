@@ -14,7 +14,18 @@ packages:
       name: async
       url: "https://pub.dartlang.org"
     source: hosted
+<<<<<<< Updated upstream
     version: "2.8.2"
+=======
+    version: "2.8.1"
+  boolean_selector:
+    dependency: transitive
+    description:
+      name: boolean_selector
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.1.0"
+>>>>>>> Stashed changes
   cached_network_image:
     dependency: "direct main"
     description:
@@ -23,6 +34,8 @@ packages:
     source: hosted
     version: "3.1.0"
   cached_network_image_platform_interface:
+<<<<<<< Updated upstream
+=======
     dependency: transitive
     description:
       name: cached_network_image_platform_interface
@@ -37,19 +50,54 @@ packages:
     source: hosted
     version: "1.0.1"
   characters:
+>>>>>>> Stashed changes
+    dependency: transitive
+    description:
+      name: cached_network_image_platform_interface
+      url: "https://pub.dartlang.org"
+    source: hosted
+<<<<<<< Updated upstream
+    version: "1.0.0"
+  cached_network_image_web:
+=======
+    version: "1.1.0"
+  charcode:
+>>>>>>> Stashed changes
+    dependency: transitive
+    description:
+      name: cached_network_image_web
+      url: "https://pub.dartlang.org"
+    source: hosted
+<<<<<<< Updated upstream
+    version: "1.0.1"
+  characters:
+=======
+    version: "1.3.1"
+  charts_common:
+>>>>>>> Stashed changes
     dependency: transitive
     description:
       name: characters
       url: "https://pub.dartlang.org"
     source: hosted
+<<<<<<< Updated upstream
     version: "1.1.0"
   charcode:
     dependency: transitive
+=======
+    version: "0.11.0"
+  charts_flutter:
+    dependency: "direct main"
+>>>>>>> Stashed changes
     description:
       name: charcode
       url: "https://pub.dartlang.org"
     source: hosted
+<<<<<<< Updated upstream
     version: "1.3.1"
+=======
+    version: "0.11.0"
+>>>>>>> Stashed changes
   clock:
     dependency: transitive
     description:
@@ -71,13 +119,23 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.0.1"
+<<<<<<< Updated upstream
+=======
+  csslib:
+    dependency: transitive
+    description:
+      name: csslib
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.16.2"
+>>>>>>> Stashed changes
   cupertino_icons:
     dependency: transitive
     description:
       name: cupertino_icons
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.1.3"
+    version: "1.0.3"
   datetime_picker_formfield:
     dependency: "direct main"
     description:
@@ -91,7 +149,11 @@ packages:
       name: easy_web_view
       url: "https://pub.dartlang.org"
     source: hosted
+<<<<<<< Updated upstream
     version: "1.0.1"
+=======
+    version: "1.4.0-nullsafety"
+>>>>>>> Stashed changes
   equatable:
     dependency: transitive
     description:
@@ -99,12 +161,26 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.3"
+<<<<<<< Updated upstream
+  ffi:
+=======
+  fake_async:
+>>>>>>> Stashed changes
+    dependency: transitive
+    description:
+      name: ffi
+      url: "https://pub.dartlang.org"
+    source: hosted
+<<<<<<< Updated upstream
+=======
+    version: "1.2.0"
   ffi:
     dependency: transitive
     description:
       name: ffi
       url: "https://pub.dartlang.org"
     source: hosted
+>>>>>>> Stashed changes
     version: "1.1.2"
   file:
     dependency: transitive
@@ -133,6 +209,8 @@ packages:
     source: sdk
     version: "0.0.0"
   flutter_blurhash:
+<<<<<<< Updated upstream
+=======
     dependency: transitive
     description:
       name: flutter_blurhash
@@ -140,7 +218,21 @@ packages:
     source: hosted
     version: "0.6.0"
   flutter_cache_manager:
+>>>>>>> Stashed changes
     dependency: transitive
+    description:
+      name: flutter_blurhash
+      url: "https://pub.dartlang.org"
+    source: hosted
+<<<<<<< Updated upstream
+    version: "0.6.0"
+  flutter_cache_manager:
+    dependency: transitive
+=======
+    version: "3.1.2"
+  flutter_circular_chart:
+    dependency: "direct main"
+>>>>>>> Stashed changes
     description:
       name: flutter_cache_manager
       url: "https://pub.dartlang.org"
@@ -152,7 +244,11 @@ packages:
       name: flutter_dropzone
       url: "https://pub.dartlang.org"
     source: hosted
+<<<<<<< Updated upstream
     version: "3.0.0"
+=======
+    version: "2.1.0"
+>>>>>>> Stashed changes
   flutter_dropzone_platform_interface:
     dependency: transitive
     description:
@@ -166,7 +262,11 @@ packages:
       name: flutter_dropzone_web
       url: "https://pub.dartlang.org"
     source: hosted
+<<<<<<< Updated upstream
     version: "3.0.1"
+=======
+    version: "2.1.1"
+>>>>>>> Stashed changes
   flutter_linkify:
     dependency: "direct main"
     description:
@@ -181,7 +281,11 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.6.6"
+<<<<<<< Updated upstream
   flutter_ui:
+=======
+  flutter_sparkline:
+>>>>>>> Stashed changes
     dependency: "direct main"
     description:
       name: flutter_ui
@@ -193,13 +297,62 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+<<<<<<< Updated upstream
+=======
+  google_maps:
+    dependency: "direct main"
+    description:
+      name: google_maps
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "5.3.0"
+  google_sign_in:
+    dependency: "direct main"
+    description:
+      name: google_sign_in
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "5.1.1"
+  google_sign_in_platform_interface:
+    dependency: transitive
+    description:
+      name: google_sign_in_platform_interface
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.1"
+  google_sign_in_web:
+    dependency: transitive
+    description:
+      name: google_sign_in_web
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.10.0+3"
+  html:
+    dependency: transitive
+    description:
+      name: html
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.14.0+4"
+  html2md:
+    dependency: transitive
+    description:
+      name: html2md
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.5.1"
+>>>>>>> Stashed changes
   http:
     dependency: transitive
     description:
       name: http
       url: "https://pub.dartlang.org"
     source: hosted
+<<<<<<< Updated upstream
     version: "0.13.4"
+=======
+    version: "0.13.3"
+>>>>>>> Stashed changes
   http_parser:
     dependency: transitive
     description:
@@ -228,12 +381,32 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.6.3"
+<<<<<<< Updated upstream
   libphonenumber:
+=======
+  js_wrapping:
+>>>>>>> Stashed changes
     dependency: transitive
     description:
       name: libphonenumber
       url: "https://pub.dartlang.org"
     source: hosted
+<<<<<<< Updated upstream
+    version: "2.0.2"
+  libphonenumber_platform_interface:
+=======
+    version: "0.7.3"
+  libphonenumber:
+>>>>>>> Stashed changes
+    dependency: transitive
+    description:
+      name: libphonenumber_platform_interface
+      url: "https://pub.dartlang.org"
+    source: hosted
+<<<<<<< Updated upstream
+    version: "0.3.1"
+  libphonenumber_plugin:
+=======
     version: "2.0.2"
   libphonenumber_platform_interface:
     dependency: transitive
@@ -257,19 +430,53 @@ packages:
     source: hosted
     version: "0.2.0+1"
   linkify:
+>>>>>>> Stashed changes
+    dependency: transitive
+    description:
+      name: libphonenumber_plugin
+      url: "https://pub.dartlang.org"
+    source: hosted
+<<<<<<< Updated upstream
+    version: "0.2.3"
+  libphonenumber_web:
+=======
+    version: "4.1.0"
+  logging:
+>>>>>>> Stashed changes
+    dependency: transitive
+    description:
+      name: libphonenumber_web
+      url: "https://pub.dartlang.org"
+    source: hosted
+<<<<<<< Updated upstream
+    version: "0.2.0+1"
+  linkify:
+=======
+    version: "1.0.2"
+  markdown:
+>>>>>>> Stashed changes
     dependency: transitive
     description:
       name: linkify
       url: "https://pub.dartlang.org"
     source: hosted
+<<<<<<< Updated upstream
     version: "4.1.0"
   markdown:
+=======
+    version: "4.0.0"
+  matcher:
+>>>>>>> Stashed changes
     dependency: transitive
     description:
       name: markdown
       url: "https://pub.dartlang.org"
     source: hosted
+<<<<<<< Updated upstream
     version: "4.0.0"
+=======
+    version: "0.12.10"
+>>>>>>> Stashed changes
   meta:
     dependency: transitive
     description:
@@ -318,7 +525,11 @@ packages:
       name: path_provider_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
+<<<<<<< Updated upstream
     version: "2.0.1"
+=======
+    version: "2.0.0"
+>>>>>>> Stashed changes
   path_provider_windows:
     dependency: transitive
     description:
@@ -353,7 +564,11 @@ packages:
       name: plugin_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
+<<<<<<< Updated upstream
     version: "2.0.2"
+=======
+    version: "2.0.1"
+>>>>>>> Stashed changes
   process:
     dependency: transitive
     description:
@@ -375,6 +590,16 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.0"
+<<<<<<< Updated upstream
+=======
+  quiver:
+    dependency: transitive
+    description:
+      name: quiver
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.0.1"
+>>>>>>> Stashed changes
   rxdart:
     dependency: transitive
     description:
@@ -408,6 +633,23 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.1+1"
+<<<<<<< Updated upstream
+=======
+  stack_trace:
+    dependency: transitive
+    description:
+      name: stack_trace
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.10.0"
+  stream_channel:
+    dependency: transitive
+    description:
+      name: stream_channel
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.1.0"
+>>>>>>> Stashed changes
   string_scanner:
     dependency: transitive
     description:
@@ -429,6 +671,16 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.2.0"
+<<<<<<< Updated upstream
+=======
+  test_api:
+    dependency: transitive
+    description:
+      name: test_api
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.4.2"
+>>>>>>> Stashed changes
   typed_data:
     dependency: transitive
     description:
@@ -492,6 +744,7 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.0"
+<<<<<<< Updated upstream
   webview_flutter:
     dependency: transitive
     description:
@@ -499,6 +752,66 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.3.24"
+  win32:
+    dependency: transitive
+=======
+  video_player:
+    dependency: "direct main"
+    description:
+      name: video_player
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.2.4"
+  video_player_platform_interface:
+    dependency: transitive
+    description:
+      name: video_player_platform_interface
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "4.2.0"
+  video_player_web:
+    dependency: "direct main"
+    description:
+      name: video_player_web
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.4"
+  webview_flutter:
+    dependency: "direct main"
+>>>>>>> Stashed changes
+    description:
+      name: win32
+      url: "https://pub.dartlang.org"
+    source: hosted
+<<<<<<< Updated upstream
+    version: "2.2.9"
+  xdg_directories:
+=======
+    version: "2.1.0"
+  webview_flutter_android:
+>>>>>>> Stashed changes
+    dependency: transitive
+    description:
+      name: webview_flutter_android
+      url: "https://pub.dartlang.org"
+    source: hosted
+<<<<<<< Updated upstream
+=======
+    version: "2.0.13"
+  webview_flutter_platform_interface:
+    dependency: transitive
+    description:
+      name: webview_flutter_platform_interface
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.0"
+  webview_flutter_wkwebview:
+    dependency: transitive
+    description:
+      name: webview_flutter_wkwebview
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.13"
   win32:
     dependency: transitive
     description:
@@ -512,6 +825,7 @@ packages:
       name: xdg_directories
       url: "https://pub.dartlang.org"
     source: hosted
+>>>>>>> Stashed changes
     version: "0.2.0"
 sdks:
   dart: ">=2.14.0 <3.0.0"

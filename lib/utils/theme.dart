@@ -47,6 +47,7 @@ final mainTheme = new ThemeData(
     accentColor: currAccentColor,
     fontFamily: "Source Sans Pro",
     appBarTheme: new AppBarTheme(
+<<<<<<< Updated upstream
         textTheme: TextTheme(
             subtitle1: TextStyle(
                 fontSize: 20.0,
@@ -57,10 +58,30 @@ final mainTheme = new ThemeData(
         )
     )
 );
+=======
+        titleTextStyle: TextStyle(
+            fontSize: 20.0,
+            fontFamily: "Gotham",
+            color: Colors.white,
+            fontWeight: FontWeight.bold)));
+>>>>>>> Stashed changes
 
 final markdownStyle = MarkdownStyleSheet(
-  h1: TextStyle(fontFamily: "Montserrat", fontSize: 26, color: currTextColor, fontWeight: FontWeight.bold),
-  h2: TextStyle(fontFamily: "Montserrat", fontSize: 22, color: currTextColor, fontWeight: FontWeight.bold),
-  h3: TextStyle(fontFamily: "Montserrat", fontSize: 18, color: currTextColor, fontWeight: FontWeight.bold),
-  p: TextStyle(fontFamily: "Source Sans Pro", fontSize: 18, color: currTextColor),
+  h1: TextStyle(
+      fontFamily: "Montserrat",
+      fontSize: 26,
+      color: currTextColor,
+      fontWeight: FontWeight.bold),
+  h2: TextStyle(
+      fontFamily: "Montserrat",
+      fontSize: 22,
+      color: currTextColor,
+      fontWeight: FontWeight.bold),
+  h3: TextStyle(
+      fontFamily: "Montserrat",
+      fontSize: 18,
+      color: currTextColor,
+      fontWeight: FontWeight.bold),
+  p: TextStyle(
+      fontFamily: "Source Sans Pro", fontSize: 18, color: currTextColor),
 );
