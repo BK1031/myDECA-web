@@ -92,7 +92,7 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
                   "endTime": meeting.endTime.toString(),
                   "url": meeting.url,
                   "topics": topics,
-                  "attendance": ",",
+                  "attendance": "",
                 });
                 router.navigateTo(context, '/home/meetings',
                     transition: TransitionType.fadeIn);
