@@ -28,7 +28,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
   final Storage _localStorage = html.window.localStorage;
   Meeting meeting = new Meeting();
   User currUser = User.plain();
-  String dropdownValue = "Not Present";
+  String dropdownValue = "";
   bool editing = false;
 
   TextEditingController nameController = new TextEditingController();
@@ -46,24 +46,42 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
           .then((value) {
         setState(() {
           currUser = User.fromSnapshot(value.snapshot);
+          setDropDown();
         });
-        if (html.window.location.toString().contains("?id=")) {
-          fb
-              .database()
-              .ref("chapters")
-              .child(currUser.chapter.chapterID)
-              .child("meetings")
-              .child(html.window.location.toString().split("?id=")[1])
-              .once("value")
-              .then((value) {
-            setState(() {
-              meeting = new Meeting.fromSnapshot(value.snapshot);
-              nameController.text = meeting.name;
-              urlController.text = meeting.url;
-            });
-          });
-        }
       });
+    } else {
+      dropdownValue = "Not Present";
+    }
+  }
+
+  void setDropDown() {
+    if (html.window.location.toString().contains("?id=")) {
+      fb
+          .database()
+          .ref("chapters")
+          .child(currUser.chapter.chapterID)
+          .child("meetings")
+          .child(html.window.location.toString().split("?id=")[1])
+          .once("value")
+          .then((value) {
+        setState(() {
+          meeting = new Meeting.fromSnapshot(value.snapshot);
+          nameController.text = meeting.name;
+          urlController.text = meeting.url;
+          if (meeting.attendance.contains(currUser.email)) {
+            int index = meeting.attendance.indexOf(currUser.email);
+            index += (currUser.email.length + 1);
+            while (meeting.attendance[index] != ",") {
+              dropdownValue += meeting.attendance[index];
+              index++;
+            }
+          } else {
+            dropdownValue = "Not Present";
+          }
+        });
+      });
+    } else {
+      dropdownValue = "Not Present";
     }
   }
 
@@ -168,9 +186,11 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                             visible: currUser.roles.contains("Developer") ||
                                 currUser.roles.contains("Advisor") ||
                                 currUser.roles.contains("Officer"),
-                            child: new FlatButton(
+                            child: new TextButton(
                               child: new Text("EDIT MEETING"),
-                              textColor: mainColor,
+                              style: TextButton.styleFrom(
+                                primary: mainColor,
+                              ),
                               onPressed: () {
                                 setState(() {
                                   editing = true;
@@ -280,6 +300,19 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                                     setState(() {
                                       if (dropdownValue == 'Not Present') {
                                         dropdownValue = newValue;
+                                        fb
+                                            .database()
+                                            .ref("chapters")
+                                            .child(currUser.chapter.chapterID)
+                                            .child("meetings")
+                                            .child(meeting.id)
+                                            .update({
+                                          "attendance": meeting.attendance +
+                                              currUser.email +
+                                              ":" +
+                                              dropdownValue +
+                                              ","
+                                        });
                                       }
                                     });
                                   },
@@ -421,9 +454,9 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            new FlatButton(
+                            new TextButton(
                               child: new Text("DELETE MEETING"),
-                              textColor: Colors.red,
+                              style: TextButton.styleFrom(primary: Colors.red),
                               onPressed: () {
                                 setState(() {
                                   editing = false;
@@ -444,9 +477,11 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                             ),
                             Row(
                               children: [
-                                new FlatButton(
+                                new TextButton(
                                   child: new Text("CANCEL"),
-                                  textColor: mainColor,
+                                  style: TextButton.styleFrom(
+                                    primary: mainColor,
+                                  ),
                                   onPressed: () {
                                     setState(() {
                                       editing = false;
@@ -457,10 +492,12 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                                         replace: true);
                                   },
                                 ),
-                                new RaisedButton(
+                                new ElevatedButton(
                                   child: new Text("SAVE CHANGES"),
-                                  textColor: Colors.white,
-                                  color: mainColor,
+                                  style: ElevatedButton.styleFrom(
+                                    primary: mainColor,
+                                    onPrimary: Colors.white,
+                                  ),
                                   onPressed: () {
                                     fb
                                         .database()

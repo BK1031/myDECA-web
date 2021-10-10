@@ -18,26 +18,56 @@ class MeetingPage extends StatefulWidget {
 }
 
 class CurrMeeting extends StatefulWidget {
+  final Storage _localStorage = html.window.localStorage;
   String id;
   DateTime stime;
   DateTime etime;
   String url;
   String name;
+  String dropdown = "";
+  String attend;
+  User currUser = User.plain();
   @override
-  CurrMeeting(
-      String id, DateTime stime, DateTime etime, String url, String name) {
+  CurrMeeting(String id, DateTime stime, DateTime etime, String url,
+      String name, String attend) {
     this.id = id;
     this.stime = stime;
     this.etime = etime;
     this.url = url;
     this.name = name;
+    this.attend = attend;
+    if (_localStorage["userID"] != null) {
+      fb
+          .database()
+          .ref("users")
+          .child(_localStorage["userID"])
+          .once("value")
+          .then((value) {
+        currUser = User.fromSnapshot(value.snapshot);
+        if (attend.contains(currUser.email)) {
+          int index = attend.indexOf(currUser.email);
+          if (index >= 0) {
+            index += (currUser.email.length + 1);
+            while (attend[index] != ",") {
+              dropdown += attend[index];
+              index++;
+            }
+          } else {
+            dropdown = "Not Present";
+          }
+        } else {
+          dropdown = "Not Present";
+        }
+      });
+    } else {
+      dropdown = "Not Present";
+    }
   }
   @override
   _CurrMeeting createState() => _CurrMeeting();
 }
 
 class _CurrMeeting extends State<CurrMeeting> {
-  bool pressedB = false;
   String dropdownValue = "Not Present";
   @override
   Widget build(BuildContext context) {
@@ -80,24 +110,38 @@ class _CurrMeeting extends State<CurrMeeting> {
                         child: Container(
                             padding: EdgeInsets.only(left: 8),
                             child: DropdownButton<String>(
-                              value: dropdownValue,
+                              value: widget.dropdown,
                               icon: const Icon(Icons.arrow_downward),
                               iconSize: 24,
                               elevation: 16,
                               style: TextStyle(
-                                  color: (dropdownValue == "Not Present"
+                                  color: (widget.dropdown == "Not Present"
                                       ? Colors.red
                                       : Colors.blue)),
                               underline: Container(
                                 height: 2,
-                                color: (dropdownValue == "Not Present"
+                                color: (widget.dropdown == "Not Present"
                                     ? Colors.redAccent
                                     : Colors.blueAccent),
                               ),
                               onChanged: (String newValue) {
                                 setState(() {
-                                  if (dropdownValue == 'Not Present') {
-                                    dropdownValue = newValue;
+                                  if (widget.dropdown == 'Not Present') {
+                                    widget.dropdown = newValue;
+                                    fb
+                                        .database()
+                                        .ref("chapters")
+                                        .child(
+                                            widget.currUser.chapter.chapterID)
+                                        .child("meetings")
+                                        .child(widget.id)
+                                        .update({
+                                      "attendance": widget.attend +
+                                          widget.currUser.email +
+                                          ":" +
+                                          widget.dropdown +
+                                          ","
+                                    });
                                   }
                                 });
                               },
@@ -153,7 +197,6 @@ class _CurrMeeting extends State<CurrMeeting> {
 class _MeetingPageState extends State<MeetingPage> {
   final Storage _localStorage = html.window.localStorage;
   User currUser = User.plain();
-
   List<Widget> currentMeetingList = new List();
   List<Widget> pastMeetingList = new List();
   List<Widget> upcomingMeetingList = new List();
@@ -238,14 +281,14 @@ class _MeetingPageState extends State<MeetingPage> {
           } else if (meeting.startTime.isBefore(DateTime.now()) &&
               meeting.endTime.isAfter(DateTime.now())) {
             // Meeting ongoing
-            bool pressedB = false;
             setState(() {
               currentMeetingList.add(new CurrMeeting(
                   meeting.id,
                   meeting.startTime,
                   meeting.endTime,
                   meeting.url,
-                  meeting.name));
+                  meeting.name,
+                  meeting.attendance));
             });
           } else {
             // Meeting past
