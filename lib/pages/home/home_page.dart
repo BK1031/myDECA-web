@@ -18,7 +18,7 @@ import 'package:mydeca_web/utils/button_filled.dart';
 import 'package:mydeca_web/utils/config.dart';
 import 'package:mydeca_web/utils/theme.dart';
 import 'dart:html' as html;
-
+import 'package:flutter/src/painting/text_style.dart' as ts;
 import 'package:url_launcher/url_launcher.dart';
 
 class HomePage extends StatefulWidget {

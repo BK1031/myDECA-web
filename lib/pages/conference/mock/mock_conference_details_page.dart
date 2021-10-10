@@ -22,7 +22,7 @@ import 'package:mydeca_web/utils/theme.dart';
 import 'dart:html' as html;
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:url_launcher/url_launcher.dart';
-
+import 'package:flutter/src/painting/text_style.dart' as ts;
 import 'event_teammate_dialog.dart';
 
 class MockConferenceDetailsPage extends StatefulWidget {
