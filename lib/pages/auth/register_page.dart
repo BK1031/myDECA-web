@@ -16,6 +16,7 @@ import 'package:mydeca_web/utils/theme.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/src/painting/text_style.dart' as ts;
 
 class RegisterPage extends StatefulWidget {
   @override
