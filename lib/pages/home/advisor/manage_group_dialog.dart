@@ -4,7 +4,7 @@ import 'package:mydeca_web/models/user.dart';
 import 'package:firebase/firebase.dart' as fb;
 import 'package:mydeca_web/utils/config.dart';
 import 'package:mydeca_web/utils/theme.dart';
-
+import 'package:flutter/src/painting/text_style.dart' as ts;
 class ManageGroupDialog extends StatefulWidget {
   String id;
   User currUser;

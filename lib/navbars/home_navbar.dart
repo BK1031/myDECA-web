@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase/firebase.dart' as fb;
 import 'package:mydeca_web/utils/config.dart';
 import 'package:mydeca_web/utils/theme.dart';
+import 'package:flutter/src/painting/text_style.dart' as ts;
 import 'dart:html' as html;
 
 class HomeNavbar extends StatefulWidget {

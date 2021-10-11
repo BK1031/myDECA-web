@@ -12,7 +12,7 @@ import 'package:mydeca_web/utils/config.dart';
 import 'package:mydeca_web/utils/theme.dart';
 import 'dart:html' as html;
 import 'package:progress_indicators/progress_indicators.dart';
-
+import 'package:flutter/src/painting/text_style.dart' as ts;
 class ConferencesPage extends StatefulWidget {
   @override
   _ConferencesPageState createState() => _ConferencesPageState();

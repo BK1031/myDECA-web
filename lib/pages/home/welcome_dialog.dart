@@ -4,7 +4,7 @@ import 'package:firebase/firebase.dart' as fb;
 import 'package:mydeca_web/utils/config.dart';
 import 'package:mydeca_web/utils/theme.dart';
 import 'package:url_launcher/url_launcher.dart';
-
+import 'package:flutter/src/painting/text_style.dart' as ts;
 class WelcomeDialog extends StatefulWidget {
   @override
   _WelcomeDialogState createState() => _WelcomeDialogState();

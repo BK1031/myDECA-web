@@ -11,7 +11,7 @@ import 'package:mydeca_web/pages/auth/login_page.dart';
 import 'package:mydeca_web/utils/config.dart';
 import 'package:mydeca_web/utils/theme.dart';
 import 'package:url_launcher/url_launcher.dart';
-
+import 'package:flutter/src/painting/text_style.dart' as ts;
 class MeetingPage extends StatefulWidget {
   @override
   _MeetingPageState createState() => _MeetingPageState();

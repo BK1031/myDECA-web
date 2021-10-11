@@ -4,7 +4,7 @@ import 'package:mydeca_web/models/announcement.dart';
 import 'package:mydeca_web/utils/config.dart';
 import 'package:firebase/firebase.dart' as fb;
 import 'package:mydeca_web/utils/theme.dart';
-
+import 'package:flutter/src/painting/text_style.dart' as ts;
 class AnnouncementConfirmDialog extends StatefulWidget {
   final Announcement announcement;
 

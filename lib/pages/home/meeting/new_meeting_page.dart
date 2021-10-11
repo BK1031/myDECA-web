@@ -16,7 +16,7 @@ import 'package:mydeca_web/pages/home/announcement/announcement_confirm_dialog.d
 import 'package:mydeca_web/utils/config.dart';
 import 'package:mydeca_web/utils/theme.dart';
 import 'dart:html' as html;
-
+import 'package:flutter/src/painting/text_style.dart' as ts;
 class NewMeetingPage extends StatefulWidget {
   @override
   _NewMeetingPageState createState() => _NewMeetingPageState();

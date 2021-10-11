@@ -17,7 +17,7 @@ import 'package:mydeca_web/pages/conference/conference_winner_page.dart';
 import 'package:mydeca_web/utils/config.dart';
 import 'package:mydeca_web/utils/theme.dart';
 import 'dart:html' as html;
-
+import 'package:flutter/src/painting/text_style.dart' as ts;
 class ConferenceSchedulePage extends StatefulWidget {
   String id;
   ConferenceSchedulePage(this.id);

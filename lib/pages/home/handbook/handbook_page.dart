@@ -13,7 +13,7 @@ import '../../../navbars/home_navbar.dart';
 import '../../../utils/config.dart';
 import '../../../utils/theme.dart';
 import '../../auth/login_page.dart';
-
+import 'package:flutter/src/painting/text_style.dart' as ts;
 class HandbookPage extends StatefulWidget {
   @override
   _HandbookPageState createState() => _HandbookPageState();

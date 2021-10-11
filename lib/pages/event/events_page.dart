@@ -11,7 +11,7 @@ import 'package:mydeca_web/pages/auth/login_page.dart';
 import 'package:mydeca_web/utils/config.dart';
 import 'package:mydeca_web/utils/theme.dart';
 import 'dart:html' as html;
-
+import 'package:flutter/src/painting/text_style.dart' as ts;
 import '../../utils/theme.dart';
 import '../../utils/theme.dart';
 

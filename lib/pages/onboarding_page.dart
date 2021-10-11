@@ -12,7 +12,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'dart:html' as html;
 import '../utils/config.dart';
 import '../utils/theme.dart';
-
+import 'package:flutter/src/painting/text_style.dart' as ts;
 class OnboardingPage extends StatefulWidget {
   @override
   _OnboardingPageState createState() => _OnboardingPageState();

@@ -10,7 +10,7 @@ import 'package:mydeca_web/utils/button_flat.dart';
 import 'package:mydeca_web/utils/button_outline.dart';
 import 'package:mydeca_web/utils/config.dart';
 import 'package:mydeca_web/utils/theme.dart';
-
+import 'package:flutter/src/painting/text_style.dart' as ts;
 class MobileSidebar extends StatefulWidget {
   @override
   _MobileSidebarState createState() => _MobileSidebarState();

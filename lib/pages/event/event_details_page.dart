@@ -13,7 +13,7 @@ import 'package:mydeca_web/utils/theme.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'dart:html' as html;
-
+import 'package:flutter/src/painting/text_style.dart' as ts;
 import '../../utils/theme.dart';
 import '../../utils/theme.dart';
 

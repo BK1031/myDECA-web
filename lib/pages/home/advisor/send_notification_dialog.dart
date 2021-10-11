@@ -4,7 +4,7 @@ import 'package:mydeca_web/utils/button_filled.dart';
 import 'package:mydeca_web/utils/config.dart';
 import 'package:mydeca_web/utils/theme.dart';
 import 'package:firebase/firebase.dart' as fb;
-
+import 'package:flutter/src/painting/text_style.dart' as ts;
 class SendNotificationDialog extends StatefulWidget {
   User currUser;
   SendNotificationDialog(this.currUser);
